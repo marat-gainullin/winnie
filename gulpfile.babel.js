@@ -16,6 +16,7 @@ import vinylStream from 'vinyl-source-stream';
 import vinylBuffer from 'vinyl-buffer';
 import uglify from 'gulp-uglify';
 import sourcemaps from 'gulp-sourcemaps';
+import { sync as dataURI } from 'datauri';
 
 const pkg = require('./package.json');
 
@@ -34,8 +35,10 @@ const paths = {
 const masks = {
     scripts: '**/*.js',
     styles: '**/*.css',
-    gifs: '**/*.gif',
-    pngs: '**/*.png'
+    eots: '**/*.eot',
+    svgs: '**/*.svg',
+    ttfs: '**/*.ttf',
+    woffs: '**/*.woff'
 };
 
 // Delete the build directory
@@ -58,8 +61,13 @@ gulp.task('babel', ['clean'], () => gulp.src(masks.scripts, {cwd: paths.src})
 
 gulp.task('code', ['jshint', 'babel'], () => {
 });
-// Process styles, gif images, etc
-gulp.task('assets', ['clean'], () => gulp.src([masks.styles, masks.gifs, masks.pngs], {cwd: paths.src})
+gulp.task('assets', ['clean'], () => gulp.src([
+        masks.styles,
+        masks.eots,
+        masks.svgs,
+        masks.ttfs,
+        masks.woffs
+    ], {cwd: paths.src})
             .pipe(gulp.dest(paths.lib)));
 
 function indexFrom(base) {
@@ -127,7 +135,7 @@ gulp.task('lib', ['code', 'assets', 'package'], () => {
 });
 
 gulp.task('bundle-src', ['clean'], () => {
-    return gulp.src([masks.scripts, masks.styles, masks.gifs, masks.pngs], {cwd: paths.src})
+    return gulp.src([masks.scripts, masks.styles], {cwd: paths.src})
             .pipe(gulp.dest(`${paths.bundle}src`));
 });
 gulp.task('bundle-index', ['clean'], () => {
@@ -138,7 +146,37 @@ gulp.task('bundle-index', ['clean'], () => {
             .pipe(gulp.dest(`${paths.bundle}src`));
 });
 
-gulp.task('generate-bundle', ['bundle-index', 'bundle-src'], () => {
+function content(name, value) {
+    const stream = through.obj((file, encoding, complete) => {
+        file.contents = Buffer.from(value, encoding);
+        stream.push(file);
+        complete();
+    });
+    stream.write(new gulpUtil.File({
+        cwd: '',
+        base: '',
+        path: name,
+        contents: new Buffer('')
+    }));
+    stream.end();
+    return stream;
+}
+
+gulp.task('bundle-html', ['clean'], () => {
+    content(`${pkg.name}.html`, `<!DOCTYPE html>
+<html>
+    <head>
+        <title>${pkg.name} test page</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript" src="${pkg.name}.js"></script>
+    </head>
+    <body>
+    </body>
+</html>`).pipe(gulp.dest(paths.bundle));
+});
+
+gulp.task('generate-bundle', ['bundle-index', 'bundle-src', 'bundle-html'], () => {
     return browserify(`${paths.bundle}src/${pkg.main}`,
             {
                 debug: !!argv.dev // source map generation
@@ -147,8 +185,10 @@ gulp.task('generate-bundle', ['bundle-index', 'bundle-src'], () => {
                 presets: 'env'
             })
             .transform('browserify-css', {
+                rootDir: `${paths.bundle}src/`,
                 minify: true,
-                inlineImages: true
+                inlineImages: true,
+                processRelativeUrl: (url) => dataURI(`${paths.src}${url}`)
             })
             .bundle()
             .pipe(vinylStream(`${pkg.name}.js`))

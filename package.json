@@ -18,6 +18,7 @@
     "browserify-babel-istanbul": "^0.4.0",
     "browserify-css": "^0.12.0",
     "capitalize": "^1.0.0",
+    "datauri": "^1.0.5",
     "eslint": "^4.8.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^7.0.0",
@@ -39,5 +40,12 @@
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.9.0",
     "yargs": "^9.0.1"
+  },
+  "dependencies": {
+    "kenga-buttons": "^0.0.5",
+    "kenga-containers": "^0.0.5",
+    "kenga-grid": "^0.0.3",
+    "kenga-menu": "^0.0.3",
+    "septima-utils": "^0.0.4"
   }
 }

@@ -1,0 +1,30 @@
+	/*
+  	Flaticon icon font: Flaticon
+  	Creation date: 25/10/2017 21:55
+  	*/
+
+@font-face {
+  font-family: "Flaticon";
+  src: url("./Flaticon.eot") format("embedded-opentype"),
+       url("./Flaticon.woff") format("woff"),
+       url("./Flaticon.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="flaticon-"]:before, [class*=" flaticon-"]:before,
+[class^="flaticon-"]:after, [class*=" flaticon-"]:after {   
+  font-family: Flaticon;
+        font-size: 20px;
+font-style: normal;
+margin-left: 20px;
+}
+
+.flaticon-save:before { content: "\f100"; }
+.flaticon-add:before { content: "\f101"; }
+.flaticon-cut:before { content: "\f102"; }
+.flaticon-redo-arrow:before { content: "\f103"; }
+.flaticon-undo-arrow:before { content: "\f104"; }
+.flaticon-paste:before { content: "\f105"; }
+.flaticon-copy:before { content: "\f106"; }
+.flaticon-delete:before { content: "\f107"; }
