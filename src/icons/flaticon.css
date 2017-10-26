@@ -1,23 +1,23 @@
-	/*
-  	Flaticon icon font: Flaticon
-  	Creation date: 25/10/2017 21:55
-  	*/
+/*
+Flaticon icon font: Flaticon
+Creation date: 25/10/2017 21:55
+*/
 
 @font-face {
-  font-family: "Flaticon";
-  src: url("./Flaticon.eot") format("embedded-opentype"),
-       url("./Flaticon.woff") format("woff"),
-       url("./Flaticon.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+    font-family: "Flaticon";
+    src: 
+        url("./Flaticon.eot") format("embedded-opentype"),
+        url("./Flaticon.woff") format("woff"),
+        url("./Flaticon.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
 }
 
 [class^="flaticon-"]:before, [class*=" flaticon-"]:before,
 [class^="flaticon-"]:after, [class*=" flaticon-"]:after {   
-  font-family: Flaticon;
-        font-size: 20px;
-font-style: normal;
-margin-left: 20px;
+    font-family: Flaticon;
+    font-size: 20px;
+    font-style: normal;
 }
 
 .flaticon-save:before { content: "\f100"; }

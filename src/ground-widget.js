@@ -83,6 +83,7 @@ export default function Layout() {
     }
 
     const miAdd = new MenuItem(i18n['winnie.add.name']);
+    miAdd.subMenu = new Menu();
     const miCut = new MenuItem(i18n['winnie.cut.name']);
     const miCopy = new MenuItem(i18n['winnie.copy.name']);
     const miPaste = new MenuItem(i18n['winnie.paste.name']);
@@ -92,7 +93,7 @@ export default function Layout() {
     {
         miCut.icon = withStyle('flaticon-cut');
         miCopy.icon = withStyle('flaticon-copy');
-        miPaste.icon = withStyle('flaticon-pate');
+        miPaste.icon = withStyle('flaticon-paste');
         miUndo.icon = withStyle('flaticon-undo-arrow');
         miRedo.icon = withStyle('flaticon-redo-arrow');
         miRemove.icon = withStyle('flaticon-delete');
@@ -121,6 +122,8 @@ export default function Layout() {
         miCut,
         miCopy,
         miPaste,
+        miUndo,
+        miRedo,
         miRemove,
         propNameColumn,
         propValueColumn,
@@ -128,6 +131,8 @@ export default function Layout() {
         tCut,
         tCopy,
         tPaste,
+        tUndo,
+        tRedo,
         tRemove
     };
 }

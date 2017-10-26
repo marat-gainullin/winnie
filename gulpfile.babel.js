@@ -169,14 +169,19 @@ gulp.task('bundle-html', ['clean'], () => {
         <title>${pkg.name} test page</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script type="text/javascript" src="${pkg.name}.js"></script>
     </head>
     <body>
+        <script type="text/javascript" src="${pkg.name}.js"></script>
     </body>
 </html>`).pipe(gulp.dest(paths.bundle));
 });
 
-gulp.task('generate-bundle', ['bundle-index', 'bundle-src', 'bundle-html'], () => {
+gulp.task('fix-browserify-css', () => {
+    return gulp.src([`${paths.project}/assets/browserify-css/css-transform.js`])
+            .pipe(gulp.dest(`${paths.project}/node_modules/browserify-css`));
+});
+
+gulp.task('generate-bundle', ['bundle-index', 'bundle-src', 'bundle-html', 'fix-browserify-css'], () => {
     return browserify(`${paths.bundle}src/${pkg.main}`,
             {
                 debug: !!argv.dev // source map generation
@@ -188,7 +193,9 @@ gulp.task('generate-bundle', ['bundle-index', 'bundle-src', 'bundle-html'], () =
                 rootDir: `${paths.bundle}src/`,
                 minify: true,
                 inlineImages: true,
-                processRelativeUrl: (url) => dataURI(`${paths.src}${url}`)
+                processRelativeUrl: (url) => {
+                    return dataURI(`${paths.src}${url}`);
+                }
             })
             .bundle()
             .pipe(vinylStream(`${pkg.name}.js`))

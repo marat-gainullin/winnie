@@ -4,6 +4,7 @@ import Ui from 'kenga/utils';
 import Box from 'kenga-containers/box-pane';
 import Flow from 'kenga-containers/flow-pane';
 import Menu from 'kenga-menu/menu';
+import MenuItem from 'kenga-menu/menu-item';
 import Label from 'kenga-labels/label';
 import ground from './ground-widget';
 import i18n from './i18n';
@@ -51,8 +52,6 @@ export default class Winnie {
         this.layout.propNameColumn.field = 'name';
         this.layout.propValueColumn.field = 'value';
         this.layout.propValueColumn.renderer = new MultiTypeRenderer();
-        this.layout.miAdd.onAction = () => {
-        };
         [this.layout.tCut, this.layout.miCut].forEach((w) => {
             enabled.push(() => {
                 w.enabled = self.layout.explorer.selected.length > 0;
@@ -180,7 +179,7 @@ export default class Winnie {
                 categoryName = item.category;
             } else {
                 categoryName = i18n['winnie.category.default'];
-                Logger.info(`Palette item from ${item.from} hs no category, so it goers to default one.`);
+                Logger.info(`Palette item from '${item.from}' hs no category, so it goers to default one.`);
             }
             return categoryName in self._palette ? self._palette[categoryName] : self._palette[categoryName] = category(categoryName);
         }
@@ -189,7 +188,11 @@ export default class Winnie {
             const itemLabel = new Label(item.name);
             itemLabel.horizontalTextPosition = Ui.HorizontalPosition.CENTER;
             itemLabel.verticalTextPosition = Ui.HorizontalPosition.BOTTOM;
-            itemLabel.icon = itemInstance;
+            if (item.iconStyle) {
+                const div = document.createElement('div');
+                div.className = item.iconStyle;
+                itemLabel.icon = div;
+            }
             if ('description' in item) {
                 [itemInstance, itemLabel].forEach((w) => {
                     w.toolTipText = item.description;
@@ -212,7 +215,7 @@ export default class Winnie {
                     items = [items];
                 items.filter((item) => {
                     if (!item.name) {
-                        Logger.info(`Can't add anonymous palette item from ${item.from}. Skipping...`);
+                        Logger.info(`Can't add anonymous palette item from '${item.from}'. Skipping...`);
                         return false;
                     } else if (!item.from) {
                         Logger.info(`Can't add palette item '${item.name}' without 'from' field. Skipping...`);
@@ -240,9 +243,9 @@ export default class Winnie {
                         category.palette.content.add(paletteItem.label);
                         category.menu.add(itemMi);
                     } catch (ex) {
-                        Logger.info(`Can't add palette item ${item.name} from ${item.from} due to exception:`);
+                        Logger.info(`Can't add palette item '${item.name}' from '${item.from}' due to exception:`);
                         Logger.severe(ex);
-                        Logger.info(`Palette item ${item.name} from ${item.from} skipped.`);
+                        Logger.info(`Palette item '${item.name}' from '${item.from}' skipped.`);
                     }
                 });
             }

@@ -3,7 +3,7 @@ import CheckBox from 'kenga-buttons/check-box';
 import Flow from 'kenga-containers/flow-pane';
 
 const model = new Model();
-model.pallete.add(
+model.palette.add([
         {
             widget: CheckBox,
             from: 'kenga-buttons/check-box',
@@ -20,4 +20,7 @@ model.pallete.add(
             //iconStyle: 'kenga-flow-icon',
             category: 'Containers'
         }
-);
+]);
+document.body.appendChild(model.layout.ground.element);
+model.layout.ground.element.style.width = '100%';
+model.layout.ground.element.style.height = '500px';
