@@ -21,6 +21,10 @@ export default function Layout() {
     const palette = new Box(Ui.Orientation.VERTICAL);
     const widgets = new Flow();
     {
+        const widgetColumn = new ColumnNode();
+        widgetColumn.title = 'widget.name'
+        explorer.addColumnNode(widgetColumn);
+        explorer.headerVisible = false;
         explorer.insertable = false;
         properties.insertable = properties.deletable = false;
     }
@@ -72,7 +76,9 @@ export default function Layout() {
         tools.add(tRemove);
     }
     const propNameColumn = new ColumnNode();
+    propNameColumn.title = i18n['winnie.prop.name'];
     const propValueColumn = new ColumnNode();
+    propValueColumn.title = i18n['winnie.prop.value'];
     {
         propNameColumn.readonly = true;
         properties.width = 150;

@@ -10,6 +10,7 @@ import gulpif from 'gulp-if';
 import clean from 'gulp-clean';
 import jshint from 'gulp-jshint';
 import babel from 'gulp-babel';
+import watchify from 'watchify';
 import browserify from 'browserify';
 import babelify from 'babelify';
 import vinylStream from 'vinyl-source-stream';
@@ -70,13 +71,13 @@ gulp.task('assets', ['clean'], () => gulp.src([
     ], {cwd: paths.src})
             .pipe(gulp.dest(paths.lib)));
 
-function indexFrom(base) {
+function indexFrom(base, moduleRefPrefix = '.') {
     const stream = through.obj((file, encoding, complete) => {
         const fileName = file.path.substring(Path.dirname(file.path).length + 1, file.path.length);
         const imported = Capitalize.words(fileName.substring(0, fileName.length - 3)).replace(/-/g, '');
         const path = file.path.substring(base.length).replace(/\\/g, '/');
-        const moduleRef = '.' + path.substring(0, path.length - 3);
-        const exportStmt = `export { default as ${imported} } from '${moduleRef}'`;
+        const moduleRef = moduleRefPrefix + path.substring(0, path.length - 3);
+        const exportStmt = `export { default as ${imported} } from '${moduleRef}';\n`;
         file.contents = Buffer.from(exportStmt, encoding);
         stream.push(file);
         complete();
@@ -105,7 +106,7 @@ function importsToIndex(imports) {
 gulp.task('index', ['clean'], () => {
     return gulp.src([masks.scripts], {cwd: paths.src})
             .pipe(indexFrom(process.cwd() + paths.src))
-            .pipe(gulpConcat(pkg.main, {newLine: ';\n'}))
+            .pipe(gulpConcat(pkg.main))
             .pipe(babel({
                 presets: ['env']
             }))
@@ -134,16 +135,12 @@ gulp.task('package', ['index'], () => gulp.src([
 gulp.task('lib', ['code', 'assets', 'package'], () => {
 });
 
-gulp.task('bundle-src', ['clean'], () => {
-    return gulp.src([masks.scripts, masks.styles], {cwd: paths.src})
-            .pipe(gulp.dest(`${paths.bundle}src`));
-});
 gulp.task('bundle-index', ['clean'], () => {
     return gulp.src([masks.scripts], {cwd: paths.src})
-            .pipe(indexFrom(process.cwd() + paths.src))
-            .pipe(gulpConcat(pkg.main, {newLine: ';\n'}))
-            .pipe(importsToIndex(['./layout.css', './theme.css']))
-            .pipe(gulp.dest(`${paths.bundle}src`));
+            .pipe(indexFrom(process.cwd() + paths.src, '../src'))
+            .pipe(gulpConcat(`bundle-${pkg.main}`))
+            .pipe(importsToIndex(['../src/layout.css', '../src/theme.css']))
+            .pipe(gulp.dest(`${paths.build}`));
 });
 
 function content(name, value) {
@@ -170,7 +167,7 @@ gulp.task('bundle-html', ['clean'], () => {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body>
+    <body style="position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px;">
         <script type="text/javascript" src="${pkg.name}.js"></script>
     </body>
 </html>`).pipe(gulp.dest(paths.bundle));
@@ -181,32 +178,40 @@ gulp.task('fix-browserify-css', () => {
             .pipe(gulp.dest(`${paths.project}/node_modules/browserify-css`));
 });
 
-gulp.task('generate-bundle', ['bundle-index', 'bundle-src', 'bundle-html', 'fix-browserify-css'], () => {
-    return browserify(`${paths.bundle}src/${pkg.main}`,
-            {
-                debug: !!argv.dev // source map generation
-            })
-            .transform('babelify', {
-                presets: 'env'
-            })
-            .transform('browserify-css', {
-                rootDir: `${paths.bundle}src/`,
-                minify: true,
-                inlineImages: true,
-                processRelativeUrl: (url) => {
-                    return dataURI(`${paths.src}${url}`);
-                }
-            })
-            .bundle()
+function watchifyIf(bundler) {
+    return !!argv.watch ? watchify(bundler) : bundler;
+}
+
+const bundler = watchifyIf(browserify(`${paths.build}bundle-${pkg.main}`,
+        {
+            debug: !!argv.dev // source map generation
+        }))
+        .transform('babelify', {
+            presets: 'env'
+        })
+        .transform('browserify-css', {
+            rootDir: `${paths.src}`,
+            minify: true,
+            inlineImages: true,
+            processRelativeUrl: (url) => {
+                const left = url.split('#')[0].split('?')[0];
+                const right = url.substring(left.length, url.length);
+                return `${dataURI(`${paths.src}${left}`)}${right}`;
+            }
+        });
+function bundle() {
+    return bundler.bundle()
             .pipe(vinylStream(`${pkg.name}.js`))
             .pipe(vinylBuffer())
             .pipe(gulpif(!!argv.dev, sourcemaps.init({loadMaps: true})))
             .pipe(gulpif(!!!argv.dev, uglify()))
             .pipe(gulpif(!!argv.dev, sourcemaps.write('.')))
             .pipe(gulp.dest(paths.bundle));
-});
-gulp.task('bundle', ['generate-bundle'], () => gulp.src(`${paths.bundle}src`)
-            .pipe(clean()));
+}
+bundler.on('update', bundle);
+bundler.on('log', gulpUtil.log);
+
+gulp.task('bundle', ['bundle-index', 'bundle-html', 'fix-browserify-css'], bundle);
 
 // Define the default task as a sequence of the above tasks
 gulp.task('default', ['lib']);

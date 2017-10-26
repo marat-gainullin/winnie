@@ -23,4 +23,4 @@ model.palette.add([
 ]);
 document.body.appendChild(model.layout.ground.element);
 model.layout.ground.element.style.width = '100%';
-model.layout.ground.element.style.height = '500px';
+model.layout.ground.element.style.height = '100%';
