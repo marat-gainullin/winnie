@@ -164,6 +164,9 @@ export default class Winnie {
             box.add(content);
             self.layout.palette.add(box);
             const menuItem = new MenuItem(name);
+            const div = document.createElement('div');
+            div.className = 'flaticon-cut flaticon-space';
+            menuItem.icon = div;
             menuItem.subMenu = new Menu();
             self.layout.miAdd.subMenu.add(menuItem);
             return {
@@ -202,11 +205,9 @@ export default class Winnie {
         }
         function menuItemOf(item) {
             const itemMi = new MenuItem(item.name);
-            if ('iconStyle' in item) {
-                const div = document.createElement('div');
-                div.className = item.iconStyle;
-                itemMi.icon = div;
-            }
+            const div = document.createElement('div');
+            div.className = item.iconStyle ? item.iconStyle : 'flaticon-cut flaticon-space';
+            itemMi.icon = div;
             return itemMi;
         }
         return {

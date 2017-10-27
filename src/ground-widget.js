@@ -97,6 +97,7 @@ export default function Layout() {
     const miRedo = new MenuItem(i18n['winnie.redo.name']);
     const miRemove = new MenuItem(i18n['winnie.remove.name']);
     {
+        miAdd.icon = withStyle('flaticon-cut flaticon-space');
         miCut.icon = withStyle('flaticon-cut');
         miCopy.icon = withStyle('flaticon-copy');
         miPaste.icon = withStyle('flaticon-paste');
@@ -104,6 +105,18 @@ export default function Layout() {
         miRedo.icon = withStyle('flaticon-redo-arrow');
         miRemove.icon = withStyle('flaticon-delete');
         
+        [
+            miAdd,
+            miCut,
+            miCopy,
+            miPaste,
+            miUndo,
+            miRedo,
+            miRemove
+        ].forEach((mi) => {
+            mi.iconTextGap = null;
+        });
+
         explorerMenu.add(miAdd);
         explorerMenu.add(new MenuSeparator());
         explorerMenu.add(miCut);

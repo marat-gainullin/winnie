@@ -3,3 +3,118 @@
 @import 'node_modules/kenga-grid/theme.css';
 @import 'node_modules/kenga-menu/theme.css';
 @import './icons/flaticon.css';
+
+/* TODO: remove after kenga-menu update*/
+.p-menu-item > .p-paragraph,
+.p-menu-item > input[type=check],
+.p-menu-item > input[type=radio] {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0px;
+}
+/**/
+
+/* TODO: remove after kenga-labels update*/
+.p-image-paragraph-row > .p-image,
+.p-image-paragraph-row > .p-paragraph {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0px;
+}
+/**/
+
+.flaticon-space {
+    visibility: hidden;
+}
+
+.p-toolbar {
+    background: #4267b2;
+    border-bottom: 1px solid #29487d;
+}
+
+.p-toolbar > button {
+    border: none;
+    background: transparent;
+    color: white;
+}
+
+.p-toolbar > button:disabled {
+    color: gray;
+}
+
+.p-toolbar > button:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.p-image-paragraph > .p-image,
+.p-menu-item > .p-image {
+    font-size: 22px;
+    -webkit-font-smoothing: antialiased;
+}
+
+.p-paragraph {
+    font-family: Helevica, Arial, sans-serif;
+    font-size: 12px;
+    -webkit-font-smoothing: antialiased;
+}
+
+.p-menu-item > .p-image {
+    padding-left: 5px;
+    padding-right: 5px;
+    color: #4b4b4b;
+}
+
+.p-menu-item > .p-paragraph {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-left: 1px solid rgba(0, 0, 0, .15);
+}
+
+.p-menu-separator {
+    border-top: 1px solid rgba(0, 0, 0, .15);
+    margin-left: 32px;
+}
+
+.p-menu {
+    border: 1px solid rgba(0, 0, 0, .15);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, .3);
+    background-color: white;
+}
+
+.p-menu,
+.p-button {
+    border-radius: 3px;
+}
+
+.p-menu-item:hover {
+    background-color: #4267b2;
+}
+
+.p-menu-item-submenu::after {
+    content: "\f100";
+    font-family: Flaticon;
+    font-style: normal;
+    font-size: 10px;
+    color: #4b4b4b;
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    margin-top: -6px;
+}
+
+.p-grid-columns-chevron {
+    background: transparent;
+}
+
+.p-grid-columns-chevron::before {
+    content: "\f101";
+    font-family: Flaticon;
+    font-style: normal;
+    font-size: 14px;
+    color: #4267b2;
+    line-height: normal;
+    position: relative;
+    top: 7px;
+}

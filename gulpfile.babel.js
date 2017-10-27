@@ -167,15 +167,10 @@ gulp.task('bundle-html', ['clean'], () => {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body style="position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px;">
+    <body style="position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; margin: 0px;">
         <script type="text/javascript" src="${pkg.name}.js"></script>
     </body>
 </html>`).pipe(gulp.dest(paths.bundle));
-});
-
-gulp.task('fix-browserify-css', () => {
-    return gulp.src([`${paths.project}/assets/browserify-css/css-transform.js`])
-            .pipe(gulp.dest(`${paths.project}/node_modules/browserify-css`));
 });
 
 function watchifyIf(bundler) {
@@ -211,7 +206,7 @@ function bundle() {
 bundler.on('update', bundle);
 bundler.on('log', gulpUtil.log);
 
-gulp.task('bundle', ['bundle-index', 'bundle-html', 'fix-browserify-css'], bundle);
+gulp.task('bundle', ['bundle-index', 'bundle-html'], bundle);
 
 // Define the default task as a sequence of the above tasks
 gulp.task('default', ['lib']);
