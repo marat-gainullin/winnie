@@ -15,6 +15,6 @@ export default {
         'winnie.save.tooltip': 'Save...',
         'winnie.add.name': 'Add',
         'winnie.category.default': 'Other',
-        'winnie.prop.name': 'Name',
+        'winnie.prop.name': 'Property',
         'winnie.prop.value': 'Value'
 };

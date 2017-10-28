@@ -1,6 +1,7 @@
 import Ui from 'kenga/utils';
 import Grail from 'kenga-containers/holy-grail-pane';
 import Box from 'kenga-containers/box-pane';
+import Split from 'kenga-containers/split-pane';
 import Flow from 'kenga-containers/flow-pane';
 import Toolbar from 'kenga-containers/tool-bar';
 import Scroll from 'kenga-containers/scroll-pane';
@@ -15,11 +16,24 @@ import i18n from './i18n';
 export default function Layout() {
     const ground = new Grail(0, 2);
     const tools = new Toolbar();
+    const palette = new Box(Ui.Orientation.VERTICAL);
     const explorer = new Grid();
+    const paletteExplorerSplit = new Split();
     const explorerMenu = new Menu();
     const properties = new Grid();
-    const palette = new Box(Ui.Orientation.VERTICAL);
     const widgets = new Flow();
+    {
+        // TODO: remove as soon as possible
+        const killMe = new Flow();
+        killMe.background = '#fff';
+        killMe.width = killMe.height = 300;
+        widgets.add(killMe);
+        //
+    }
+    {
+        paletteExplorerSplit.firstWidget = palette;
+        paletteExplorerSplit.secondWidget = explorer;
+    }
     {
         const widgetColumn = new ColumnNode();
         widgetColumn.title = 'widget.name'
@@ -29,11 +43,13 @@ export default function Layout() {
         properties.insertable = properties.deletable = false;
     }
 
-
     const view = new Scroll(widgets);
+    // TODO: remove after kenag-containers update
+    view.element.style.overflow = 'auto';
+    //
     {
         ground.header = tools;
-        ground.leftSide = explorer;
+        ground.leftSide = paletteExplorerSplit;
         ground.content = view;
         ground.rightSide = properties;
     }
@@ -49,6 +65,11 @@ export default function Layout() {
         const div = document.createElement('div');
         div.className = name;
         return div;
+    }
+    function widgetWithStyle(name) {
+        const w = new Flow();
+        w.element.classList.add(name);
+        return w;
     }
     {
         tSave.icon = withStyle('flaticon-save');
@@ -68,11 +89,14 @@ export default function Layout() {
         tRedo.toolTipText = i18n['winnie.redo.tooltip'];
 
         tools.add(tSave);
+        tools.add(widgetWithStyle('p-tool-separator'));
         tools.add(tCut);
         tools.add(tCopy);
         tools.add(tPaste);
+        tools.add(widgetWithStyle('p-tool-separator'));
         tools.add(tUndo);
         tools.add(tRedo);
+        tools.add(widgetWithStyle('p-tool-separator'));
         tools.add(tRemove);
     }
     const propNameColumn = new ColumnNode();
@@ -81,11 +105,12 @@ export default function Layout() {
     propValueColumn.title = i18n['winnie.prop.value'];
     {
         propNameColumn.readonly = true;
-        properties.width = 150;
+        properties.width = 200;
         properties.addColumnNode(propNameColumn);
         properties.addColumnNode(propValueColumn);
-        explorer.width = 150;
+        explorer.width = 300;
         explorer.contextMenu = explorerMenu;
+        view.contextMenu = explorerMenu;
     }
 
     const miAdd = new MenuItem(i18n['winnie.add.name']);

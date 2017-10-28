@@ -29,6 +29,8 @@ export default class Winnie {
         this.edits = [];
         this.editsCursor = 0;
 
+        this.layout.ground.element.classList.add('p-winnie-ground');
+        this.layout.view.element.classList.add('p-winnie-view');
         this.layout.widgets.element.classList.add('p-winnie-widgets');
         this.layout.explorer.data = this.forest;
         this.layout.explorer.parentField = 'parent';
@@ -103,6 +105,7 @@ export default class Winnie {
                 self.remove(self.layout.explorer.selected);
             };
         });
+        check();
         this._palette = {};
     }
 
