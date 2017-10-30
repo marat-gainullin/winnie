@@ -162,14 +162,31 @@ export default class Winnie {
         function category(name) {
             const box = new Box(Ui.Orientation.VERTICAL);
             const header = new Label(name);
-            const content = new Flow();
+            const headerIcon = document.createElement('div');
+            headerIcon.className = 'icon-down-open';
+            header.icon = headerIcon;
+            header.element.classList.add('widget-category-header');
+            
+            const content = new Flow(5, 5);
+            content.element.classList.add('widget-category-content');
             box.add(header);
             box.add(content);
             self.layout.palette.add(box);
+            header.onMouseClick = (evt) => {
+                if(headerIcon.classList.contains('icon-down-open')){
+                    headerIcon.classList.remove('icon-down-open');
+                    headerIcon.classList.add('icon-right-open');
+                    content.height = 0;
+                } else {
+                    headerIcon.classList.remove('icon-right-open');
+                    headerIcon.classList.add('icon-down-open');
+                    content.height = null;
+                }
+            };
             const menuItem = new MenuItem(name);
-            const div = document.createElement('div');
-            div.className = 'flaticon-cut flaticon-space';
-            menuItem.icon = div;
+            const menuIcon = document.createElement('div');
+            menuIcon.className = 'icon-space';
+            menuItem.icon = menuIcon;
             menuItem.subMenu = new Menu();
             self.layout.miAdd.subMenu.add(menuItem);
             return {
@@ -193,12 +210,16 @@ export default class Winnie {
             const itemInstance = new item.widget();
             const itemLabel = new Label(item.name);
             itemLabel.horizontalTextPosition = Ui.HorizontalPosition.CENTER;
-            itemLabel.verticalTextPosition = Ui.HorizontalPosition.BOTTOM;
-            if (item.iconStyle) {
-                const div = document.createElement('div');
-                div.className = item.iconStyle;
-                itemLabel.icon = div;
-            }
+            itemLabel.verticalTextPosition = Ui.VerticalPosition.BOTTOM;
+            const div = document.createElement('div');
+            div.className = item.iconStyle ? item.iconStyle : 'icon-wrench';
+            itemLabel.icon = div;
+            itemLabel.opaque = true;
+            itemLabel.element.classList.add('widget-palette-item');
+            itemLabel.element.draggable = true;
+            // TODO: remove after kenga update
+            itemLabel.background = '#e9ebee';
+            //
             if ('description' in item) {
                 [itemInstance, itemLabel].forEach((w) => {
                     w.toolTipText = item.description;
@@ -209,7 +230,7 @@ export default class Winnie {
         function menuItemOf(item) {
             const itemMi = new MenuItem(item.name);
             const div = document.createElement('div');
-            div.className = item.iconStyle ? item.iconStyle : 'flaticon-cut flaticon-space';
+            div.className = item.iconStyle ? item.iconStyle : 'icon-wrench';
             itemMi.icon = div;
             return itemMi;
         }

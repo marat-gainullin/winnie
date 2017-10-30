@@ -42,10 +42,11 @@
     "yargs": "^9.0.1"
   },
   "dependencies": {
-    "kenga-buttons": "^0.0.6",
-    "kenga-containers": "^0.0.5",
-    "kenga-grid": "^0.0.4",
-    "kenga-menu": "^0.0.4",
+    "kenga": "^0.0.9",
+    "kenga-buttons": "^0.0.7",
+    "kenga-containers": "^0.0.6",
+    "kenga-grid": "^0.0.5",
+    "kenga-menu": "^0.0.5",
     "septima-utils": "^0.0.4"
   }
 }

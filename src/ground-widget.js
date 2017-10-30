@@ -14,7 +14,7 @@ import MenuSeparator from 'kenga-menu/menu-separator';
 import i18n from './i18n';
 
 export default function Layout() {
-    const ground = new Grail(0, 2);
+    const ground = new Grail(0, 0);
     const tools = new Toolbar();
     const palette = new Box(Ui.Orientation.VERTICAL);
     const explorer = new Grid();
@@ -31,6 +31,9 @@ export default function Layout() {
         //
     }
     {
+        paletteExplorerSplit.dividerSize /= 2;
+        paletteExplorerSplit.width = 340;
+        paletteExplorerSplit.orientation = Ui.Orientation.VERTICAL;
         paletteExplorerSplit.firstWidget = palette;
         paletteExplorerSplit.secondWidget = explorer;
     }
@@ -44,9 +47,6 @@ export default function Layout() {
     }
 
     const view = new Scroll(widgets);
-    // TODO: remove after kenag-containers update
-    view.element.style.overflow = 'auto';
-    //
     {
         ground.header = tools;
         ground.leftSide = paletteExplorerSplit;
@@ -72,31 +72,28 @@ export default function Layout() {
         return w;
     }
     {
-        tSave.icon = withStyle('flaticon-save');
+        tSave.icon = withStyle('icon-floppy');
         tSave.toolTipText = i18n['winnie.save.tooltip'];
-        tCut.icon = withStyle('flaticon-cut');
+        tCut.icon = withStyle('icon-scissors');
         tCut.toolTipText = i18n['winnie.cut.tooltip'];
-        tCopy.icon = withStyle('flaticon-copy');
+        tCopy.icon = withStyle('icon-docs');
         tCopy.toolTipText = i18n['winnie.copy.tooltip'];
-        tPaste.icon = withStyle('flaticon-paste');
+        tPaste.icon = withStyle('icon-clipboard');
         tPaste.toolTipText = i18n['winnie.paste.tooltip'];
-        tRemove.icon = withStyle('flaticon-delete');
+        tRemove.icon = withStyle('icon-trash');
         tRemove.toolTipText = i18n['winnie.remove.tooltip'];
 
-        tUndo.icon = withStyle('flaticon-undo-arrow');
+        tUndo.icon = withStyle('icon-reply-1');
         tUndo.toolTipText = i18n['winnie.undo.tooltip'];
-        tRedo.icon = withStyle('flaticon-redo-arrow');
+        tRedo.icon = withStyle('icon-forward-1');
         tRedo.toolTipText = i18n['winnie.redo.tooltip'];
 
         tools.add(tSave);
-        tools.add(widgetWithStyle('p-tool-separator'));
         tools.add(tCut);
         tools.add(tCopy);
         tools.add(tPaste);
-        tools.add(widgetWithStyle('p-tool-separator'));
         tools.add(tUndo);
         tools.add(tRedo);
-        tools.add(widgetWithStyle('p-tool-separator'));
         tools.add(tRemove);
     }
     const propNameColumn = new ColumnNode();
@@ -108,7 +105,6 @@ export default function Layout() {
         properties.width = 200;
         properties.addColumnNode(propNameColumn);
         properties.addColumnNode(propValueColumn);
-        explorer.width = 300;
         explorer.contextMenu = explorerMenu;
         view.contextMenu = explorerMenu;
     }
@@ -122,13 +118,13 @@ export default function Layout() {
     const miRedo = new MenuItem(i18n['winnie.redo.name']);
     const miRemove = new MenuItem(i18n['winnie.remove.name']);
     {
-        miAdd.icon = withStyle('flaticon-cut flaticon-space');
-        miCut.icon = withStyle('flaticon-cut');
-        miCopy.icon = withStyle('flaticon-copy');
-        miPaste.icon = withStyle('flaticon-paste');
-        miUndo.icon = withStyle('flaticon-undo-arrow');
-        miRedo.icon = withStyle('flaticon-redo-arrow');
-        miRemove.icon = withStyle('flaticon-delete');
+        miAdd.icon = withStyle('icon-space');
+        miCut.icon = withStyle('icon-scissors');
+        miCopy.icon = withStyle('icon-docs');
+        miPaste.icon = withStyle('icon-clipboard');
+        miUndo.icon = withStyle('icon-reply-1');
+        miRedo.icon = withStyle('icon-forward-1');
+        miRemove.icon = withStyle('icon-trash');
         
         [
             miAdd,
@@ -156,10 +152,11 @@ export default function Layout() {
     return {
         ground,
         tools,
+        palette,
         explorer,
+        paletteExplorerSplit,
         explorerMenu,
         properties,
-        palette,
         widgets,
         view,
         miAdd,

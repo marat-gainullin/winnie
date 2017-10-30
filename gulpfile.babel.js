@@ -77,7 +77,7 @@ function indexFrom(base, moduleRefPrefix = '.') {
         const imported = Capitalize.words(fileName.substring(0, fileName.length - 3)).replace(/-/g, '');
         const path = file.path.substring(base.length).replace(/\\/g, '/');
         const moduleRef = moduleRefPrefix + path.substring(0, path.length - 3);
-        const exportStmt = `export { default as ${imported} } from '${moduleRef}';\n`;
+        const exportStmt = `export { default as ${imported} } from '${moduleRef}';`;
         file.contents = Buffer.from(exportStmt, encoding);
         stream.push(file);
         complete();
@@ -135,12 +135,23 @@ gulp.task('package', ['index'], () => gulp.src([
 gulp.task('lib', ['code', 'assets', 'package'], () => {
 });
 
+gulp.task('bundle-icons', ['clean'], () => {
+    return gulp.src([
+        '**/*.svg',
+        '**/*.woff',
+        '**/*.woff2',
+        '**/*.ttf',
+        '**/*.eot'
+    ], {cwd: `${paths.src}icons`})
+            .pipe(gulp.dest(`${paths.bundle}icons`));
+});
+
 gulp.task('bundle-index', ['clean'], () => {
     return gulp.src([masks.scripts], {cwd: paths.src})
             .pipe(indexFrom(process.cwd() + paths.src, '../src'))
             .pipe(gulpConcat(`bundle-${pkg.main}`))
             .pipe(importsToIndex(['../src/layout.css', '../src/theme.css']))
-            .pipe(gulp.dest(`${paths.build}`));
+            .pipe(gulp.dest(paths.build));
 });
 
 function content(name, value) {
@@ -187,12 +198,15 @@ const bundler = watchifyIf(browserify(`${paths.build}bundle-${pkg.main}`,
         .transform('browserify-css', {
             rootDir: `${paths.src}`,
             minify: true,
-            inlineImages: true,
-            processRelativeUrl: (url) => {
-                const left = url.split('#')[0].split('?')[0];
-                const right = url.substring(left.length, url.length);
-                return `${dataURI(`${paths.src}${left}`)}${right}`;
-            }
+            inlineImages: true
+                    /*        
+                     ,
+                     processRelativeUrl: (url) => {
+                     const left = url.split('#')[0].split('?')[0];
+                     const right = url.substring(left.length, url.length);
+                     return `${dataURI(`${paths.src}${left}`)}${right}`;
+                     }
+                     */
         });
 function bundle() {
     return bundler.bundle()
@@ -206,7 +220,7 @@ function bundle() {
 bundler.on('update', bundle);
 bundler.on('log', gulpUtil.log);
 
-gulp.task('bundle', ['bundle-index', 'bundle-html'], bundle);
+gulp.task('bundle', ['bundle-index', 'bundle-html', 'bundle-icons'], bundle);
 
 // Define the default task as a sequence of the above tasks
 gulp.task('default', ['lib']);

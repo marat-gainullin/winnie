@@ -2,42 +2,37 @@
 @import 'node_modules/kenga-containers/theme.css';
 @import 'node_modules/kenga-grid/theme.css';
 @import 'node_modules/kenga-menu/theme.css';
-@import './icons/flaticon.css';
+@import './icons/css/fontello.css';
 
-/* TODO: remove after kenga-menu update*/
-.p-menu-item > .p-paragraph,
-.p-menu-item > input[type=check],
-.p-menu-item > input[type=radio] {
-    display: inline-block;
-    vertical-align: middle;
-    margin: 0px;
+.p-image-paragraph-column {
+    text-align: center;
 }
-/**/
 
-/* TODO: remove after kenga-labels update*/
-.p-image-paragraph-row > .p-image,
-.p-image-paragraph-row > .p-paragraph {
-    display: inline-block;
-    vertical-align: middle;
-    margin: 0px;
-}
-/**/
-
-/* TODO: remove after kenga-containers update*/
-.p-flow {
+/* TODO: remove after update of kenga-labels */
+.p-image,
+.p-paragraph {
     line-height: normal;
-    overflow: hidden;
 }
-.p-scroll > .p-widget {
-    position: absolute;
-    left: 0px;
-    top: 0px;
+/**/
+/* TODO: Remove after kenga update */
+.p-widget {
+    font-family: Helevica, Arial, sans-serif;
+}
+/**/
+/* TODO: Remove after kenga-menu update */
+.p-menu-item {
+    white-space: nowrap;
+}
+.p-menu-item > input[type=checkbox] {
+    display: inline-block;
+    vertical-align: middle;
 }
 /**/
 
-.flaticon-space {
+.icon-space {
     visibility: hidden;
 }
+.icon-space:before { content: '\e800'; }
 
 .p-toolbar {
     background: #4267b2;
@@ -58,7 +53,7 @@
 
 .p-toolbar > button > .p-image::before {
     color: white;
-    text-shadow: 1px 1px 2px #505050;
+    text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3);
 }
 
 .p-toolbar > button:active > .p-image::before {
@@ -82,14 +77,12 @@
 
 .p-image-paragraph > .p-image,
 .p-menu-item > .p-image {
-    font-size: 22px;
-    -webkit-font-smoothing: antialiased;
+    font-size: 16px;
 }
 
-.p-paragraph {
-    font-family: Helevica, Arial, sans-serif;
+.p-image-paragraph > .p-paragraph,
+.p-menu-item > .p-paragraph {
     font-size: 12px;
-    -webkit-font-smoothing: antialiased;
 }
 
 .p-menu-item > .p-image {
@@ -128,10 +121,10 @@
 }
 
 .p-menu-item-submenu::after {
-    content: "\f100";
-    font-family: Flaticon;
+    content: '\e802';
+    font-family: fontello;
     font-style: normal;
-    font-size: 10px;
+    font-size: 12px;
     color: #4b4b4b;
     position: absolute;
     right: 5px;
@@ -144,20 +137,14 @@
 }
 
 .p-grid-columns-chevron::before {
-    content: "\f101";
-    font-family: Flaticon;
+    content: '\e809';
+    font-family: fontello;
     font-style: normal;
-    font-size: 14px;
+    font-size: 10px;
     color: #4267b2;
     line-height: normal;
     position: relative;
     top: 7px;
-}
-
-.p-tool-separator {
-    border-left: 1px solid lightgray;
-    height: 25px !important;
-    top: 2px;
 }
 
 .p-winnie-widgets {
@@ -167,6 +154,7 @@
 .p-winnie-widgets > div {
     border: 1px solid rgba(0, 0, 0, .15);
     box-shadow: 0 3px 8px rgba(0, 0, 0, .3);
+    border-radius: 3px;
 }
 
 .p-winnie-view {
@@ -177,3 +165,54 @@
     background: #f6f7f9;
 }
 
+.p-split-divider {
+    cursor: ns-resize;
+    border-top: 1px solid rgba(0, 0, 0, .15);
+    border-bottom: 1px solid rgba(0, 0, 0, .15);
+}
+
+.widget-category-header {
+    border-bottom: 1px solid rgba(0, 0, 0, .15);
+    padding: 5px;
+    margin-left: 10px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.widget-category-header > .p-image {
+    color: #444;
+}
+
+.widget-category-header > .p-paragraph {
+    font-size: 16px;
+    color: #787878;
+}
+.widget-category-header:hover > .p-paragraph {
+    color: #444;
+}
+
+.widget-palette-item > .p-paragraph,
+.widget-palette-item > .p-image {
+    color: #787878;
+}
+
+.widget-palette-item:hover > .p-paragraph,
+.widget-palette-item:hover > .p-image {
+    color: #444;
+}
+
+.widget-palette-item {
+    padding: 5px;
+}
+
+.widget-palette-item > .p-image {
+    font-size: 64px;
+}
+
+.widget-palette-item {
+    background: #e9ebee;
+    border-radius: 3px;
+}
+
+.widget-category-content {
+}
