@@ -8,6 +8,10 @@
     text-align: center;
 }
 
+.icon-scissors:before {
+    transform: scaleY(-1);
+}
+
 /* TODO: remove after update of kenga-labels */
 .p-image,
 .p-paragraph {
@@ -36,6 +40,8 @@
 
 .p-toolbar {
     background: #4267b2;
+    padding-top: 20px;
+    padding-bottom: 20px;
     border-bottom: 1px solid #29487d;
 }
 
@@ -75,12 +81,14 @@
     text-shadow: none;
 }
 
-.p-image-paragraph > .p-image,
+.p-toolbar > .p-image-paragraph > .p-image {
+    font-size: 18px;
+}
+
 .p-menu-item > .p-image {
     font-size: 16px;
 }
 
-.p-image-paragraph > .p-paragraph,
 .p-menu-item > .p-paragraph {
     font-size: 12px;
 }
@@ -175,12 +183,13 @@
     border-bottom: 1px solid rgba(0, 0, 0, .15);
     padding: 5px;
     margin-left: 10px;
-    margin-right: 10px;
+    margin-right: 15px;
     cursor: pointer;
 }
 
 .widget-category-header > .p-image {
     color: #444;
+    font-size: 12px;
 }
 
 .widget-category-header > .p-paragraph {
@@ -189,6 +198,10 @@
 }
 .widget-category-header:hover > .p-paragraph {
     color: #444;
+}
+
+.widget-palette-item > .p-paragraph {
+    font-size: 12px;
 }
 
 .widget-palette-item > .p-paragraph,
@@ -215,4 +228,8 @@
 }
 
 .widget-category-content {
+}
+
+.p-grid-cell {
+    font-size: 12px;
 }

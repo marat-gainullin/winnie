@@ -8,34 +8,40 @@ import MenuItem from 'kenga-menu/menu-item';
 import Label from 'kenga-labels/label';
 import ground from './ground-widget';
 import i18n from './i18n';
+import Wrapper from './winnie-widget';
+import WinnieProperty from './winnie-property';
 import MultiTypeRenderer from './multi-type-renderer';
+
+const defaultObjectInstance = {};
+const defaultArrayInstance = {};
 
 export default class Winnie {
     constructor() {
         const enabled = [];
-        function check() {
+        function checkEnabled() {
             Invoke.later(() => {
-                enabled.forEach((check) => {
-                    check();
+                enabled.forEach((item) => {
+                    item();
                 });
             });
         }
-
+        this.checkEnabled = checkEnabled;
         const self = this;
-
         this.widgets = new Map(); // name -> widget
         this.forest = []; // root widgets
         this.layout = ground();
         this.edits = [];
         this.editsCursor = 0;
-
         this.layout.ground.element.classList.add('p-winnie-ground');
         this.layout.view.element.classList.add('p-winnie-view');
         this.layout.widgets.element.classList.add('p-winnie-widgets');
         this.layout.explorer.data = this.forest;
         this.layout.explorer.parentField = 'parent';
         this.layout.explorer.childrenField = 'children';
-        this.layout.explorer.draggableRows = true;
+        this.layout.explorer.onSelect = (evt) => {
+            self.lastSelected = evt.item;
+            checkEnabled();
+        }
         this.layout.explorer.onDragBefore = (w, before) => {
         };
         this.layout.explorer.onDragInto = (w, into) => {
@@ -48,7 +54,6 @@ export default class Winnie {
         };
         this.layout.explorer.onDropAfter = (w, after) => {
         };
-
         const properties = [];
         this.layout.properties.data = properties;
         this.layout.propNameColumn.field = 'name';
@@ -59,7 +64,7 @@ export default class Winnie {
                 w.enabled = self.layout.explorer.selected.length > 0;
             });
             w.onAction = () => {
-                check();
+                checkEnabled();
                 self.cut();
             };
         });
@@ -68,31 +73,31 @@ export default class Winnie {
                 w.enabled = self.layout.explorer.selected.length > 0;
             });
             w.onAction = () => {
-                check();
+                checkEnabled();
                 self.copy();
             };
         });
         [this.layout.tPaste, this.layout.miPaste].forEach((w) => {
             w.onAction = () => {
-                check();
+                checkEnabled();
                 self.paste();
             };
         });
         [this.layout.tUndo, this.layout.miUndo].forEach((w) => {
             enabled.push(() => {
-                w.enabled = self.layout.explorer.selected.length > 0;
+                w.enabled = self.canUndo;
             });
             w.onAction = () => {
-                check();
+                checkEnabled();
                 self.undo();
             };
         });
         [this.layout.tRedo, this.layout.miRedo].forEach((w) => {
             enabled.push(() => {
-                w.enabled = self.layout.explorer.selected.length > 0;
+                w.enabled = self.canRedo;
             });
             w.onAction = () => {
-                check();
+                checkEnabled();
                 self.redo();
             };
         });
@@ -101,33 +106,98 @@ export default class Winnie {
                 w.enabled = self.layout.explorer.selected.length > 0;
             });
             w.onAction = () => {
-                check();
-                self.remove(self.layout.explorer.selected);
+                checkEnabled();
+                self.removeSelectedWidgets();
             };
         });
-        check();
+        checkEnabled();
         this._palette = {};
     }
 
-    start(w) {
-        this.editsCursor = 0;
-        this.edits = [];
-        edit(w);
-    }
-
-    end() {
-        this.editsCursor = 0;
-        this.edits = [];
-        clear();
-    }
-
-    edit(w) {
-        this.clear();
-        this.layout.widgets.add(w);
-    }
-
     clear() {
+        this.editsCursor = 0;
+        this.edits = [];
         this.layout.widgets.clear();
+        this.widgets.clear();
+        const removed = this.forest.splice(0, this.forest.length);
+        this.layout.explorer.removed(removed);
+        this.layout.properties.data = [];
+    }
+
+    addWidget(item) {
+        const widgetNameBase = item.widget.name.substring(0, 1).toLowerCase() + item.widget.name.substring(1);
+        let widgetName = widgetNameBase;
+        let nameAppempt = 1;
+        while (this.widgets.has(widgetName)) {
+            widgetName = `${widgetNameBase}${nameAppempt++}`;
+        }
+        const created = new Wrapper(new item.widget(), widgetName);
+        this.edit({
+            name: `Add '${item.name}' widget from '${item.from}'`,
+            redo: () => {
+                this.widgets.set(widgetName, created);
+                this.forest.push(created);
+                this.layout.explorer.added(created);
+                this.layout.explorer.goTo(created, true);
+            },
+            undo: () => {
+                this.widgets.delete(widgetName);
+                const createdIndex = this.forest.indexOf(created);
+                const removed = this.forest.splice(createdIndex, 1);
+                this.layout.explorer.unselect(created);
+                this.layout.explorer.removed(created);
+            }
+        });
+        this.checkEnabled();
+    }
+
+    removeSelectedWidgets() {
+        const self = this;
+        function added(item) {
+            self.layout.explorer.unselectAll();
+            self.layout.explorer.select(item);
+            self.layout.explorer.added(item);
+        }
+        function removed(item) {
+            self.layout.explorer.unselect(item);
+            self.layout.explorer.removed(item);
+        }
+        const toRemove = this.layout.explorer.selected;
+        const actions = toRemove.map((item) => {
+            const itemParent = item.parent;
+            const ur = {};
+            ur.redo = () => {
+                const removedAt = itemParent ? itemParent.indexOf(item) : self.forest.indexOf(item);
+                (itemParent ? itemParent.remove(removedAt) : self.forest.splice(removedAt, 1));
+                self.widgets.delete(item.name);
+                removed(item);
+                ur.undo = () => {
+                    self.widgets.set(item.name, item);
+                    if (itemParent) {
+                        itemParent.add(item, removedAt);
+                        added(item);
+                    } else {
+                        self.forest.splice(removedAt, 0, item);
+                        added(item);
+                    }
+                };
+            }
+            return ur;
+        });
+        this.edit({
+            name: `Delete selected (${toRemove.length}) widgets`,
+            redo: () => {
+                actions.forEach((item) => {
+                    item.redo();
+                });
+            },
+            undo: () => {
+                actions.reverse().forEach((item) => {
+                    item.undo();
+                });
+            }
+        });
+        this.checkEnabled();
     }
 
     get canRedo() {
@@ -136,7 +206,11 @@ export default class Winnie {
 
     redo() {
         if (this.canRedo) {
-            this.edits[this.editsCursor++].redo();
+            const item = this.edits[this.editsCursor];
+            item.redo();
+            this.editsCursor++;
+            Logger.info(`Redone undoable edit: ${item.name}.`);
+            this.checkEnabled();
         }
     }
 
@@ -146,15 +220,22 @@ export default class Winnie {
 
     undo() {
         if (this.canUndo) {
-            this.edits[--this.editsCursor].undo();
+            --this.editsCursor;
+            const item = this.edits[this.editsCursor];
+            item.undo();
+            Logger.info(`Undone undoable edit: ${item.name}.`);
+            this.checkEnabled();
         }
     }
 
-    action(body) {
-        const dropped = this.edits.splice(this.editsCursor, this.edits.length - this.editsCursor, body);
-        Logger.info(`Dropped ${dropped.length} editing actions.`);
-        this.editsCursor++;
+    edit(body) {
         body.redo();
+        const dropped = this.edits.splice(this.editsCursor, this.edits.length - this.editsCursor, body);
+        Logger.info(`Added undoable edit: ${body.name}.`);
+        if (dropped.length > 0) {
+            Logger.info(`Dropped ${dropped.length} undoable edits.`);
+        }
+        this.editsCursor++;
     }
 
     get palette() {
@@ -166,14 +247,13 @@ export default class Winnie {
             headerIcon.className = 'icon-down-open';
             header.icon = headerIcon;
             header.element.classList.add('widget-category-header');
-            
             const content = new Flow(5, 5);
             content.element.classList.add('widget-category-content');
             box.add(header);
             box.add(content);
             self.layout.palette.add(box);
             header.onMouseClick = (evt) => {
-                if(headerIcon.classList.contains('icon-down-open')){
+                if (headerIcon.classList.contains('icon-down-open')) {
                     headerIcon.classList.remove('icon-down-open');
                     headerIcon.classList.add('icon-right-open');
                     content.height = 0;
@@ -232,6 +312,9 @@ export default class Winnie {
             const div = document.createElement('div');
             div.className = item.iconStyle ? item.iconStyle : 'icon-wrench';
             itemMi.icon = div;
+            itemMi.onAction = () => {
+                self.addWidget(item);
+            };
             return itemMi;
         }
         return {
@@ -275,5 +358,45 @@ export default class Winnie {
                 });
             }
         };
+    }
+
+    get lastSelected() {
+        return this._lastSelected;
+    }
+
+    set lastSelected(item) {
+        const self = this;
+        if (this._lastSelected !== item) {
+            this._lastSelected = item;
+            this.layout.properties.data = item ? Object.getOwnPropertyNames(item.delegate)
+                    .filter(key =>
+                        typeof item.delegate[key] !== 'function' &&
+                                key !== 'name' &&
+                                key !== 'parent' &&
+                                key !== 'element' &&
+                                key !== 'visibleDisplay' &&
+                                key !== 'winnie.wrapper' &&
+                                !key.startsWith('on')
+                    )
+                    .map((key) => {
+                        const prop = new WinnieProperty(item.delegate, key, newValue => {
+                            const editBody = {
+                                name: `Property '${key}' of widget '${item.name}' change`,
+                                redo: () => {
+                                    const oldValue = item.delegate[key];
+                                    item.delegate[key] = newValue;
+                                    self.layout.properties.changed(prop);
+                                    editBody.undo = () => {
+                                        item.delegate[key] = oldValue;
+                                        self.layout.properties.changed(prop);
+                                    }
+                                }
+                            };
+                            self.edit(editBody);
+                            self.checkEnabled();
+                        });
+                        return prop;
+                    }) : [];
+        }
     }
 }

@@ -18,6 +18,7 @@ export default function Layout() {
     const tools = new Toolbar();
     const palette = new Box(Ui.Orientation.VERTICAL);
     const explorer = new Grid();
+    const widgetColumn = new ColumnNode();
     const paletteExplorerSplit = new Split();
     const explorerMenu = new Menu();
     const properties = new Grid();
@@ -31,6 +32,8 @@ export default function Layout() {
         //
     }
     {
+        widgetColumn.width = 300;
+        widgetColumn.field = 'name';
         paletteExplorerSplit.dividerSize /= 2;
         paletteExplorerSplit.width = 340;
         paletteExplorerSplit.orientation = Ui.Orientation.VERTICAL;
@@ -38,11 +41,14 @@ export default function Layout() {
         paletteExplorerSplit.secondWidget = explorer;
     }
     {
-        const widgetColumn = new ColumnNode();
         widgetColumn.title = 'widget.name'
         explorer.addColumnNode(widgetColumn);
         explorer.headerVisible = false;
-        explorer.insertable = false;
+        explorer.insertable = explorer.deletable = false;
+        explorer.draggableRows = true;
+        explorer.showHorizontalLines = 
+        explorer.showVerticalLines = 
+        explorer.showOddRowsInOtherColor = false;
         properties.insertable = properties.deletable = false;
     }
 
@@ -98,8 +104,10 @@ export default function Layout() {
     }
     const propNameColumn = new ColumnNode();
     propNameColumn.title = i18n['winnie.prop.name'];
+    propNameColumn.field = 'name';
     const propValueColumn = new ColumnNode();
     propValueColumn.title = i18n['winnie.prop.value'];
+    propValueColumn.field = 'value';
     {
         propNameColumn.readonly = true;
         properties.width = 200;
@@ -153,6 +161,7 @@ export default function Layout() {
         ground,
         tools,
         palette,
+        widgetColumn,
         explorer,
         paletteExplorerSplit,
         explorerMenu,
