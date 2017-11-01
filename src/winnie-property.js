@@ -1,9 +1,10 @@
 export default class WinnieProperty {
 
-    constructor(target, name, onChange) {
+    constructor(target, name, onChange, defaultValue) {
         this.target = target;
         this.name = name;
         this.onChange = onChange;
+        this.defaultValue = defaultValue;
     }
 
     get value() {
@@ -15,5 +16,9 @@ export default class WinnieProperty {
         if (oldValue !== newValue) {
             this.onChange(newValue);
         }
+    }
+    
+    get edited(){
+        return this.value !== this.defaultValue;
     }
 }

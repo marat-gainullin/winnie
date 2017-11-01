@@ -1,22 +1,25 @@
 import Invoke from 'septima-utils/invoke';
 import Logger from 'septima-utils/logger';
 import Ui from 'kenga/utils';
+import KeyCodes from 'kenga/key-codes';
 import Box from 'kenga-containers/box-pane';
 import Flow from 'kenga-containers/flow-pane';
 import Menu from 'kenga-menu/menu';
 import MenuItem from 'kenga-menu/menu-item';
 import Label from 'kenga-labels/label';
-import ground from './ground-widget';
+import ground from './ground';
 import i18n from './i18n';
 import Wrapper from './winnie-widget';
 import WinnieProperty from './winnie-property';
-import MultiTypeRenderer from './multi-type-renderer';
-
-const defaultObjectInstance = {};
-const defaultArrayInstance = {};
+import reWidth from './rewidth';
+import propValueOnRender from './props-render';
 
 export default class Winnie {
     constructor() {
+        function widgetColumnRewidth() {
+            // TODO: Ensure proper work with expanded explorer tree
+            self.layout.widgetColumn.width = self.layout.explorer.width - self.layout.widgetColumn.column.padding;
+        }
         const enabled = [];
         function checkEnabled() {
             Invoke.later(() => {
@@ -24,6 +27,7 @@ export default class Winnie {
                     item();
                 });
             });
+            widgetColumnRewidth();
         }
         this.checkEnabled = checkEnabled;
         const self = this;
@@ -54,11 +58,20 @@ export default class Winnie {
         };
         this.layout.explorer.onDropAfter = (w, after) => {
         };
-        const properties = [];
-        this.layout.properties.data = properties;
+        reWidth(this.layout.paletteExplorerSplit, self.layout.leftSizer, this.layout.view, 1, widgetColumnRewidth);
+        reWidth(this.layout.propertiesBox, self.layout.rightSizer, this.layout.view, -1, () => {
+            self.layout.propNameColumn.width = (self.layout.propertiesBox.width - 30) / 2;
+            self.layout.propValueColumn.width = (self.layout.propertiesBox.width - 30) / 2;
+        });
+
         this.layout.propNameColumn.field = 'name';
         this.layout.propValueColumn.field = 'value';
-        this.layout.propValueColumn.renderer = new MultiTypeRenderer();
+        this.layout.propNameColumn.onRender = (item, viewCell) => {
+            if (item.edited) {
+                viewCell.classList.add('winnie-property-edited');
+            }
+        };
+        this.layout.propValueColumn.onRender = propValueOnRender;
         [this.layout.tCut, this.layout.miCut].forEach((w) => {
             enabled.push(() => {
                 w.enabled = self.layout.explorer.selected.length > 0;
@@ -124,28 +137,60 @@ export default class Winnie {
         this.layout.properties.data = [];
     }
 
-    addWidget(item) {
+    addWidget(item, defaultInstance) {
+        const self = this;
         const widgetNameBase = item.widget.name.substring(0, 1).toLowerCase() + item.widget.name.substring(1);
         let widgetName = widgetNameBase;
         let nameAppempt = 1;
         while (this.widgets.has(widgetName)) {
             widgetName = `${widgetNameBase}${nameAppempt++}`;
         }
-        const created = new Wrapper(new item.widget(), widgetName);
+        const created = new Wrapper(new item.widget(), widgetName, defaultInstance, (newName) => {
+            if (self.widgets.has(newName)) {
+                alert(i18n['winnie.name.used']);
+                self.layout.explorer.abortEditing();
+                return created.name;
+            } else if (newName.match(/^[a-zA-Z_][a-zA-Z_0-9]*$/)) {
+                const oldName = created.name;
+                self.edit({
+                    name: `Rename widget '${oldName}' as '${newName}'`,
+                    redo: () => {
+                        self.widgets.delete(oldName);
+                        created._name = newName;
+                        self.widgets.set(newName, created);
+                        self.layout.explorer.changed(created);
+                        self.layout.explorer.goTo(created, true);
+                    },
+                    undo: () => {
+                        self.widgets.delete(newName);
+                        created._name = oldName;
+                        self.widgets.set(oldName, created);
+                        self.layout.explorer.changed(created);
+                        self.layout.explorer.goTo(created, true);
+                    }
+                });
+                self.checkEnabled();
+                return newName;
+            } else {
+                alert(i18n['winnie.bad.name']);
+                self.layout.explorer.abortEditing();
+                return created.name;
+            }
+        });
         this.edit({
             name: `Add '${item.name}' widget from '${item.from}'`,
             redo: () => {
-                this.widgets.set(widgetName, created);
-                this.forest.push(created);
-                this.layout.explorer.added(created);
-                this.layout.explorer.goTo(created, true);
+                self.widgets.set(widgetName, created);
+                self.forest.push(created);
+                self.layout.explorer.added(created);
+                self.layout.explorer.goTo(created, true);
             },
             undo: () => {
-                this.widgets.delete(widgetName);
-                const createdIndex = this.forest.indexOf(created);
-                const removed = this.forest.splice(createdIndex, 1);
-                this.layout.explorer.unselect(created);
-                this.layout.explorer.removed(created);
+                self.widgets.delete(widgetName);
+                const createdIndex = self.forest.indexOf(created);
+                const removed = self.forest.splice(createdIndex, 1);
+                self.layout.explorer.unselect(created);
+                self.layout.explorer.removed(created);
             }
         });
         this.checkEnabled();
@@ -209,7 +254,7 @@ export default class Winnie {
             const item = this.edits[this.editsCursor];
             item.redo();
             this.editsCursor++;
-            Logger.info(`Redone undoable edit: ${item.name}.`);
+            Logger.info(`Redone edit: ${item.name}.`);
             this.checkEnabled();
         }
     }
@@ -223,7 +268,7 @@ export default class Winnie {
             --this.editsCursor;
             const item = this.edits[this.editsCursor];
             item.undo();
-            Logger.info(`Undone undoable edit: ${item.name}.`);
+            Logger.info(`Undone edit: ${item.name}.`);
             this.checkEnabled();
         }
     }
@@ -231,9 +276,9 @@ export default class Winnie {
     edit(body) {
         body.redo();
         const dropped = this.edits.splice(this.editsCursor, this.edits.length - this.editsCursor, body);
-        Logger.info(`Added undoable edit: ${body.name}.`);
+        Logger.info(`Recorded edit: ${body.name}.`);
         if (dropped.length > 0) {
-            Logger.info(`Dropped ${dropped.length} undoable edits.`);
+            Logger.info(`Dropped ${dropped.length} edits.`);
         }
         this.editsCursor++;
     }
@@ -287,7 +332,6 @@ export default class Winnie {
             return categoryName in self._palette ? self._palette[categoryName] : self._palette[categoryName] = category(categoryName);
         }
         function paletteItemOf(item) {
-            const itemInstance = new item.widget();
             const itemLabel = new Label(item.name);
             itemLabel.horizontalTextPosition = Ui.HorizontalPosition.CENTER;
             itemLabel.verticalTextPosition = Ui.VerticalPosition.BOTTOM;
@@ -301,20 +345,15 @@ export default class Winnie {
             itemLabel.background = '#e9ebee';
             //
             if ('description' in item) {
-                [itemInstance, itemLabel].forEach((w) => {
-                    w.toolTipText = item.description;
-                });
+                itemLabel.toolTipText = item.description;
             }
-            return {label: itemLabel, instance: itemInstance};
+            return itemLabel;
         }
         function menuItemOf(item) {
             const itemMi = new MenuItem(item.name);
             const div = document.createElement('div');
             div.className = item.iconStyle ? item.iconStyle : 'icon-wrench';
             itemMi.icon = div;
-            itemMi.onAction = () => {
-                self.addWidget(item);
-            };
             return itemMi;
         }
         return {
@@ -337,18 +376,24 @@ export default class Winnie {
                 }).forEach((item) => {
                     try {
                         const paletteItem = paletteItemOf(item);
-                        const itemMi = menuItemOf(item);
+                        const itemMi = menuItemOf(item, paletteItem.instance);
+                        const defaultInstance = new item.widget();
+                        itemMi.onAction = () => {
+                            self.addWidget(item, defaultInstance);
+                        };
                         const category = categoryOf(item);
                         category.items.push({
                             palette: paletteItem,
                             mi: itemMi,
+                            widget: item.widget,
                             from: item.from,
                             name: item.name,
+                            defaultInstance,
                             description: item.description,
                             style: item.style,
                             category,
                         });
-                        category.palette.content.add(paletteItem.label);
+                        category.palette.content.add(paletteItem);
                         category.menu.add(itemMi);
                     } catch (ex) {
                         Logger.info(`Can't add palette item '${item.name}' from '${item.from}' due to exception:`);
@@ -368,35 +413,49 @@ export default class Winnie {
         const self = this;
         if (this._lastSelected !== item) {
             this._lastSelected = item;
-            this.layout.properties.data = item ? Object.getOwnPropertyNames(item.delegate)
-                    .filter(key =>
-                        typeof item.delegate[key] !== 'function' &&
-                                key !== 'name' &&
-                                key !== 'parent' &&
-                                key !== 'element' &&
-                                key !== 'visibleDisplay' &&
-                                key !== 'winnie.wrapper' &&
-                                !key.startsWith('on')
-                    )
-                    .map((key) => {
-                        const prop = new WinnieProperty(item.delegate, key, newValue => {
-                            const editBody = {
-                                name: `Property '${key}' of widget '${item.name}' change`,
-                                redo: () => {
-                                    const oldValue = item.delegate[key];
-                                    item.delegate[key] = newValue;
-                                    self.layout.properties.changed(prop);
-                                    editBody.undo = () => {
-                                        item.delegate[key] = oldValue;
-                                        self.layout.properties.changed(prop);
-                                    }
-                                }
-                            };
-                            self.edit(editBody);
-                            self.checkEnabled();
-                        });
-                        return prop;
-                    }) : [];
+            if (item) {
+                if (item.sheet) {
+                    this.layout.properties.data = item.sheet;
+                } else {
+                    this.layout.properties.data = item.sheet = Object.getOwnPropertyNames(item.delegate)
+                            .filter(key =>
+                                typeof item.delegate[key] !== 'function' &&
+                                        key !== 'name' &&
+                                        key !== 'parent' &&
+                                        key !== 'element' &&
+                                        key !== 'font' &&
+                                        key !== 'visibleDisplay' &&
+                                        key !== 'winnie.wrapper' &&
+                                        !key.startsWith('on')
+                            )
+                            .map((key) => {
+                                const prop = new WinnieProperty(item.delegate, key, newValue => {
+                                    const editBody = {
+                                        name: `Property '${key}' of widget '${item.name}' change`,
+                                        redo: () => {
+                                            const oldValue = item.delegate[key];
+                                            item.delegate[key] = newValue;
+                                            if (!prop.silent) {
+                                                self.layout.properties.changed(prop);
+                                                self.layout.properties.goTo(prop, true);
+                                            }
+                                            prop.silent = false;
+                                            editBody.undo = () => {
+                                                item.delegate[key] = oldValue;
+                                                self.layout.properties.changed(prop);
+                                                self.layout.properties.goTo(prop, true);
+                                            }
+                                        }
+                                    };
+                                    self.edit(editBody);
+                                    self.checkEnabled();
+                                }, item.defaultInstance[key]);
+                                return prop;
+                            });
+                }
+            } else {
+                this.layout.properties.data = [];
+            }
         }
     }
 }

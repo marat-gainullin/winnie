@@ -1,4 +1,5 @@
 import Ui from 'kenga/utils';
+import Label from 'kenga-labels/label';
 import Grail from 'kenga-containers/holy-grail-pane';
 import Box from 'kenga-containers/box-pane';
 import Split from 'kenga-containers/split-pane';
@@ -14,13 +15,22 @@ import MenuSeparator from 'kenga-menu/menu-separator';
 import i18n from './i18n';
 
 export default function Layout() {
-    const ground = new Grail(0, 0);
+    const ground = new Grail();
     const tools = new Toolbar();
     const palette = new Box(Ui.Orientation.VERTICAL);
     const explorer = new Grid();
     const widgetColumn = new ColumnNode();
+    const leftBox = new Box();
+    const leftSizer = new Flow();
+    leftSizer.element.classList.add('winnie-left-sizer');
+    const rightBox = new Box();
+    const rightSizer = new Flow();
+    rightSizer.element.classList.add('winnie-right-sizer');
     const paletteExplorerSplit = new Split();
     const explorerMenu = new Menu();
+    const propertiesBox = new Grail();
+    const propertiesHeader = new Label(i18n['winnie.properties.header']);
+    propertiesHeader.element.classList.add('winnie-properties-header');
     const properties = new Grid();
     const widgets = new Flow();
     {
@@ -32,15 +42,7 @@ export default function Layout() {
         //
     }
     {
-        widgetColumn.width = 300;
         widgetColumn.field = 'name';
-        paletteExplorerSplit.dividerSize /= 2;
-        paletteExplorerSplit.width = 340;
-        paletteExplorerSplit.orientation = Ui.Orientation.VERTICAL;
-        paletteExplorerSplit.firstWidget = palette;
-        paletteExplorerSplit.secondWidget = explorer;
-    }
-    {
         widgetColumn.title = 'widget.name'
         explorer.addColumnNode(widgetColumn);
         explorer.headerVisible = false;
@@ -49,15 +51,46 @@ export default function Layout() {
         explorer.showHorizontalLines = 
         explorer.showVerticalLines = 
         explorer.showOddRowsInOtherColor = false;
+        explorer.contextMenu = explorerMenu;
+        paletteExplorerSplit.dividerSize /= 2;
+        paletteExplorerSplit.width = 340;
+        paletteExplorerSplit.orientation = Ui.Orientation.VERTICAL;
+        paletteExplorerSplit.firstWidget = palette;
+        paletteExplorerSplit.secondWidget = explorer;
+    }
+    
+    const propNameColumn = new ColumnNode();
+    const propValueColumn = new ColumnNode();
+    {
+        propertiesBox.width = 200;
+        propNameColumn.width = (propertiesBox.width - 30) / 2;
+        propValueColumn.width = (propertiesBox.width - 30) / 2;
+        propNameColumn.title = i18n['winnie.prop.name'];
+        propNameColumn.field = 'name';
+        propValueColumn.title = i18n['winnie.prop.value'];
+        propValueColumn.field = 'value';
+        propNameColumn.readonly = true;
+        properties.addColumnNode(propNameColumn);
+        properties.addColumnNode(propValueColumn);
         properties.insertable = properties.deletable = false;
+        properties.headerVisible = false;
+        propertiesBox.header = propertiesHeader;
+        propertiesBox.content = properties;
     }
 
     const view = new Scroll(widgets);
     {
+        view.contextMenu = explorerMenu;
+        
+        leftBox.add(paletteExplorerSplit);
+        leftBox.add(leftSizer);
+        rightBox.add(rightSizer);
+        rightBox.add(propertiesBox);
+        
         ground.header = tools;
-        ground.leftSide = paletteExplorerSplit;
+        ground.leftSide = leftBox;
         ground.content = view;
-        ground.rightSide = properties;
+        ground.rightSide = rightBox;
     }
 
     const tSave = new Button();
@@ -71,11 +104,6 @@ export default function Layout() {
         const div = document.createElement('div');
         div.className = name;
         return div;
-    }
-    function widgetWithStyle(name) {
-        const w = new Flow();
-        w.element.classList.add(name);
-        return w;
     }
     {
         tSave.icon = withStyle('icon-floppy');
@@ -101,20 +129,6 @@ export default function Layout() {
         tools.add(tUndo);
         tools.add(tRedo);
         tools.add(tRemove);
-    }
-    const propNameColumn = new ColumnNode();
-    propNameColumn.title = i18n['winnie.prop.name'];
-    propNameColumn.field = 'name';
-    const propValueColumn = new ColumnNode();
-    propValueColumn.title = i18n['winnie.prop.value'];
-    propValueColumn.field = 'value';
-    {
-        propNameColumn.readonly = true;
-        properties.width = 200;
-        properties.addColumnNode(propNameColumn);
-        properties.addColumnNode(propValueColumn);
-        explorer.contextMenu = explorerMenu;
-        view.contextMenu = explorerMenu;
     }
 
     const miAdd = new MenuItem(i18n['winnie.add.name']);
@@ -164,8 +178,14 @@ export default function Layout() {
         widgetColumn,
         explorer,
         paletteExplorerSplit,
+        leftBox,
+        leftSizer,
         explorerMenu,
+        propertiesBox,
+        propertiesHeader,
         properties,
+        rightBox,
+        rightSizer,
         widgets,
         view,
         miAdd,
