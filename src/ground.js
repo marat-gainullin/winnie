@@ -22,15 +22,12 @@ export default function Layout() {
     const widgetColumn = new ColumnNode();
     const leftBox = new Box();
     const leftSizer = new Flow();
-    leftSizer.element.classList.add('winnie-left-sizer');
     const rightBox = new Box();
     const rightSizer = new Flow();
-    rightSizer.element.classList.add('winnie-right-sizer');
     const paletteExplorerSplit = new Split();
     const explorerMenu = new Menu();
     const propertiesBox = new Grail();
     const propertiesHeader = new Label(i18n['winnie.properties.header']);
-    propertiesHeader.element.classList.add('winnie-properties-header');
     const properties = new Grid();
     const widgets = new Flow();
     {

@@ -25,6 +25,10 @@ class WidgetWrapper {
         return this.delegate.children ? this.delegate.children().map((child) => child['winnie.wrapper']) : [];
     }
 
+    get count(){
+        return this.delegate.count;
+    }
+
     indexOf(subject) {
         return this.delegate.indexOf(subject.delegate);
     }

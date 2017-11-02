@@ -1,6 +1,7 @@
 import Invoke from 'septima-utils/invoke';
 import Logger from 'septima-utils/logger';
 import Ui from 'kenga/utils';
+import Container from 'kenga/container';
 import KeyCodes from 'kenga/key-codes';
 import Box from 'kenga-containers/box-pane';
 import Flow from 'kenga-containers/flow-pane';
@@ -36,6 +37,11 @@ export default class Winnie {
         this.layout = ground();
         this.edits = [];
         this.editsCursor = 0;
+        this.layout.leftSizer.element.classList.add('p-winnie-left-sizer');
+        this.layout.rightSizer.element.classList.add('p-winnie-right-sizer');
+        this.layout.propertiesHeader.element.classList.add('p-winnie-properties-header');
+        this.layout.palette.element.classList.add('p-winnie-palette');
+        this.layout.explorer.element.classList.add('p-winnie-explorer');
         this.layout.ground.element.classList.add('p-winnie-ground');
         this.layout.view.element.classList.add('p-winnie-view');
         this.layout.widgets.element.classList.add('p-winnie-widgets');
@@ -52,12 +58,88 @@ export default class Winnie {
         };
         this.layout.explorer.onDragAfter = (w, after) => {
         };
+        function isParent(parent, child) {
+            while (child.parent && child.parent !== parent) {
+                child = child.parent;
+            }
+            return !!child.parent;
+        }
+
+        function move(w, dest, addAt) {
+            if (!dest || dest.delegate instanceof Container) {
+                if (w !== dest) {
+                    if (!dest || !isParent(w, dest)) {
+                        const source = w.parent;
+                        const removeAt = source ? source.indexOf(w) : self.forest.indexOf(w);
+                        if(source === dest && addAt > removeAt){
+                            addAt--;
+                        }
+                        if (source !== dest || removeAt !== addAt) {
+                            const ur = {
+                                name: `Move widget '${w.name}' to container '${dest ? dest.name : '[forest]'}' at position ${addAt}`,
+                                redo: () => {
+                                    if (source) {
+                                        source.remove(removeAt);
+                                    } else {
+                                        self.forest.splice(removeAt, 1);
+                                    }
+                                    if (dest) {
+                                        dest.add(w, addAt);
+                                    } else {
+                                        self.forest.splice(addAt, 0, w);
+                                    }
+                                    self.layout.explorer.removed(w);
+                                    self.layout.explorer.added(w);
+                                    self.layout.explorer.goTo(w, true);
+                                    ur.undo = () => {
+                                        if (dest) {
+                                            dest.remove(addAt);
+                                        } else {
+                                            self.forest.splice(addAt, 1);
+                                        }
+                                        if (source) {
+                                            source.add(w, removeAt);
+                                        } else {
+                                            self.forest.splice(removeAt, 0, w);
+                                        }
+                                        self.layout.explorer.removed(w);
+                                        self.layout.explorer.added(w);
+                                        self.layout.explorer.goTo(w, true);
+                                    }
+                                }
+                            };
+                            self.edit(ur);
+                        } else {
+                            Logger.info(`Widget '${w.name}' is a child of '${dest ? dest.name : '[forest]'}' already at the same position.`);
+                        }
+                    } else {
+                        Logger.info(`Can't add widget '${w.name}' to widget '${dest ? dest.name : '[forest]'}'. Widget '${w.name}' is parent of '${dest ? dest.name : '[forest]'}'.`);
+                    }
+                } else {
+                    Logger.info(`Can't add widget '${w.name}' to itself.'`);
+                }
+            } else {
+                Logger.info(`Can't add widget '${w.name}' to widget '${dest.name}'. Widget '${dest.name}' should be a container.`);
+            }
+        }
+
+        this.layout.explorer.onDropInto = (w, dest) => {
+            move(w, dest, dest.count);
+        };
+
         this.layout.explorer.onDropBefore = (w, before) => {
+            const dest = before.parent;
+            const addAt = dest ? dest.indexOf(before) : self.forest.indexOf(before);
+            move(w, dest, addAt);
         };
-        this.layout.explorer.onDropInto = (w, into) => {
-        };
+
         this.layout.explorer.onDropAfter = (w, after) => {
+            const dest = after.parent;
+            const addAt = dest ? dest.indexOf(after) : self.forest.indexOf(after);
+            move(w, dest, addAt + 1);
         };
+
+
         reWidth(this.layout.paletteExplorerSplit, self.layout.leftSizer, this.layout.view, 1, widgetColumnRewidth);
         reWidth(this.layout.propertiesBox, self.layout.rightSizer, this.layout.view, -1, () => {
             self.layout.propNameColumn.width = (self.layout.propertiesBox.width - 30) / 2;
@@ -68,7 +150,7 @@ export default class Winnie {
         this.layout.propValueColumn.field = 'value';
         this.layout.propNameColumn.onRender = (item, viewCell) => {
             if (item.edited) {
-                viewCell.classList.add('winnie-property-edited');
+                viewCell.classList.add('p-winnie-property-edited');
             }
         };
         this.layout.propValueColumn.onRender = propValueOnRender;

@@ -40,8 +40,8 @@
 
 .p-toolbar {
     background: #4267b2;
-    padding-top: 20px;
-    padding-bottom: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     border-bottom: 1px solid #29487d;
 }
 
@@ -49,8 +49,7 @@
 .p-toolbar > button {
     border: none;
     background: transparent;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 10px;
 }
 
 .p-toolbar > button:hover {
@@ -160,13 +159,13 @@
 }
 
 .p-winnie-widgets > div {
-    border: 1px solid rgba(0, 0, 0, .15);
     box-shadow: 0 3px 8px rgba(0, 0, 0, .3);
     border-radius: 3px;
 }
 
 .p-winnie-view {
     background: #e9ebee;
+    border: 1px solid rgba(0, 0, 0, .15);
 }
 
 .p-winnie-ground {
@@ -175,8 +174,6 @@
 
 .p-split-divider {
     cursor: ns-resize;
-    border-top: 1px solid rgba(0, 0, 0, .15);
-    border-bottom: 1px solid rgba(0, 0, 0, .15);
 }
 
 .widget-category-header {
@@ -234,21 +231,33 @@
     font-size: 12px;
 }
 
-.winnie-properties-header{
+.p-winnie-properties-header{
     font-size: 12px;
     font-weight: bold;
     color: #444;
 }
 
-.winnie-left-sizer,
-.winnie-right-sizer {
+.p-winnie-left-sizer,
+.p-winnie-right-sizer {
     padding-left: 5px;
-    border-left: 1px solid rgba(0, 0, 0, .15);
-    border-right: 1px solid rgba(0, 0, 0, .15);
     cursor: ew-resize;
 }
 
-.winnie-property-edited {
+.p-winnie-right-sizer {
+    border-right: 1px solid rgba(0, 0, 0, .15);
+}
+
+.p-winnie-palette {
+    border-right: 1px solid rgba(0, 0, 0, .15);
+    border-bottom: 1px solid rgba(0, 0, 0, .15);
+}
+
+.p-winnie-explorer {
+    border-right: 1px solid rgba(0, 0, 0, .15);
+    border-top: 1px solid rgba(0, 0, 0, .15);
+}
+
+.p-winnie-property-edited {
     font-weight: bold;
 }
 
