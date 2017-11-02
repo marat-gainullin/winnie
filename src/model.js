@@ -15,6 +15,19 @@ import WinnieProperty from './winnie-property';
 import reWidth from './rewidth';
 import propValueOnRender from './props-render';
 
+const hiddenProps = new Set([
+    'name',
+    'parent',
+    'element',
+    'font',
+    'count',
+    'attached',
+    'font', // TODO: Remove this line when font selector will be implemented
+    'contextMenu', // TODO: Remove this line when widget selector will be implemented
+    'visibleDisplay',
+    'winnie.wrapper'
+]);
+
 export default class Winnie {
     constructor() {
         function widgetColumnRewidth() {
@@ -71,7 +84,7 @@ export default class Winnie {
                     if (!dest || !isParent(w, dest)) {
                         const source = w.parent;
                         const removeAt = source ? source.indexOf(w) : self.forest.indexOf(w);
-                        if(source === dest && addAt > removeAt){
+                        if (source === dest && addAt > removeAt) {
                             addAt--;
                         }
                         if (source !== dest || removeAt !== addAt) {
@@ -223,9 +236,9 @@ export default class Winnie {
         const self = this;
         const widgetNameBase = item.widget.name.substring(0, 1).toLowerCase() + item.widget.name.substring(1);
         let widgetName = widgetNameBase;
-        let nameAppempt = 1;
+        let nameAttempt = 1;
         while (this.widgets.has(widgetName)) {
-            widgetName = `${widgetNameBase}${nameAppempt++}`;
+            widgetName = `${widgetNameBase}${nameAttempt++}`;
         }
         const created = new Wrapper(new item.widget(), widgetName, defaultInstance, (newName) => {
             if (self.widgets.has(newName)) {
@@ -373,9 +386,9 @@ export default class Winnie {
             const headerIcon = document.createElement('div');
             headerIcon.className = 'icon-down-open';
             header.icon = headerIcon;
-            header.element.classList.add('widget-category-header');
+            header.element.classList.add('p-widget-category-header');
             const content = new Flow(5, 5);
-            content.element.classList.add('widget-category-content');
+            content.element.classList.add('p-widget-category-content');
             box.add(header);
             box.add(content);
             self.layout.palette.add(box);
@@ -421,7 +434,7 @@ export default class Winnie {
             div.className = item.iconStyle ? item.iconStyle : 'icon-wrench';
             itemLabel.icon = div;
             itemLabel.opaque = true;
-            itemLabel.element.classList.add('widget-palette-item');
+            itemLabel.element.classList.add('p-widget-palette-item');
             itemLabel.element.draggable = true;
             // TODO: remove after kenga update
             itemLabel.background = '#e9ebee';
@@ -502,12 +515,7 @@ export default class Winnie {
                     this.layout.properties.data = item.sheet = Object.getOwnPropertyNames(item.delegate)
                             .filter(key =>
                                 typeof item.delegate[key] !== 'function' &&
-                                        key !== 'name' &&
-                                        key !== 'parent' &&
-                                        key !== 'element' &&
-                                        key !== 'font' &&
-                                        key !== 'visibleDisplay' &&
-                                        key !== 'winnie.wrapper' &&
+                                        !hiddenProps.has(key) &&
                                         !key.startsWith('on')
                             )
                             .map((key) => {

@@ -52,8 +52,8 @@ export default function Layout() {
         paletteExplorerSplit.dividerSize /= 2;
         paletteExplorerSplit.width = 340;
         paletteExplorerSplit.orientation = Ui.Orientation.VERTICAL;
-        paletteExplorerSplit.firstWidget = palette;
-        paletteExplorerSplit.secondWidget = explorer;
+        paletteExplorerSplit.first = palette;
+        paletteExplorerSplit.second = explorer;
     }
     
     const propNameColumn = new ColumnNode();

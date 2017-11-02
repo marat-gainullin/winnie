@@ -14,6 +14,7 @@ import FlowPane from 'kenga-containers/flow-pane';
 import GridPane from 'kenga-containers/grid-pane';
 import HolyGrailPane from 'kenga-containers/holy-grail-pane';
 import ScrollPane from 'kenga-containers/scroll-pane';
+import SplitPane from 'kenga-containers/split-pane';
 import TabbedPane from 'kenga-containers/tabbed-pane';
 import Toolbar from 'kenga-containers/tool-bar';
 
@@ -127,10 +128,16 @@ export default [
         description: 'Container of a single child and scroll bars'
     },
     {
+        widget: SplitPane, from: 'kenga-containers/split-pane',
+        category: 'Special containers',
+        name: 'Split',
+        description: 'Container with two widgets and splitter.'
+    },
+    {
         widget: DesktopPane, from: 'kenga-containers/desktop-pane',
         category: 'Special containers',
         name: 'Desktop',
-        description: 'Container of internal windows. Multi document UI hos.'
+        description: 'Container of internal windows. Multi document UI host.'
     },
     {
         widget: ButtonGroup, from: 'kenga-containers/button-group',

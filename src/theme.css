@@ -8,10 +8,6 @@
     text-align: center;
 }
 
-.icon-scissors:before {
-    transform: scaleY(-1);
-}
-
 /* TODO: remove after update of kenga-labels */
 .p-image,
 .p-paragraph {
@@ -32,6 +28,10 @@
     vertical-align: middle;
 }
 /**/
+
+.icon-scissors:before {
+    transform: scaleY(-1);
+}
 
 .icon-space {
     visibility: hidden;
@@ -176,7 +176,7 @@
     cursor: ns-resize;
 }
 
-.widget-category-header {
+.p-widget-category-header {
     border-bottom: 1px solid rgba(0, 0, 0, .15);
     padding: 5px;
     margin-left: 10px;
@@ -184,47 +184,47 @@
     cursor: pointer;
 }
 
-.widget-category-header > .p-image {
+.p-widget-category-header > .p-image {
     color: #444;
     font-size: 12px;
 }
 
-.widget-category-header > .p-paragraph {
+.p-widget-category-header > .p-paragraph {
     font-size: 16px;
     color: #787878;
 }
-.widget-category-header:hover > .p-paragraph {
+.p-widget-category-header:hover > .p-paragraph {
     color: #444;
 }
 
-.widget-palette-item > .p-paragraph {
+.p-widget-palette-item > .p-paragraph {
     font-size: 12px;
 }
 
-.widget-palette-item > .p-paragraph,
-.widget-palette-item > .p-image {
+.p-widget-palette-item > .p-paragraph,
+.p-widget-palette-item > .p-image {
     color: #787878;
 }
 
-.widget-palette-item:hover > .p-paragraph,
-.widget-palette-item:hover > .p-image {
+.p-widget-palette-item:hover > .p-paragraph,
+.p-widget-palette-item:hover > .p-image {
     color: #444;
 }
 
-.widget-palette-item {
+.p-widget-palette-item {
     padding: 5px;
 }
 
-.widget-palette-item > .p-image {
+.p-widget-palette-item > .p-image {
     font-size: 64px;
 }
 
-.widget-palette-item {
+.p-widget-palette-item {
     background: #e9ebee;
     border-radius: 3px;
 }
 
-.widget-category-content {
+.p-widget-category-content {
 }
 
 .p-grid-cell {
@@ -267,6 +267,6 @@
 }
 
 .p-holy-grail-column {
-    /* TODO: Review of display of Holly Grail container */
+    /* TODO: Review of display of Holly Grail container in all containers*/
     display: flex !important;
 }
