@@ -5,6 +5,7 @@ import Container from 'kenga/container';
 import KeyCodes from 'kenga/key-codes';
 import Box from 'kenga-containers/box-pane';
 import Flow from 'kenga-containers/flow-pane';
+import Grid from 'kenga-containers/grid-pane';
 import Menu from 'kenga-menu/menu';
 import MenuItem from 'kenga-menu/menu-item';
 import Label from 'kenga-labels/label';
@@ -83,47 +84,51 @@ export default class Winnie {
                 if (w !== dest) {
                     if (!dest || !isParent(w, dest)) {
                         const source = w.parent;
-                        const removeAt = source ? source.indexOf(w) : self.forest.indexOf(w);
-                        if (source === dest && addAt > removeAt) {
-                            addAt--;
-                        }
-                        if (source !== dest || removeAt !== addAt) {
-                            const ur = {
-                                name: `Move widget '${w.name}' to container '${dest ? dest.name : '[forest]'}' at position ${addAt}`,
-                                redo: () => {
-                                    if (source) {
-                                        source.remove(removeAt);
-                                    } else {
-                                        self.forest.splice(removeAt, 1);
-                                    }
-                                    if (dest) {
-                                        dest.add(w, addAt);
-                                    } else {
-                                        self.forest.splice(addAt, 0, w);
-                                    }
-                                    self.layout.explorer.removed(w);
-                                    self.layout.explorer.added(w);
-                                    self.layout.explorer.goTo(w, true);
-                                    ur.undo = () => {
-                                        if (dest) {
-                                            dest.remove(addAt);
-                                        } else {
-                                            self.forest.splice(addAt, 1);
-                                        }
+                        if (!dest || !dest.full || dest === source) {
+                            const removeAt = source ? source.indexOf(w) : self.forest.indexOf(w);
+                            if (source === dest && addAt > removeAt) {
+                                addAt--;
+                            }
+                            if (source !== dest || removeAt !== addAt) {
+                                const ur = {
+                                    name: `Move widget '${w.name}' to container '${dest ? dest.name : '[forest]'}' at position ${addAt}`,
+                                    redo: () => {
                                         if (source) {
-                                            source.add(w, removeAt);
+                                            source.remove(removeAt);
                                         } else {
-                                            self.forest.splice(removeAt, 0, w);
+                                            self.forest.splice(removeAt, 1);
+                                        }
+                                        if (dest) {
+                                            dest.add(w, addAt);
+                                        } else {
+                                            self.forest.splice(addAt, 0, w);
                                         }
                                         self.layout.explorer.removed(w);
                                         self.layout.explorer.added(w);
                                         self.layout.explorer.goTo(w, true);
+                                        ur.undo = () => {
+                                            if (dest) {
+                                                dest.remove(addAt);
+                                            } else {
+                                                self.forest.splice(addAt, 1);
+                                            }
+                                            if (source) {
+                                                source.add(w, removeAt);
+                                            } else {
+                                                self.forest.splice(removeAt, 0, w);
+                                            }
+                                            self.layout.explorer.removed(w);
+                                            self.layout.explorer.added(w);
+                                            self.layout.explorer.goTo(w, true);
+                                        }
                                     }
-                                }
-                            };
-                            self.edit(ur);
+                                };
+                                self.edit(ur);
+                            } else {
+                                Logger.info(`Widget '${w.name}' is a child of '${dest ? dest.name : '[forest]'}' already at the same position.`);
+                            }
                         } else {
-                            Logger.info(`Widget '${w.name}' is a child of '${dest ? dest.name : '[forest]'}' already at the same position.`);
+                            Logger.info(`Can't add widget '${w.name}' to widget '${dest ? dest.name : '[forest]'}'. ${dest ? dest.name : '[forest]'}' is full and can't accept more children.`);
                         }
                     } else {
                         Logger.info(`Can't add widget '${w.name}' to widget '${dest ? dest.name : '[forest]'}'. Widget '${w.name}' is parent of '${dest ? dest.name : '[forest]'}'.`);
@@ -240,7 +245,21 @@ export default class Winnie {
         while (this.widgets.has(widgetName)) {
             widgetName = `${widgetNameBase}${nameAttempt++}`;
         }
-        const created = new Wrapper(new item.widget(), widgetName, defaultInstance, (newName) => {
+        function produce(constr) {
+            if (constr === Grid) {
+                const input = prompt(i18n['winnie.grid.dimensions']);
+                const matched = input.match(/(\d+),\s*(\d+)/);
+                if (matched) {
+                    return new Grid(+matched[1], +matched[2]);
+                } else {
+                    throw `Provided text: '${input}' is not useful.`;
+                }
+            } else {
+                return new constr();
+            }
+        }
+
+        const created = new Wrapper(produce(item.widget), widgetName, defaultInstance, (newName) => {
             if (self.widgets.has(newName)) {
                 alert(i18n['winnie.name.used']);
                 self.layout.explorer.abortEditing();

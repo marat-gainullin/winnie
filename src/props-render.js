@@ -66,8 +66,9 @@ function onRender(item, viewCell) {
         Ui.on(viewCell.firstElementChild, Ui.Events.CLICK, event => {
             event.stopPropagation();
         });
+    } else if (typeof item.value === 'object') {
+        viewCell.innerHTML = item.value && item.value['winnie.wrapper'] && item.value['winnie.wrapper'].name ? item.value['winnie.wrapper'].name : '';
     }
 }
-;
 
 export default onRender;
