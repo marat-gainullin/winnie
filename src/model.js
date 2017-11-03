@@ -3,12 +3,14 @@ import Logger from 'septima-utils/logger';
 import Ui from 'kenga/utils';
 import Container from 'kenga/container';
 import KeyCodes from 'kenga/key-codes';
+import Label from 'kenga-labels/label';
 import Box from 'kenga-containers/box-pane';
 import Flow from 'kenga-containers/flow-pane';
 import Grid from 'kenga-containers/grid-pane';
 import Menu from 'kenga-menu/menu';
 import MenuItem from 'kenga-menu/menu-item';
-import Label from 'kenga-labels/label';
+import DataGrid from 'kenga-grid/grid';
+import ColumnNode from 'kenga-grid/columns/column-node';
 import ground from './ground';
 import i18n from './i18n';
 import Wrapper from './winnie-widget';
@@ -16,17 +18,54 @@ import WinnieProperty from './winnie-property';
 import reWidth from './rewidth';
 import propValueOnRender from './props-render';
 
-const hiddenProps = new Set([
+const generalHiddenProps = new Set([
     'name',
+    'data',
     'parent',
     'element',
-    'font',
     'count',
     'attached',
     'font', // TODO: Remove this line when font selector will be implemented
     'contextMenu', // TODO: Remove this line when widget selector will be implemented
+    'buttonGroup', // TODO: Remove this line when widget selector will be implemented
     'visibleDisplay',
     'winnie.wrapper'
+]);
+const datagridColumnsHiddenProps = new Set([
+    'children',
+    'childrenNodes',
+    'depthRemainder',
+    'leavesCount',
+    'leaf',
+    'column',
+    'view',
+    'renderer',
+    'editor'
+]);
+const datagridHiddenProps = new Set([
+    'headerLeft',
+    'headerRight',
+    'frozenLeft',
+    'frozenRight',
+    'bodyLeft',
+    'bodyRight',
+    'footerLeft',
+    'footerRight',
+    'onRender',
+    'selected',
+    'dynamicCellClassName',
+    'renderingThrottle',
+    'renderingPadding',
+    'activeEditor',
+    'rows',
+    'columns',
+    'viewRows',
+    'header',
+    'treeIndicatorColumn',
+    'columnNodesCount',
+    'columnsCount',
+    'focusedRow',
+    'focusedColumn'
 ]);
 
 export default class Winnie {
@@ -65,7 +104,7 @@ export default class Winnie {
         this.layout.explorer.onSelect = (evt) => {
             self.lastSelected = evt.item;
             checkEnabled();
-        }
+        };
         this.layout.explorer.onDragBefore = (w, before) => {
         };
         this.layout.explorer.onDragInto = (w, into) => {
@@ -80,7 +119,10 @@ export default class Winnie {
         }
 
         function move(w, dest, addAt) {
-            if (!dest || dest.delegate instanceof Container) {
+            if (!dest ||
+                    dest.delegate instanceof Container ||
+                    dest.delegate instanceof DataGrid && w.delegate instanceof ColumnNode ||
+                    dest.delegate instanceof ColumnNode && w.delegate instanceof ColumnNode) {
                 if (w !== dest) {
                     if (!dest || !isParent(w, dest)) {
                         const source = w.parent;
@@ -120,7 +162,7 @@ export default class Winnie {
                                             self.layout.explorer.removed(w);
                                             self.layout.explorer.added(w);
                                             self.layout.explorer.goTo(w, true);
-                                        }
+                                        };
                                     }
                                 };
                                 self.edit(ur);
@@ -167,6 +209,7 @@ export default class Winnie {
         this.layout.propNameColumn.field = 'name';
         this.layout.propValueColumn.field = 'value';
         this.layout.propNameColumn.onRender = (item, viewCell) => {
+            viewCell.title = item.name;
             if (item.edited) {
                 viewCell.classList.add('p-winnie-property-edited');
             }
@@ -327,7 +370,11 @@ export default class Winnie {
             const ur = {};
             ur.redo = () => {
                 const removedAt = itemParent ? itemParent.indexOf(item) : self.forest.indexOf(item);
-                (itemParent ? itemParent.remove(removedAt) : self.forest.splice(removedAt, 1));
+                if (itemParent) {
+                    itemParent.remove(removedAt);
+                } else {
+                    self.forest.splice(removedAt, 1);
+                }
                 self.widgets.delete(item.name);
                 removed(item);
                 ur.undo = () => {
@@ -340,7 +387,7 @@ export default class Winnie {
                         added(item);
                     }
                 };
-            }
+            };
             return ur;
         });
         this.edit({
@@ -534,7 +581,10 @@ export default class Winnie {
                     this.layout.properties.data = item.sheet = Object.getOwnPropertyNames(item.delegate)
                             .filter(key =>
                                 typeof item.delegate[key] !== 'function' &&
-                                        !hiddenProps.has(key) &&
+                                        !generalHiddenProps.has(key) &&
+                                        (!(item.delegate instanceof DataGrid) || !datagridHiddenProps.has(key)) &&
+                                        (!(item.delegate instanceof ColumnNode) || !datagridColumnsHiddenProps.has(key)) &&
+                                        !generalHiddenProps.has(key) &&
                                         !key.startsWith('on')
                             )
                             .map((key) => {
@@ -553,7 +603,7 @@ export default class Winnie {
                                                 item.delegate[key] = oldValue;
                                                 self.layout.properties.changed(prop);
                                                 self.layout.properties.goTo(prop, true);
-                                            }
+                                            };
                                         }
                                     };
                                     self.edit(editBody);

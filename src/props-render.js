@@ -3,8 +3,16 @@ import KeyCodes from 'kenga/key-codes';
 
 const NULL_COLOR = '#e9ebee';
 
+const colorProps = new Set([
+    'background',
+    'foreground',
+    'oddRowsColor',
+    'evenRowsColor',
+    'linesColor'
+]);
+
 function onRender(item, viewCell) {
-    if (item.name === 'background' || item.name === 'foreground') {
+    if (colorProps.has(item.name)) {
         viewCell.innerHTML = '';
         const input = document.createElement('input');
         input.type = 'color';
@@ -50,8 +58,7 @@ function onRender(item, viewCell) {
                 item.name === 'left' ||
                 item.name === 'top' ||
                 item.name === 'width' ||
-                item.name === 'height'
-                ? '0.01' : '1';
+                item.name === 'height' ? '0.01' : '1';
         Ui.on(input, Ui.Events.CHANGE, event => {
             item.silent = true;
             const parsed = parseFloat(input.value);

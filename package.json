@@ -45,8 +45,12 @@
     "kenga": "^0.0.9",
     "kenga-buttons": "^0.0.7",
     "kenga-containers": "^0.0.6",
+    "kenga-fields": "^0.0.5",
     "kenga-grid": "^0.0.5",
+    "kenga-labels": "^0.0.6",
     "kenga-menu": "^0.0.5",
+    "kenga-model-buttons": "^0.0.3",
+    "kenga-model-fields": "^0.0.3",
     "septima-utils": "^0.0.4"
   }
 }

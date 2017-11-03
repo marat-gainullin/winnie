@@ -40,7 +40,7 @@ export default function Layout() {
     }
     {
         widgetColumn.field = 'name';
-        widgetColumn.title = 'widget.name'
+        widgetColumn.title = 'widget.name';
         explorer.addColumnNode(widgetColumn);
         explorer.headerVisible = false;
         explorer.insertable = explorer.deletable = false;
