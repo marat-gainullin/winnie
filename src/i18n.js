@@ -20,5 +20,6 @@ export default {
         'winnie.prop.value': 'Value',
         'winnie.name.used': 'This name is already used by another widget. Try again please.',
         'winnie.bad.name': "This name can't be used as a widget name. Try again please.",
-        'winnie.grid.dimensions': "Provide grid dimensions, please in the 'rows, columns' form."
+        'winnie.grid.dimensions': "Provide grid dimensions, please in the 'rows, columns' form.",
+        'winnie.to.surface.name': 'Edit selected'
 };

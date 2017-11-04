@@ -106,6 +106,11 @@
     border-left: 1px solid rgba(0, 0, 0, .15);
 }
 
+.p-menu-item[disabled] > .p-paragraph,
+.p-menu-item[disabled] > .p-image {
+    color: gray;
+}
+
 .p-menu-separator {
     border-top: 1px solid rgba(0, 0, 0, .15);
     margin-left: 10px;
@@ -161,6 +166,7 @@
 .p-winnie-widgets > div {
     box-shadow: 0 3px 8px rgba(0, 0, 0, .3);
     border-radius: 3px;
+    background: #f6f7f9;
 }
 
 .p-winnie-view {
@@ -269,4 +275,13 @@
 .p-holy-grail-column {
     /* TODO: Review of display of Holly Grail container in all containers*/
     display: flex !important;
+}
+
+.p-grid-cell-editor {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.p-widget {
+    font-size: 12px;
 }

@@ -31,14 +31,6 @@ export default function Layout() {
     const properties = new Grid();
     const widgets = new Flow();
     {
-        // TODO: remove as soon as possible
-        const killMe = new Flow();
-        killMe.background = '#fff';
-        killMe.width = killMe.height = 300;
-        widgets.add(killMe);
-        //
-    }
-    {
         widgetColumn.field = 'name';
         widgetColumn.title = 'widget.name';
         explorer.addColumnNode(widgetColumn);
@@ -130,6 +122,7 @@ export default function Layout() {
 
     const miAdd = new MenuItem(i18n['winnie.add.name']);
     miAdd.subMenu = new Menu();
+    const miToSurface = new MenuItem(i18n['winnie.to.surface.name']);
     const miCut = new MenuItem(i18n['winnie.cut.name']);
     const miCopy = new MenuItem(i18n['winnie.copy.name']);
     const miPaste = new MenuItem(i18n['winnie.paste.name']);
@@ -138,6 +131,7 @@ export default function Layout() {
     const miRemove = new MenuItem(i18n['winnie.remove.name']);
     {
         miAdd.icon = withStyle('icon-space');
+        miToSurface.icon = withStyle('icon-space');
         miCut.icon = withStyle('icon-scissors');
         miCopy.icon = withStyle('icon-docs');
         miPaste.icon = withStyle('icon-clipboard');
@@ -147,6 +141,7 @@ export default function Layout() {
         
         [
             miAdd,
+            miToSurface,
             miCut,
             miCopy,
             miPaste,
@@ -158,6 +153,8 @@ export default function Layout() {
         });
 
         explorerMenu.add(miAdd);
+        explorerMenu.add(new MenuSeparator());
+        explorerMenu.add(miToSurface);
         explorerMenu.add(new MenuSeparator());
         explorerMenu.add(miCut);
         explorerMenu.add(miCopy);
@@ -186,6 +183,7 @@ export default function Layout() {
         widgets,
         view,
         miAdd,
+        miToSurface,
         miCut,
         miCopy,
         miPaste,

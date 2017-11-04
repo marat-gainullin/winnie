@@ -1,12 +1,18 @@
 import Invoke from 'septima-utils/invoke';
 import Logger from 'septima-utils/logger';
 import Ui from 'kenga/utils';
+import Widget from 'kenga/widget';
 import Container from 'kenga/container';
 import KeyCodes from 'kenga/key-codes';
 import Label from 'kenga-labels/label';
+import CheckBox from 'kenga-buttons/check-box';
+import RadioButton from 'kenga-buttons/radio-button';
+import ImageParagraph from 'kenga-labels/image-paragraph';
 import Box from 'kenga-containers/box-pane';
 import Flow from 'kenga-containers/flow-pane';
 import Grid from 'kenga-containers/grid-pane';
+import Absolute from 'kenga-containers/absolute-pane';
+import Anchors from 'kenga-containers/anchors-pane';
 import Menu from 'kenga-menu/menu';
 import MenuItem from 'kenga-menu/menu-item';
 import DataGrid from 'kenga-grid/grid';
@@ -28,6 +34,7 @@ const generalHiddenProps = new Set([
     'font', // TODO: Remove this line when font selector will be implemented
     'contextMenu', // TODO: Remove this line when widget selector will be implemented
     'buttonGroup', // TODO: Remove this line when widget selector will be implemented
+    'title',
     'visibleDisplay',
     'winnie.wrapper'
 ]);
@@ -105,12 +112,6 @@ export default class Winnie {
             self.lastSelected = evt.item;
             checkEnabled();
         };
-        this.layout.explorer.onDragBefore = (w, before) => {
-        };
-        this.layout.explorer.onDragInto = (w, into) => {
-        };
-        this.layout.explorer.onDragAfter = (w, after) => {
-        };
         function isParent(parent, child) {
             while (child.parent && child.parent !== parent) {
                 child = child.parent;
@@ -120,7 +121,7 @@ export default class Winnie {
 
         function move(w, dest, addAt) {
             if (!dest ||
-                    dest.delegate instanceof Container ||
+                    dest.delegate instanceof Container  && w.delegate instanceof Widget ||
                     dest.delegate instanceof DataGrid && w.delegate instanceof ColumnNode ||
                     dest.delegate instanceof ColumnNode && w.delegate instanceof ColumnNode) {
                 if (w !== dest) {
@@ -166,6 +167,7 @@ export default class Winnie {
                                     }
                                 };
                                 self.edit(ur);
+                                return true;
                             } else {
                                 Logger.info(`Widget '${w.name}' is a child of '${dest ? dest.name : '[forest]'}' already at the same position.`);
                             }
@@ -179,9 +181,11 @@ export default class Winnie {
                     Logger.info(`Can't add widget '${w.name}' to itself.'`);
                 }
             } else {
-                Logger.info(`Can't add widget '${w.name}' to widget '${dest.name}'. Widget '${dest.name}' should be a container.`);
+                Logger.info(`Can't add '${w.name}' to '${dest.name}'. Widget '${dest.name}' should be a container and '${w.name}' should be a widget.`);
             }
+            return false;
         }
+        this.move = move;
 
         this.layout.explorer.onDropInto = (w, dest) => {
             move(w, dest, dest.count);
@@ -215,6 +219,15 @@ export default class Winnie {
             }
         };
         this.layout.propValueColumn.onRender = propValueOnRender;
+        enabled.push(() => {
+            self.layout.miToSurface.enabled = self._lastSelected &&
+                    !self._lastSelected.delegate.parent &&
+                    self._lastSelected.delegate instanceof Container;
+        });
+        this.layout.miToSurface.onAction = () => {
+            checkEnabled();
+            self.toSurface(self._lastSelected);
+        };
         [this.layout.tCut, this.layout.miCut].forEach((w) => {
             enabled.push(() => {
                 w.enabled = self.layout.explorer.selected.length > 0;
@@ -282,6 +295,7 @@ export default class Winnie {
 
     addWidget(item, defaultInstance) {
         const self = this;
+        const wasSelected = this._lastSelected;
         const widgetNameBase = item.widget.name.substring(0, 1).toLowerCase() + item.widget.name.substring(1);
         let widgetName = widgetNameBase;
         let nameAttempt = 1;
@@ -298,7 +312,17 @@ export default class Winnie {
                     throw `Provided text: '${input}' is not useful.`;
                 }
             } else {
-                return new constr();
+                const instance = new constr();
+                if (instance instanceof ImageParagraph ||
+                        instance instanceof MenuItem ||
+                        instance instanceof CheckBox ||
+                        instance instanceof RadioButton) {
+                    instance.text = widgetName;
+                } else if (instance instanceof Absolute ||
+                        instance instanceof Anchors) {
+                    instance.width = instance.height = 300;
+                }
+                return instance;
             }
         }
 
@@ -350,6 +374,18 @@ export default class Winnie {
                 self.layout.explorer.removed(created);
             }
         });
+        if (created.delegate instanceof Container &&
+                !created.parent &&
+                !this.isSurface()) {
+            this.toSurface(created);
+            this.centerSurface();
+        }
+        if (wasSelected && wasSelected.delegate instanceof Container) {
+            if (this.move(created, wasSelected, wasSelected.count)) {
+                this.layout.explorer.unselectAll();
+                this.layout.explorer.select(wasSelected);
+            }
+        }
         this.checkEnabled();
     }
 
@@ -363,6 +399,7 @@ export default class Winnie {
         function removed(item) {
             self.layout.explorer.unselect(item);
             self.layout.explorer.removed(item);
+            self.checkSurface(item);
         }
         const toRemove = this.layout.explorer.selected;
         const actions = toRemove.map((item) => {
@@ -587,6 +624,7 @@ export default class Winnie {
                                         !generalHiddenProps.has(key) &&
                                         !key.startsWith('on')
                             )
+                            .sort()
                             .map((key) => {
                                 const prop = new WinnieProperty(item.delegate, key, newValue => {
                                     const editBody = {
@@ -614,7 +652,27 @@ export default class Winnie {
                 }
             } else {
                 this.layout.properties.data = [];
+                self.checkEnabled();
             }
         }
+    }
+
+    isSurface() {
+        return this.layout.widgets.element.firstElementChild !== this.layout.widgets.element.lastElementChild;
+    }
+
+    toSurface(w) {
+        this.layout.widgets.element.appendChild(w.delegate.element);
+    }
+
+    checkSurface(w) {
+        if (w.delegate.element.parentElement === this.layout.widgets.element) {
+            this.layout.widgets.element.removeChild(w.delegate.element);
+        }
+    }
+
+    centerSurface() {
+        this.layout.view.element.scrollLeft = (this.layout.widgets.element.offsetWidth - this.layout.view.element.clientWidth) / 2;
+        this.layout.view.element.scrollTop = (this.layout.widgets.element.offsetHeight - this.layout.view.element.clientHeight) / 2;
     }
 }
