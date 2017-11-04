@@ -147,12 +147,14 @@ export default [
         category: 'Model buttons'
     },
     //
+    /*
     {
         widget: AbsolutePane, from: 'kenga-containers/absolute-pane',
         name: 'Absolute',
         description: 'Container with absolutely positioned children',
         category: 'Containers'
     },
+    */
     {
         widget: AnchorsPane, from: 'kenga-containers/anchors-pane',
         category: 'Containers',

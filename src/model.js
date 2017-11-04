@@ -227,6 +227,7 @@ export default class Winnie {
         this.layout.miToSurface.onAction = () => {
             checkEnabled();
             self.toSurface(self._lastSelected);
+            self.centerSurface();
         };
         [this.layout.tCut, this.layout.miCut].forEach((w) => {
             enabled.push(() => {
@@ -307,10 +308,13 @@ export default class Winnie {
                 const input = prompt(i18n['winnie.grid.dimensions']);
                 const matched = input.match(/(\d+),\s*(\d+)/);
                 if (matched) {
-                    return new Grid(+matched[1], +matched[2]);
+                    return new Grid(+matched[1], +matched[2], 10, 10);
                 } else {
                     throw `Provided text: '${input}' is not useful.`;
                 }
+            } else if(constr === Box) {
+                const instance = new constr(Ui.Orientation.HORIZONTAL, 10, 10);
+                return instance;
             } else {
                 const instance = new constr();
                 if (instance instanceof ImageParagraph ||
