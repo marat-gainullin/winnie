@@ -13,12 +13,12 @@ export default class WinnieProperty {
 
     set value(newValue) {
         const oldValue = this.target[this.name];
-        if (oldValue !== newValue) {
+        if (oldValue != newValue) { // Warning! Don't edit as !== .
             this.onChange(newValue);
         }
     }
-    
-    get edited(){
-        return this.value !== this.defaultValue;
+
+    get edited() {
+        return this.value != this.defaultValue; // Warning! Don't edit as !== .
     }
 }

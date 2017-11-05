@@ -9,7 +9,6 @@ import ModelCheckBox from 'kenga-model-buttons/model-check-box';
 import ModelRadioButton from 'kenga-model-buttons/model-radio-button';
 import ModelToggleButton from 'kenga-model-buttons/model-toggle-button';
 //
-import AbsolutePane from 'kenga-containers/absolute-pane';
 import AnchorsPane from 'kenga-containers/anchors-pane';
 import BoxPane from 'kenga-containers/box-pane';
 import CardPane from 'kenga-containers/card-pane';
@@ -147,14 +146,6 @@ export default [
         category: 'Model buttons'
     },
     //
-    /*
-    {
-        widget: AbsolutePane, from: 'kenga-containers/absolute-pane',
-        name: 'Absolute',
-        description: 'Container with absolutely positioned children',
-        category: 'Containers'
-    },
-    */
     {
         widget: AnchorsPane, from: 'kenga-containers/anchors-pane',
         category: 'Containers',

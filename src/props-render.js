@@ -43,10 +43,11 @@ function onRender(item, viewCell) {
             }
         });
         viewCell.appendChild(input);
-        viewCell.firstElementChild.classList.add('p-grid-cell-editor');
+        viewCell.firstElementChild.classList.add('p-winnie-cell-editor');
         Ui.on(viewCell.firstElementChild, Ui.Events.CLICK, event => {
             event.stopPropagation();
         });
+        /*
     } else if (typeof item.value === 'number') {
         viewCell.innerHTML = '';
         const input = document.createElement('input');
@@ -69,10 +70,11 @@ function onRender(item, viewCell) {
             }
         });
         viewCell.appendChild(input);
-        viewCell.firstElementChild.classList.add('p-grid-cell-editor');
+        viewCell.firstElementChild.classList.add('p-winnie-cell-editor');
         Ui.on(viewCell.firstElementChild, Ui.Events.CLICK, event => {
             event.stopPropagation();
         });
+        */
     } else if (typeof item.value === 'object') {
         viewCell.innerHTML = item.value && item.value['winnie.wrapper'] && item.value['winnie.wrapper'].name ? item.value['winnie.wrapper'].name : '';
     }

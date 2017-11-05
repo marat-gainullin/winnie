@@ -11,12 +11,12 @@ import ImageParagraph from 'kenga-labels/image-paragraph';
 import Box from 'kenga-containers/box-pane';
 import Flow from 'kenga-containers/flow-pane';
 import Grid from 'kenga-containers/grid-pane';
-import Absolute from 'kenga-containers/absolute-pane';
 import Anchors from 'kenga-containers/anchors-pane';
 import Menu from 'kenga-menu/menu';
 import MenuItem from 'kenga-menu/menu-item';
 import DataGrid from 'kenga-grid/grid';
 import ColumnNode from 'kenga-grid/columns/column-node';
+import TextNumberField from './text-number-field';
 import ground from './ground';
 import i18n from './i18n';
 import Wrapper from './winnie-widget';
@@ -61,8 +61,6 @@ const datagridHiddenProps = new Set([
     'onRender',
     'selected',
     'dynamicCellClassName',
-    'renderingThrottle',
-    'renderingPadding',
     'activeEditor',
     'rows',
     'columns',
@@ -121,7 +119,7 @@ export default class Winnie {
 
         function move(w, dest, addAt) {
             if (!dest ||
-                    dest.delegate instanceof Container  && w.delegate instanceof Widget ||
+                    dest.delegate instanceof Container && w.delegate instanceof Widget ||
                     dest.delegate instanceof DataGrid && w.delegate instanceof ColumnNode ||
                     dest.delegate instanceof ColumnNode && w.delegate instanceof ColumnNode) {
                 if (w !== dest) {
@@ -211,6 +209,7 @@ export default class Winnie {
         });
 
         this.layout.propNameColumn.field = 'name';
+        this.layout.propValueColumn.editor = new TextNumberField();
         this.layout.propValueColumn.field = 'value';
         this.layout.propNameColumn.onRender = (item, viewCell) => {
             viewCell.title = item.name;
@@ -312,7 +311,7 @@ export default class Winnie {
                 } else {
                     throw `Provided text: '${input}' is not useful.`;
                 }
-            } else if(constr === Box) {
+            } else if (constr === Box) {
                 const instance = new constr(Ui.Orientation.HORIZONTAL, 10, 10);
                 return instance;
             } else {
@@ -322,8 +321,7 @@ export default class Winnie {
                         instance instanceof CheckBox ||
                         instance instanceof RadioButton) {
                     instance.text = widgetName;
-                } else if (instance instanceof Absolute ||
-                        instance instanceof Anchors) {
+                } else if (instance instanceof Anchors) {
                     instance.width = instance.height = 300;
                 }
                 return instance;

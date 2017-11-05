@@ -277,11 +277,17 @@
     display: flex !important;
 }
 
-.p-grid-cell-editor {
-    padding-left: 10px;
-    padding-right: 10px;
-}
-
 .p-widget {
     font-size: 12px;
+}
+
+.p-grid-cell > .p-winnie-cell-editor {
+    border: none;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
 }
