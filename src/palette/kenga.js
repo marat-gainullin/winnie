@@ -91,7 +91,7 @@ export default [
     {
         widget: DropDownButton,
         from: 'kenga-buttons/drop-down-button',
-        name: 'Split button',
+        name: 'Drop down button',
         description: 'Button with drop down menu',
         //iconStyle: 'kenga-check-box-icon',
         category: 'Buttons'

@@ -1,6 +1,7 @@
 import Invoke from 'septima-utils/invoke';
 import Logger from 'septima-utils/logger';
 import Ui from 'kenga/utils';
+import Bound from 'kenga/bound';
 import Widget from 'kenga/widget';
 import Container from 'kenga/container';
 import KeyCodes from 'kenga/key-codes';
@@ -26,6 +27,10 @@ import propValueOnRender from './props-render';
 
 const generalHiddenProps = new Set([
     'name',
+    'top',
+    'left',
+    'width',
+    'height',
     'data',
     'parent',
     'element',
@@ -186,19 +191,30 @@ export default class Winnie {
         this.move = move;
 
         this.layout.explorer.onDropInto = (w, dest) => {
-            move(w, dest, dest.count);
+            (self.layout.explorer.isSelected(w) ?
+                    self.layout.explorer.selected :
+                    [w])
+                    .forEach(m => move(m, dest, dest.count));
         };
 
         this.layout.explorer.onDropBefore = (w, before) => {
             const dest = before.parent;
             const addAt = dest ? dest.indexOf(before) : self.forest.indexOf(before);
-            move(w, dest, addAt);
+            (self.layout.explorer.isSelected(w) ?
+                    self.layout.explorer.selected :
+                    [w])
+                    .reverse()
+                    .forEach(m => move(m, dest, addAt));
         };
 
         this.layout.explorer.onDropAfter = (w, after) => {
             const dest = after.parent;
             const addAt = dest ? dest.indexOf(after) : self.forest.indexOf(after);
-            move(w, dest, addAt + 1);
+            (self.layout.explorer.isSelected(w) ?
+                    self.layout.explorer.selected :
+                    [w])
+                    .reverse()
+                    .forEach(m => move(m, dest, addAt + 1));
         };
 
 
@@ -617,7 +633,20 @@ export default class Winnie {
                 if (item.sheet) {
                     this.layout.properties.data = item.sheet;
                 } else {
-                    this.layout.properties.data = item.sheet = Object.getOwnPropertyNames(item.delegate)
+                    const propNames = Object.getOwnPropertyNames(item.delegate);
+                    propNames.push(
+                            'element.style.left',
+                            'element.style.width',
+                            'element.style.right',
+                            'element.style.top',
+                            'element.style.height',
+                            'element.style.bottom',
+                            'tab.title',
+                            'tab.icon',
+                            'tab.toolTipText',
+                            'tab.closable'
+                            );
+                    this.layout.properties.data = item.sheet = propNames
                             .filter(key =>
                                 typeof item.delegate[key] !== 'function' &&
                                         !generalHiddenProps.has(key) &&
@@ -626,21 +655,28 @@ export default class Winnie {
                                         !generalHiddenProps.has(key) &&
                                         !key.startsWith('on')
                             )
-                            .sort()
                             .map((key) => {
                                 const prop = new WinnieProperty(item.delegate, key, newValue => {
                                     const editBody = {
                                         name: `Property '${key}' of widget '${item.name}' change`,
                                         redo: () => {
-                                            const oldValue = item.delegate[key];
-                                            item.delegate[key] = newValue;
+                                            const oldValue = key.includes('.') ? Bound.getPathData(item.delegate, key) : item.delegate[key];
+                                            if (key.includes('.')) {
+                                                Bound.setPathData(item.delegate, key, newValue);
+                                            } else {
+                                                item.delegate[key] = newValue;
+                                            }
                                             if (!prop.silent) {
                                                 self.layout.properties.changed(prop);
                                                 self.layout.properties.goTo(prop, true);
                                             }
                                             prop.silent = false;
                                             editBody.undo = () => {
-                                                item.delegate[key] = oldValue;
+                                                if (key.includes('.')) {
+                                                    Bound.setPathData(item.delegate, key, oldValue);
+                                                } else {
+                                                    item.delegate[key] = oldValue;
+                                                }
                                                 self.layout.properties.changed(prop);
                                                 self.layout.properties.goTo(prop, true);
                                             };
@@ -648,7 +684,7 @@ export default class Winnie {
                                     };
                                     self.edit(editBody);
                                     self.checkEnabled();
-                                }, item.defaultInstance[key]);
+                                }, key.includes('.') ? Bound.getPathData(item.defaultInstance, key) : item.defaultInstance[key]);
                                 return prop;
                             });
                 }

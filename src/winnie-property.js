@@ -1,3 +1,5 @@
+import Bound from 'kenga/bound';
+
 export default class WinnieProperty {
 
     constructor(target, name, onChange, defaultValue) {
@@ -8,11 +10,11 @@ export default class WinnieProperty {
     }
 
     get value() {
-        return this.target[this.name];
+        return this.name.includes('.') ? Bound.getPathData(this.target, this.name) : this.target[this.name];
     }
 
     set value(newValue) {
-        const oldValue = this.target[this.name];
+        const oldValue = this.value;
         if (oldValue != newValue) { // Warning! Don't edit as !== .
             this.onChange(newValue);
         }

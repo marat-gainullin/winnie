@@ -272,11 +272,6 @@
     border: none;
 }
 
-.p-holy-grail-column {
-    /* TODO: Review of display of Holly Grail container in all containers*/
-    display: flex !important;
-}
-
 .p-widget {
     font-size: 12px;
 }
