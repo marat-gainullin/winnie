@@ -13,6 +13,8 @@ import Box from 'kenga-containers/box-pane';
 import Flow from 'kenga-containers/flow-pane';
 import Grid from 'kenga-containers/grid-pane';
 import Anchors from 'kenga-containers/anchors-pane';
+import TabbedPane from 'kenga-containers/tabbed-pane';
+import CardPane from 'kenga-containers/card-pane';
 import Menu from 'kenga-menu/menu';
 import MenuItem from 'kenga-menu/menu-item';
 import DataGrid from 'kenga-grid/grid';
@@ -24,59 +26,8 @@ import Wrapper from './winnie-widget';
 import WinnieProperty from './winnie-property';
 import reWidth from './rewidth';
 import propValueOnRender from './props-render';
-
-const generalHiddenProps = new Set([
-    'name',
-    'top',
-    'left',
-    'width',
-    'height',
-    'data',
-    'parent',
-    'element',
-    'count',
-    'attached',
-    'font', // TODO: Remove this line when font selector will be implemented
-    'contextMenu', // TODO: Remove this line when widget selector will be implemented
-    'buttonGroup', // TODO: Remove this line when widget selector will be implemented
-    'title',
-    'visibleDisplay',
-    'winnie.wrapper'
-]);
-const datagridColumnsHiddenProps = new Set([
-    'children',
-    'childrenNodes',
-    'depthRemainder',
-    'leavesCount',
-    'leaf',
-    'column',
-    'view',
-    'renderer',
-    'editor'
-]);
-const datagridHiddenProps = new Set([
-    'headerLeft',
-    'headerRight',
-    'frozenLeft',
-    'frozenRight',
-    'bodyLeft',
-    'bodyRight',
-    'footerLeft',
-    'footerRight',
-    'onRender',
-    'selected',
-    'dynamicCellClassName',
-    'activeEditor',
-    'rows',
-    'columns',
-    'viewRows',
-    'header',
-    'treeIndicatorColumn',
-    'columnNodesCount',
-    'columnsCount',
-    'focusedRow',
-    'focusedColumn'
-]);
+import { resizeDecor, mouseDrag, sizeLocationSnapshot } from './location-size';
+import { generalHiddenProps, datagridColumnsHiddenProps, datagridHiddenProps, tabbedPaneHiddenProps, pathProps } from './props-hidden';
 
 export default class Winnie {
     constructor() {
@@ -100,6 +51,7 @@ export default class Winnie {
         this.layout = ground();
         this.edits = [];
         this.editsCursor = 0;
+        this.decors = [];
         this.layout.leftSizer.element.classList.add('p-winnie-left-sizer');
         this.layout.rightSizer.element.classList.add('p-winnie-right-sizer');
         this.layout.propertiesHeader.element.classList.add('p-winnie-properties-header');
@@ -108,6 +60,11 @@ export default class Winnie {
         this.layout.ground.element.classList.add('p-winnie-ground');
         this.layout.view.element.classList.add('p-winnie-view');
         this.layout.widgets.element.classList.add('p-winnie-widgets');
+        Ui.on(this.layout.widgets.element, Ui.Events.CLICK, (event) => {
+            if (event.target === self.layout.widgets.element) {
+                self.layout.explorer.unselectAll();
+            }
+        });
         this.layout.explorer.data = this.forest;
         this.layout.explorer.parentField = 'parent';
         this.layout.explorer.childrenField = 'children';
@@ -319,19 +276,19 @@ export default class Winnie {
             widgetName = `${widgetNameBase}${nameAttempt++}`;
         }
         function produce(constr) {
+            let instance;
             if (constr === Grid) {
                 const input = prompt(i18n['winnie.grid.dimensions']);
                 const matched = input.match(/(\d+),\s*(\d+)/);
                 if (matched) {
-                    return new Grid(+matched[1], +matched[2], 10, 10);
+                    instance = new Grid(+matched[1], +matched[2], 10, 10);
                 } else {
                     throw `Provided text: '${input}' is not useful.`;
                 }
             } else if (constr === Box) {
-                const instance = new constr(Ui.Orientation.HORIZONTAL, 10, 10);
-                return instance;
+                instance = new constr(Ui.Orientation.HORIZONTAL, 10, 10);
             } else {
-                const instance = new constr();
+                instance = new constr();
                 if (instance instanceof ImageParagraph ||
                         instance instanceof MenuItem ||
                         instance instanceof CheckBox ||
@@ -340,8 +297,77 @@ export default class Winnie {
                 } else if (instance instanceof Anchors) {
                     instance.width = instance.height = 300;
                 }
-                return instance;
             }
+            instance.onMouseEnter = () => {
+                instance.element.classList.add('p-winnie-widget-hover');
+            };
+            instance.onMouseExit = () => {
+                instance.element.classList.remove('p-winnie-widget-hover');
+            };
+            mouseDrag(instance.element, () => {
+                const pickedItem = instance['winnie.wrapper'];
+                return (() => {
+                    return self.layout.explorer.isSelected(pickedItem) ?
+                            self.layout.explorer.selected :
+                            [pickedItem];
+                })()
+                        .filter((item) => item.delegate.attached && item.delegate.parent instanceof Anchors)
+                        .map((item) => {
+                            return {
+                                item,
+                                startSnapshot: sizeLocationSnapshot(item.delegate)
+                            };
+                        });
+            }, (items, diff) => {
+                items.forEach((moved) => {
+                    moved.item.delegate.left = moved.startSnapshot.left + diff.x;
+                    moved.item.delegate.top = moved.startSnapshot.top + diff.y;
+                    self.decors.forEach((d) => {
+                        d.stick();
+                    });
+                });
+            }, (items, diff, event) => {
+                if (diff.x !== 0 || diff.y !== 0) {
+                    if (items.length > 0) {
+                        items.forEach((moved) => {
+                            moved.endSnapshot = sizeLocationSnapshot(moved.item.delegate);
+                        });
+                        self.edit({
+                            name: (items.length === 1 ? `Widget '${items[0].item.name}' moved` : `Move of (${items.length}) widgets`),
+                            redo: () => {
+                                items.forEach((moved) => {
+                                    const subjectElement = moved.item.delegate.element;
+                                    subjectElement.style.left = moved.endSnapshot.anchors.left;
+                                    subjectElement.style.width = moved.endSnapshot.anchors.width;
+                                    subjectElement.style.right = moved.endSnapshot.anchors.right;
+                                    subjectElement.style.top = moved.endSnapshot.anchors.top;
+                                    subjectElement.style.height = moved.endSnapshot.anchors.height;
+                                    subjectElement.style.bottom = moved.endSnapshot.anchors.bottom;
+                                });
+                            },
+                            undo: () => {
+                                items.forEach((moved) => {
+                                    const subjectElement = moved.item.delegate.element;
+                                    subjectElement.style.left = moved.startSnapshot.anchors.left;
+                                    subjectElement.style.width = moved.startSnapshot.anchors.width;
+                                    subjectElement.style.right = moved.startSnapshot.anchors.right;
+                                    subjectElement.style.top = moved.startSnapshot.anchors.top;
+                                    subjectElement.style.height = moved.startSnapshot.anchors.height;
+                                    subjectElement.style.bottom = moved.startSnapshot.anchors.bottom;
+                                });
+                            },
+                        });
+                    }
+                } else {
+                    const subject = instance['winnie.wrapper'];
+                    self.layout.explorer.goTo(subject);
+                    if (!event.ctrlKey) {
+                        self.layout.explorer.unselectAll();
+                    }
+                    self.layout.explorer.select(subject);
+                }
+            });
+            return instance;
         }
 
         const created = new Wrapper(produce(item.widget), widgetName, defaultInstance, (newName) => {
@@ -398,10 +424,11 @@ export default class Winnie {
             this.toSurface(created);
             this.centerSurface();
         }
-        if (wasSelected && wasSelected.delegate instanceof Container) {
-            if (this.move(created, wasSelected, wasSelected.count)) {
-                this.layout.explorer.unselectAll();
-                this.layout.explorer.select(wasSelected);
+        if (wasSelected) {
+            if (wasSelected.delegate instanceof Container) {
+                this.move(created, wasSelected, wasSelected.count);
+            } else if (wasSelected.parent && wasSelected.parent.delegate instanceof Container) {
+                this.move(created, wasSelected.parent, wasSelected.parent.count);
             }
         }
         this.checkEnabled();
@@ -627,31 +654,36 @@ export default class Winnie {
 
     set lastSelected(item) {
         const self = this;
+        this.widgets.forEach((item, name) => {
+            item.delegate.element.classList.remove('p-winnie-widget-selected');
+        });
+
+        this.layout.explorer.selected.forEach((selectedItem) => {
+            selectedItem.delegate.element.classList.add('p-winnie-widget-selected');
+        });
+
+        self.undecorate();
         if (this._lastSelected !== item) {
+            if (this._lastSelected) {
+                this.layout.properties.data = [];
+                self.checkEnabled();
+            }
             this._lastSelected = item;
-            if (item) {
+            if (this._lastSelected) {
+                let sheet;
                 if (item.sheet) {
-                    this.layout.properties.data = item.sheet;
+                    sheet = item.sheet;
                 } else {
                     const propNames = Object.getOwnPropertyNames(item.delegate);
-                    propNames.push(
-                            'element.style.left',
-                            'element.style.width',
-                            'element.style.right',
-                            'element.style.top',
-                            'element.style.height',
-                            'element.style.bottom',
-                            'tab.title',
-                            'tab.icon',
-                            'tab.toolTipText',
-                            'tab.closable'
-                            );
-                    this.layout.properties.data = item.sheet = propNames
+                    propNames.push(...pathProps);
+                    sheet = item.sheet = propNames
                             .filter(key =>
                                 typeof item.delegate[key] !== 'function' &&
                                         !generalHiddenProps.has(key) &&
                                         (!(item.delegate instanceof DataGrid) || !datagridHiddenProps.has(key)) &&
                                         (!(item.delegate instanceof ColumnNode) || !datagridColumnsHiddenProps.has(key)) &&
+                                        (!(item.delegate instanceof TabbedPane) || !tabbedPaneHiddenProps.has(key)) &&
+                                        (!(item.delegate instanceof CardPane) || !tabbedPaneHiddenProps.has(key)) &&
                                         !generalHiddenProps.has(key) &&
                                         !key.startsWith('on')
                             )
@@ -688,11 +720,83 @@ export default class Winnie {
                                 return prop;
                             });
                 }
-            } else {
-                this.layout.properties.data = [];
+                this.layout.properties.data = sheet
+                        .filter(p => !p.name.startsWith('tab.') || item.delegate.parent instanceof TabbedPane);
                 self.checkEnabled();
             }
         }
+        self.decorate();
+    }
+
+    decorate() {
+        if (this._lastSelected && this.layout.explorer.selected.length === 1) {
+            const self = this;
+            const subject = self._lastSelected;
+            self.decors = (() => {
+                if (subject.delegate.attached) {
+                    const decors = resizeDecor(self.layout.widgets, subject.delegate, (prevState, diff) => {
+                        const subjectElement = subject.delegate.element;
+                        if (diff.x !== 0 || diff.y !== 0) {
+                            const newState = {anchors: {
+                                    left: subjectElement.style.left,
+                                    width: subjectElement.style.width,
+                                    right: subjectElement.style.right,
+                                    top: subjectElement.style.top,
+                                    height: subjectElement.style.height,
+                                    bottom: subjectElement.style.bottom
+                                }};
+                            self.edit({
+                                name: `Widget '${subject.name}' resize`,
+                                redo: () => {
+                                    subjectElement.style.left = newState.anchors.left;
+                                    subjectElement.style.width = newState.anchors.width;
+                                    subjectElement.style.right = newState.anchors.right;
+                                    subjectElement.style.top = newState.anchors.top;
+                                    subjectElement.style.height = newState.anchors.height;
+                                    subjectElement.style.bottom = newState.anchors.bottom;
+                                    self.layout.explorer.goTo(subject, true);
+                                },
+                                undo: () => {
+                                    subjectElement.style.left = prevState.anchors.left;
+                                    subjectElement.style.width = prevState.anchors.width;
+                                    subjectElement.style.right = prevState.anchors.right;
+                                    subjectElement.style.top = prevState.anchors.top;
+                                    subjectElement.style.height = prevState.anchors.height;
+                                    subjectElement.style.bottom = prevState.anchors.bottom;
+                                    self.layout.explorer.goTo(subject, true);
+                                },
+                            });
+                        }
+                    });
+                    if (subject.delegate.parent instanceof Anchors) {
+                        return [decors.lt, decors.lm, decors.lb, decors.mt, decors.mb, decors.rt, decors.rm, decors.rb];
+                    } else if (subject.delegate.parent instanceof Box && subject.delegate.parent.orientation === Ui.Orientation.HORIZONTAL) {
+                        return [decors.rm];
+                    } else if (subject.delegate.parent instanceof Box && subject.delegate.parent.orientation === Ui.Orientation.VERTICAL) {
+                        return [decors.mb];
+                    } else {
+                        return [];
+                    }
+                } else {
+                    return [];
+                }
+            })()
+                    .map((d, i, source) => {
+                        self.layout.widgets.element.appendChild(d);
+                        d.neightbours = source;
+                        d.stick();
+                        return d;
+                    });
+        }
+    }
+
+    undecorate() {
+        const self = this;
+        self.decors.forEach(d => {
+            if (d.parentElement) {
+                d.parentElement.removeChild(d);
+            }
+        });
     }
 
     isSurface() {

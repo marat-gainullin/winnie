@@ -1,4 +1,5 @@
 import Ui from 'kenga/utils';
+
 function reWidth(subject, resizer, view, direction = 1, onChange = null) {
     let mouseDownAt = null;
     let mouseDownSplitWidth = null;
