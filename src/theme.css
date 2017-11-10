@@ -330,3 +330,7 @@
     margin: 0px;
     padding: 0px;
 }
+
+.p-winnie-selection-rect {
+    border: 1px dashed #4267b2;
+}

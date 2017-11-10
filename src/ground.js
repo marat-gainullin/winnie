@@ -16,6 +16,9 @@ import i18n from './i18n';
 
 export default function Layout() {
     const ground = new Grail();
+    {
+        ground.focusable = true;
+    }
     const tools = new Toolbar();
     const palette = new Box(Ui.Orientation.VERTICAL);
     const explorer = new Grid();

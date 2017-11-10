@@ -11,6 +11,7 @@ import RadioButton from 'kenga-buttons/radio-button';
 import ImageParagraph from 'kenga-labels/image-paragraph';
 import Box from 'kenga-containers/box-pane';
 import Flow from 'kenga-containers/flow-pane';
+import Scroll from 'kenga-containers/scroll-pane';
 import Grid from 'kenga-containers/grid-pane';
 import Anchors from 'kenga-containers/anchors-pane';
 import TabbedPane from 'kenga-containers/tabbed-pane';
@@ -29,6 +30,124 @@ import propValueOnRender from './props-render';
 import { resizeDecor, mouseDrag, sizeLocationSnapshot } from './location-size';
 import { generalHiddenProps, datagridColumnsHiddenProps, datagridHiddenProps, tabbedPaneHiddenProps, pathProps } from './props-hidden';
 
+function startRectSelection(rectHost, event) {
+    const viewX = Ui.absoluteLeft(rectHost);
+    const viewY = Ui.absoluteTop(rectHost);
+    const rect = document.createElement('div');
+    rect.className = 'p-winnie-selection-rect';
+    rectHost.appendChild(rect);
+    rect.style.position = 'absolute';
+    const x = event.clientX - viewX;
+    const y = event.clientY - viewY;
+    rect.style.left = `${x}px`;
+    rect.style.top = `${y}px`;
+    rect.style.width = rect.style.height = '0px';
+    return {x, y, rect};
+}
+
+function proceedRectSelection(start, diff) {
+    if (diff.x > 0) {
+        start.rect.style.left = `${start.x}px`;
+        start.rect.style.width = `${diff.x}px`;
+    } else {
+        start.rect.style.left = `${start.x + diff.x}px`;
+        start.rect.style.width = `${-diff.x}px`;
+    }
+    if (diff.y > 0) {
+        start.rect.style.top = `${start.y}px`;
+        start.rect.style.height = `${diff.y}px`;
+    } else {
+        start.rect.style.top = `${start.y + diff.y}px`;
+        start.rect.style.height = `${-diff.y}px`;
+    }
+}
+
+function endRectSelection(model, start, diff, event) {
+    if (model.isSurface()) {
+        if (!event.ctrlKey) {
+            model.layout.explorer.unselectAll();
+        }
+        const rectX = Ui.absoluteLeft(start.rect);
+        const rectY = Ui.absoluteTop(start.rect);
+        const surface = model.layout.widgets.element.lastElementChild;
+        let child = surface.firstElementChild;
+        while (child) {
+            if (child['p-widget'] && child['p-widget']['winnie.wrapper']) {
+                const wX = Ui.absoluteLeft(child);
+                const wY = Ui.absoluteTop(child);
+                if (!(
+                        rectX > wX + child.offsetWidth || wX > rectX + start.rect.offsetWidth ||
+                        rectY > wY + child.offsetHeight || wY > rectY + start.rect.offsetHeight
+
+                        )) {
+                    model.layout.explorer.select(child['p-widget']['winnie.wrapper']);
+                }
+            }
+            child = child.nextElementSibling;
+        }
+    }
+    start.rect.parentElement.removeChild(start.rect);
+}
+
+function startItemsMove(self, pickedWidget) {
+    const pickedItem = pickedWidget['winnie.wrapper'];
+    return (() => {
+        return self.layout.explorer.isSelected(pickedItem) ?
+                self.layout.explorer.selected :
+                [pickedItem];
+    })()
+            .filter((item) => item.delegate.attached && item.delegate.parent instanceof Anchors)
+            .map((item) => {
+                return {
+                    item,
+                    startSnapshot: sizeLocationSnapshot(item.delegate)
+                };
+            });
+}
+
+function proceedItemsMove(self, items, diff) {
+    items.forEach((moved) => {
+        moved.item.delegate.left = moved.startSnapshot.left + diff.x;
+        moved.item.delegate.top = moved.startSnapshot.top + diff.y;
+        self.stickDecors();
+    });
+}
+
+function endItemsMove(self, items) {
+    if (items.length > 0) {
+        items.forEach((moved) => {
+            moved.endSnapshot = sizeLocationSnapshot(moved.item.delegate);
+        });
+        self.edit({
+            name: (items.length === 1 ? `Widget '${items[0].item.name}' moved` : `Move of (${items.length}) widgets`),
+            redo: () => {
+                items.forEach((moved) => {
+                    const subjectElement = moved.item.delegate.element;
+                    subjectElement.style.left = moved.endSnapshot.anchors.left;
+                    subjectElement.style.width = moved.endSnapshot.anchors.width;
+                    subjectElement.style.right = moved.endSnapshot.anchors.right;
+                    subjectElement.style.top = moved.endSnapshot.anchors.top;
+                    subjectElement.style.height = moved.endSnapshot.anchors.height;
+                    subjectElement.style.bottom = moved.endSnapshot.anchors.bottom;
+                });
+                self.stickDecors();
+            },
+            undo: () => {
+                items.forEach((moved) => {
+                    const subjectElement = moved.item.delegate.element;
+                    subjectElement.style.left = moved.startSnapshot.anchors.left;
+                    subjectElement.style.width = moved.startSnapshot.anchors.width;
+                    subjectElement.style.right = moved.startSnapshot.anchors.right;
+                    subjectElement.style.top = moved.startSnapshot.anchors.top;
+                    subjectElement.style.height = moved.startSnapshot.anchors.height;
+                    subjectElement.style.bottom = moved.startSnapshot.anchors.bottom;
+                });
+                self.stickDecors();
+            }
+        });
+    }
+}
+
 export default class Winnie {
     constructor() {
         function widgetColumnRewidth() {
@@ -46,6 +165,10 @@ export default class Winnie {
         }
         this.checkEnabled = checkEnabled;
         const self = this;
+        this.settings = {
+            grid: {x: 10, y: 10},
+            undoDepth: 10
+        };
         this.widgets = new Map(); // name -> widget
         this.forest = []; // root widgets
         this.layout = ground();
@@ -60,10 +183,70 @@ export default class Winnie {
         this.layout.ground.element.classList.add('p-winnie-ground');
         this.layout.view.element.classList.add('p-winnie-view');
         this.layout.widgets.element.classList.add('p-winnie-widgets');
-        Ui.on(this.layout.widgets.element, Ui.Events.CLICK, (event) => {
-            if (event.target === self.layout.widgets.element) {
-                self.layout.explorer.unselectAll();
+
+        Ui.on(this.layout.ground.element, Ui.Events.KEYDOWN, (event) => {
+            if (event.ctrlKey && event.keyCode === KeyCodes.KEY_Z) {
+                self.checkEnabled();
+                if (event.shiftKey) {
+                    self.redo();
+                } else {
+                    self.undo();
+                }
+            } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_Y) {
+                self.checkEnabled();
+                self.redo();
+            } else if (event.keyCode === KeyCodes.KEY_DELETE) {
+                if (this.layout.explorer.selected.length > 0) {
+                    self.checkEnabled();
+                    self.removeSelected();
+                }
+            } else if (event.ctrlKey && (event.keyCode === KeyCodes.KEY_C || event.keyCode === KeyCodes.KEY_INSERT)) {
+                self.copy();
+            } else if ((event.shiftKey && event.keyCode === KeyCodes.KEY_INSERT) ||
+                    (event.ctrlKey && event.keyCode === KeyCodes.KEY_V)) {
+                self.checkEnabled();
+                self.paste();
+            } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_X) {
+                if (this.layout.explorer.selected.length > 0) {
+                    self.checkEnabled();
+                    self.cut();
+                }
+            } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_S) {
+                self.save();
+            } else if (event.keyCode === KeyCodes.KEY_UP ||
+                    event.keyCode === KeyCodes.KEY_DOWN ||
+                    event.keyCode === KeyCodes.KEY_LEFT ||
+                    event.keyCode === KeyCodes.KEY_RIGHT) {
+                if (this.layout.explorer.selected.length > 0) {
+                    self.checkEnabled();
+                    const moved = this.layout.explorer.selected.map((item) => {
+                        return {
+                            item,
+                            startSnapshot: sizeLocationSnapshot(item.delegate)
+                        };
+                    })
+                    proceedItemsMove(self, moved, (() => {
+                        if (event.keyCode === KeyCodes.KEY_UP) {
+                            return {x: 0, y: event.ctrlKey ? -1 : -self.settings.grid.y};
+                        } else if (event.keyCode === KeyCodes.KEY_DOWN) {
+                            return {x: 0, y: event.ctrlKey ? 1 : self.settings.grid.y};
+                        } else if (event.keyCode === KeyCodes.KEY_LEFT) {
+                            return {x: event.ctrlKey ? -1 : -self.settings.grid.x, y: 0};
+                        } else if (event.keyCode === KeyCodes.KEY_RIGHT) {
+                            return {x: event.ctrlKey ? 1 : self.settings.grid.x, y: 0};
+                        } else {
+                            throw 'Unknown key for selected widgets movement.';
+                        }
+                    })());
+                    endItemsMove(self, moved);
+                }
             }
+        });
+
+        mouseDrag(this.layout.view.element, (event) => {
+            return startRectSelection(self.layout.view.element, event);
+        }, proceedRectSelection, (start, diff, event) => {
+            endRectSelection(self, start, diff, event);
         });
         this.layout.explorer.data = this.forest;
         this.layout.explorer.parentField = 'parent';
@@ -249,7 +432,7 @@ export default class Winnie {
             });
             w.onAction = () => {
                 checkEnabled();
-                self.removeSelectedWidgets();
+                self.removeSelected();
             };
         });
         checkEnabled();
@@ -304,67 +487,40 @@ export default class Winnie {
             instance.onMouseExit = () => {
                 instance.element.classList.remove('p-winnie-widget-hover');
             };
-            mouseDrag(instance.element, () => {
-                const pickedItem = instance['winnie.wrapper'];
-                return (() => {
-                    return self.layout.explorer.isSelected(pickedItem) ?
-                            self.layout.explorer.selected :
-                            [pickedItem];
-                })()
-                        .filter((item) => item.delegate.attached && item.delegate.parent instanceof Anchors)
-                        .map((item) => {
-                            return {
-                                item,
-                                startSnapshot: sizeLocationSnapshot(item.delegate)
-                            };
-                        });
-            }, (items, diff) => {
-                items.forEach((moved) => {
-                    moved.item.delegate.left = moved.startSnapshot.left + diff.x;
-                    moved.item.delegate.top = moved.startSnapshot.top + diff.y;
-                    self.decors.forEach((d) => {
-                        d.stick();
-                    });
-                });
-            }, (items, diff, event) => {
-                if (diff.x !== 0 || diff.y !== 0) {
-                    if (items.length > 0) {
-                        items.forEach((moved) => {
-                            moved.endSnapshot = sizeLocationSnapshot(moved.item.delegate);
-                        });
-                        self.edit({
-                            name: (items.length === 1 ? `Widget '${items[0].item.name}' moved` : `Move of (${items.length}) widgets`),
-                            redo: () => {
-                                items.forEach((moved) => {
-                                    const subjectElement = moved.item.delegate.element;
-                                    subjectElement.style.left = moved.endSnapshot.anchors.left;
-                                    subjectElement.style.width = moved.endSnapshot.anchors.width;
-                                    subjectElement.style.right = moved.endSnapshot.anchors.right;
-                                    subjectElement.style.top = moved.endSnapshot.anchors.top;
-                                    subjectElement.style.height = moved.endSnapshot.anchors.height;
-                                    subjectElement.style.bottom = moved.endSnapshot.anchors.bottom;
-                                });
-                            },
-                            undo: () => {
-                                items.forEach((moved) => {
-                                    const subjectElement = moved.item.delegate.element;
-                                    subjectElement.style.left = moved.startSnapshot.anchors.left;
-                                    subjectElement.style.width = moved.startSnapshot.anchors.width;
-                                    subjectElement.style.right = moved.startSnapshot.anchors.right;
-                                    subjectElement.style.top = moved.startSnapshot.anchors.top;
-                                    subjectElement.style.height = moved.startSnapshot.anchors.height;
-                                    subjectElement.style.bottom = moved.startSnapshot.anchors.bottom;
-                                });
-                            },
-                        });
-                    }
+            mouseDrag(instance.element, (event) => {
+                if (instance.element.parentElement === self.layout.widgets.element) {
+                    return startRectSelection(self.layout.view.element, event);
                 } else {
+                    return startItemsMove(self, instance);
+                }
+            }, (start, diff) => {
+                if (instance.element.parentElement === self.layout.widgets.element) {
+                    proceedRectSelection(start, diff);
+                } else {
+                    proceedItemsMove(self, start, diff);
+                }
+            }, (start, diff, event) => {
+                if (instance.element.parentElement === self.layout.widgets.element) {
+                    endRectSelection(self, start, diff, event);
                     const subject = instance['winnie.wrapper'];
                     self.layout.explorer.goTo(subject);
-                    if (!event.ctrlKey) {
-                        self.layout.explorer.unselectAll();
+                } else {
+                    if (diff.x !== 0 || diff.y !== 0) {
+                        endItemsMove(self, start);
+                    } else {
+                        const subject = instance['winnie.wrapper'];
+                        self.layout.explorer.goTo(subject);
+                        if (event.ctrlKey) {
+                            if (self.layout.explorer.isSelected(subject)) {
+                                self.layout.explorer.unselect(subject);
+                            } else {
+                                self.layout.explorer.select(subject);
+                            }
+                        } else {
+                            self.layout.explorer.unselectAll();
+                            self.layout.explorer.select(subject);
+                        }
                     }
-                    self.layout.explorer.select(subject);
                 }
             });
             return instance;
@@ -434,7 +590,7 @@ export default class Winnie {
         this.checkEnabled();
     }
 
-    removeSelectedWidgets() {
+    removeSelected() {
         const self = this;
         function added(item) {
             self.layout.explorer.unselectAll();
@@ -473,7 +629,7 @@ export default class Winnie {
             return ur;
         });
         this.edit({
-            name: `Delete selected (${toRemove.length}) widgets`,
+            name: `Delete ${toRemove.length > 1 ? `selected (${toRemove.length}) widgets` : `'${toRemove[0].name}' widget`}`,
             redo: () => {
                 actions.forEach((item) => {
                     item.redo();
@@ -486,6 +642,22 @@ export default class Winnie {
             }
         });
         this.checkEnabled();
+    }
+
+    copy() {
+    }
+
+    paste() {
+    }
+
+    cut() {
+        if (this.layout.explorer.selected.length > 0) {
+            this.copy();
+            this.removeSelected();
+        }
+    }
+
+    save() {
     }
 
     get canRedo() {
@@ -521,9 +693,14 @@ export default class Winnie {
         const dropped = this.edits.splice(this.editsCursor, this.edits.length - this.editsCursor, body);
         Logger.info(`Recorded edit: ${body.name}.`);
         if (dropped.length > 0) {
-            Logger.info(`Dropped ${dropped.length} edits.`);
+            Logger.info(`Dropped ${dropped.length} tail edits.`);
         }
         this.editsCursor++;
+        while(this.edits.length > this.settings.undoDepth){
+            const shifted = this.edits.shift();
+            this.editsCursor--;
+            Logger.info(`Dropped head edit: '${shifted.name}'.`);
+        }
     }
 
     get palette() {
@@ -754,6 +931,7 @@ export default class Winnie {
                                     subjectElement.style.top = newState.anchors.top;
                                     subjectElement.style.height = newState.anchors.height;
                                     subjectElement.style.bottom = newState.anchors.bottom;
+                                    self.stickDecors();
                                     self.layout.explorer.goTo(subject, true);
                                 },
                                 undo: () => {
@@ -763,6 +941,7 @@ export default class Winnie {
                                     subjectElement.style.top = prevState.anchors.top;
                                     subjectElement.style.height = prevState.anchors.height;
                                     subjectElement.style.bottom = prevState.anchors.bottom;
+                                    self.stickDecors();
                                     self.layout.explorer.goTo(subject, true);
                                 },
                             });
@@ -770,8 +949,10 @@ export default class Winnie {
                     });
                     if (subject.delegate.parent instanceof Anchors) {
                         return [decors.lt, decors.lm, decors.lb, decors.mt, decors.mb, decors.rt, decors.rm, decors.rb];
-                    } else if (subject.delegate.parent instanceof Box && subject.delegate.parent.orientation === Ui.Orientation.HORIZONTAL) {
-                        return [decors.rm];
+                    } else if (subject.delegate.parent instanceof Flow || subject.delegate.parent instanceof Scroll) {
+                        return [decors.mb, decors.rm, decors.rb];
+                    } else if (subject.delegate.parent instanceof Box && subject.delegate.parent.orientation === Ui.Orientation.VERTICAL) {
+                        return [decors.mb];
                     } else if (subject.delegate.parent instanceof Box && subject.delegate.parent.orientation === Ui.Orientation.VERTICAL) {
                         return [decors.mb];
                     } else {
@@ -816,5 +997,11 @@ export default class Winnie {
     centerSurface() {
         this.layout.view.element.scrollLeft = (this.layout.widgets.element.offsetWidth - this.layout.view.element.clientWidth) / 2;
         this.layout.view.element.scrollTop = (this.layout.widgets.element.offsetHeight - this.layout.view.element.clientHeight) / 2;
+    }
+    
+    stickDecors() {
+        this.decors.forEach((d) => {
+            d.stick();
+        });
     }
 }
