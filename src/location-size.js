@@ -1,4 +1,5 @@
 import Ui from 'kenga/utils';
+import Anchors from 'kenga-containers/anchors-pane';
 
 function leftInSpaceOf(elem, parent) {
     let left = 0;
@@ -247,4 +248,63 @@ function resizeDecor(surface, subject, onEnd) {
     };
 }
 
-export {resizeDecor, mouseDrag, sizeLocationSnapshot};
+function startItemsMove(model, pickedWidget) {
+    const pickedItem = pickedWidget['winnie.wrapper'];
+    return (() => {
+        return model.layout.explorer.isSelected(pickedItem) ?
+                model.layout.explorer.selected :
+                [pickedItem];
+    })()
+            .filter((item) => item.delegate.attached && item.delegate.parent instanceof Anchors)
+            .map((item) => {
+                return {
+                    item,
+                    startSnapshot: sizeLocationSnapshot(item.delegate)
+                };
+            });
+}
+
+function proceedItemsMove(model, items, diff) {
+    items.forEach((moved) => {
+        moved.item.delegate.left = moved.startSnapshot.left + diff.x;
+        moved.item.delegate.top = moved.startSnapshot.top + diff.y;
+        model.stickDecors();
+    });
+}
+
+function endItemsMove(model, items) {
+    if (items.length > 0) {
+        items.forEach((moved) => {
+            moved.endSnapshot = sizeLocationSnapshot(moved.item.delegate);
+        });
+        model.edit({
+            name: (items.length === 1 ? `Widget '${items[0].item.name}' moved` : `Move of (${items.length}) widgets`),
+            redo: () => {
+                items.forEach((moved) => {
+                    const subjectElement = moved.item.delegate.element;
+                    subjectElement.style.left = moved.endSnapshot.anchors.left;
+                    subjectElement.style.width = moved.endSnapshot.anchors.width;
+                    subjectElement.style.right = moved.endSnapshot.anchors.right;
+                    subjectElement.style.top = moved.endSnapshot.anchors.top;
+                    subjectElement.style.height = moved.endSnapshot.anchors.height;
+                    subjectElement.style.bottom = moved.endSnapshot.anchors.bottom;
+                });
+                model.stickDecors();
+            },
+            undo: () => {
+                items.forEach((moved) => {
+                    const subjectElement = moved.item.delegate.element;
+                    subjectElement.style.left = moved.startSnapshot.anchors.left;
+                    subjectElement.style.width = moved.startSnapshot.anchors.width;
+                    subjectElement.style.right = moved.startSnapshot.anchors.right;
+                    subjectElement.style.top = moved.startSnapshot.anchors.top;
+                    subjectElement.style.height = moved.startSnapshot.anchors.height;
+                    subjectElement.style.bottom = moved.startSnapshot.anchors.bottom;
+                });
+                model.stickDecors();
+            }
+        });
+    }
+}
+
+export {resizeDecor, mouseDrag, sizeLocationSnapshot, startItemsMove, proceedItemsMove, endItemsMove};
