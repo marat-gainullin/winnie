@@ -339,3 +339,7 @@
 .p-winnie-selection-rect {
     border: 1px dashed #4267b2;
 }
+
+.p-winnie-visual-root {
+    font-weight: bold;
+}

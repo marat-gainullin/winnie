@@ -29,7 +29,7 @@ function winnieKeyDown(model, event) {
             model.checkEnabled();
             model.cut();
         }
-    } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_S) {
+    } else if (event.ctrlKey && event.shiftKey && event.keyCode === KeyCodes.KEY_S) {
         model.save();
     } else if (event.keyCode === KeyCodes.KEY_UP ||
             event.keyCode === KeyCodes.KEY_DOWN ||

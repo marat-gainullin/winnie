@@ -31,6 +31,7 @@ import { winnieKeyDown } from './shortcuts';
 import { startRectSelection, proceedRectSelection, endRectSelection } from './rect-selection';
 import { resizeDecor, mouseDrag, sizeLocationSnapshot, startItemsMove, proceedItemsMove, endItemsMove } from './location-size';
 import { generalHiddenProps, datagridColumnsHiddenProps, datagridHiddenProps, tabbedPaneHiddenProps, pathProps } from './props-hidden';
+import { generate as generateCode } from './code';
 
 export default class Winnie {
     constructor() {
@@ -88,6 +89,9 @@ export default class Winnie {
         this.layout.widgetColumn.onRender = (item, viewCell) => {
             viewCell.innerHTML = `${item.name} [${item.source.name}]`;
             viewCell.title = `'${item.source.name}' from '${item.source.from}'`;
+            if (item.delegate.element === self.visualRootElement()) {
+                viewCell.classList.add('p-winnie-visual-root');
+            }
         };
         function isParent(parent, child) {
             while (child.parent && child.parent !== parent) {
@@ -217,6 +221,10 @@ export default class Winnie {
             checkEnabled();
             self.acceptVisualRoot(self._lastSelected);
             self.centerSurface();
+        };
+        this.layout.tSave.onAction = () => {
+            checkEnabled();
+            self.save();
         };
         [this.layout.tCut, this.layout.miCut].forEach((w) => {
             enabled.push(() => {
@@ -543,6 +551,36 @@ export default class Winnie {
     }
 
     save() {
+        if (this.widgets.size > 0) {
+            const code = generateCode(this);
+            try {
+                const input = document.createElement('textarea');
+                input.style.left = input.style.top = '0px';
+                input.style.width = input.style.height = '2em';
+                input.style.background = 'transparent';
+                input.style.padding = 0;
+                input.style.border = 'none';
+                input.style.outline = 'none';
+                input.style.boxShadow = 'none';
+
+                input.value = code;
+                document.body.appendChild(input);
+                try {
+                    input.select();
+                    document.execCommand('copy');
+                } finally {
+                    document.body.removeChild(input);
+                }
+                Logger.info('Generated code copied to the clipboard.');
+                alert(i18n['winnie.generated.copied']);
+            } catch (e) {
+                Logger.severe(`Failed to copy code to clipboard due to an error:`);
+                Logger.severe(e);
+                Logger.info(`Generated code is:\n${code}`);
+            }
+        } else {
+            Logger.info(`Can't generate code for an empty [forest].`);
+        }
     }
 
     get canRedo() {
@@ -779,6 +817,7 @@ export default class Winnie {
                                                 self.layout.properties.goTo(prop, true);
                                             }
                                             prop.silent = false;
+                                            self.stickDecors();
                                             editBody.undo = () => {
                                                 if (key.includes('.')) {
                                                     Bound.setPathData(item.delegate, key, oldValue);
@@ -787,6 +826,7 @@ export default class Winnie {
                                                 }
                                                 self.layout.properties.changed(prop);
                                                 self.layout.properties.goTo(prop, true);
+                                                self.stickDecors();
                                             };
                                         }
                                     };
@@ -897,7 +937,7 @@ export default class Winnie {
     acceptVisualRoot(w) {
         const oldVRE = this.visualRootElement();
         if (oldVRE !== w.delegate.element) {
-            if(oldVRE){
+            if (oldVRE) {
                 this.layout.widgets.element.removeChild(oldVRE);
             }
             this.layout.widgets.element.appendChild(w.delegate.element);

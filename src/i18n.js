@@ -13,6 +13,7 @@ export default {
         'winnie.redo.tooltip': 'Redo next action',
         'winnie.save.name': 'Generate',
         'winnie.save.tooltip': 'Generate code of layout ...',
+        'winnie.generated.copied': 'Generated code copied to the clipboard.',
         'winnie.add.name': 'Add',
         'winnie.category.default': 'Other',
         'winnie.properties.header': 'Properties',
