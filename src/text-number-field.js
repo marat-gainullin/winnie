@@ -50,7 +50,7 @@ class TextNumberField extends BoxField {
                 const oldValue = value;
                 value = aValue !== undefined ? aValue : null;
                 box.type = typeof value === 'number' ? 'number' : 'text';
-                box.value = value;
+                box.value = value && value.src ? value.src : value;
                 self.fireValueChanged(oldValue);
             }
         });

@@ -51,7 +51,7 @@ export default class Winnie {
         const self = this;
         this.settings = {
             grid: {x: 10, y: 10},
-            undoDepth: 10
+            undoDepth: 1024 * 1024
         };
         this.paletteDrag = null;
         this.widgets = new Map(); // name -> widget
@@ -84,6 +84,10 @@ export default class Winnie {
         this.layout.explorer.onSelect = (evt) => {
             self.lastSelected = evt.item;
             checkEnabled();
+        };
+        this.layout.widgetColumn.onRender = (item, viewCell) => {
+            viewCell.innerHTML = `${item.name} [${item.source.name}]`;
+            viewCell.title = `'${item.source.name}' from '${item.source.from}'`;
         };
         function isParent(parent, child) {
             while (child.parent && child.parent !== parent) {
@@ -427,6 +431,7 @@ export default class Winnie {
                 return created.name;
             }
         });
+        created.source = item;
         this.edit({
             name: `Add '${item.name}' widget from '${item.from}'`,
             redo: () => {
@@ -890,7 +895,13 @@ export default class Winnie {
     }
 
     acceptVisualRoot(w) {
-        this.layout.widgets.element.appendChild(w.delegate.element);
+        const oldVRE = this.visualRootElement();
+        if (oldVRE !== w.delegate.element) {
+            if(oldVRE){
+                this.layout.widgets.element.removeChild(oldVRE);
+            }
+            this.layout.widgets.element.appendChild(w.delegate.element);
+        }
     }
 
     revokeVisualRoot(w) {
