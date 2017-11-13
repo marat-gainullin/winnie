@@ -63,4 +63,4 @@ function generate(model) {
             .reduce(concat);
 }
 
-export { generate };
+export default generate;

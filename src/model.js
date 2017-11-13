@@ -31,7 +31,152 @@ import { winnieKeyDown } from './shortcuts';
 import { startRectSelection, proceedRectSelection, endRectSelection } from './rect-selection';
 import { resizeDecor, mouseDrag, sizeLocationSnapshot, startItemsMove, proceedItemsMove, endItemsMove } from './location-size';
 import { generalHiddenProps, datagridColumnsHiddenProps, datagridHiddenProps, tabbedPaneHiddenProps, pathProps } from './props-hidden';
-import { generate as generateCode } from './code';
+import generateCode from './serial/model-to-code';
+import generateJson from './serial/model-to-json';
+
+function rename(model, created, newName) {
+    if (model.widgets.has(newName)) {
+        alert(i18n['winnie.name.used']);
+        model.layout.explorer.abortEditing();
+        return created.name;
+    } else if (newName.match(/^[a-zA-Z_][a-zA-Z_0-9]*$/)) {
+        const oldName = created.name;
+        model.edit({
+            name: `Rename widget '${oldName}' as '${newName}'`,
+            redo: () => {
+                model.widgets.delete(oldName);
+                created._name = newName;
+                model.widgets.set(newName, created);
+                model.layout.explorer.changed(created);
+                model.layout.explorer.goTo(created, true);
+            },
+            undo: () => {
+                model.widgets.delete(newName);
+                created._name = oldName;
+                model.widgets.set(oldName, created);
+                model.layout.explorer.changed(created);
+                model.layout.explorer.goTo(created, true);
+            }
+        });
+        model.checkEnabled();
+        return newName;
+    } else {
+        alert(i18n['winnie.bad.name']);
+        model.layout.explorer.abortEditing();
+        return created.name;
+    }
+}
+
+function produce(self, constr, widgetName, gridDimensions) {
+    let instance;
+    if (constr === Grid) {
+        if (gridDimensions) {
+            instance = new Grid(gridDimensions.rows, gridDimensions.columns, 10, 10);
+        } else {
+            const input = prompt(i18n['winnie.grid.dimensions']);
+            const matched = input.match(/(\d+),\s*(\d+)/);
+            if (matched) {
+                instance = new Grid(+matched[1], +matched[2], 10, 10);
+            } else {
+                throw `Provided text: '${input}' is not useful.`;
+            }
+        }
+    } else if (constr === Box) {
+        instance = new constr(Ui.Orientation.HORIZONTAL, 10, 10);
+    } else {
+        instance = new constr();
+        if (instance instanceof ImageParagraph ||
+                instance instanceof MenuItem ||
+                instance instanceof CheckBox ||
+                instance instanceof RadioButton) {
+            instance.text = widgetName;
+        }
+    }
+    instance.onMouseEnter = () => {
+        instance.element.classList.add('p-winnie-widget-hover');
+    };
+    instance.onMouseExit = () => {
+        instance.element.classList.remove('p-winnie-widget-hover');
+    };
+    mouseDrag(instance.element, (event) => {
+        if (instance.element === self.visualRootElement()) {
+            return startRectSelection(self.layout.view.element, event);
+        } else {
+            return startItemsMove(self, instance);
+        }
+    }, (start, diff) => {
+        if (instance.element === self.visualRootElement()) {
+            proceedRectSelection(start, diff);
+        } else {
+            proceedItemsMove(self, start, diff);
+        }
+    }, (start, diff, event) => {
+        if (instance.element === self.visualRootElement()) {
+            endRectSelection(self, start, diff, event);
+            const subject = instance['winnie.wrapper'];
+            self.layout.explorer.goTo(subject);
+        } else {
+            if (diff.x !== 0 || diff.y !== 0) {
+                endItemsMove(self, start);
+            } else {
+                const subject = instance['winnie.wrapper'];
+                self.layout.explorer.goTo(subject);
+                if (event.ctrlKey) {
+                    if (self.layout.explorer.isSelected(subject)) {
+                        self.layout.explorer.unselect(subject);
+                    } else {
+                        self.layout.explorer.select(subject);
+                    }
+                } else {
+                    self.layout.explorer.unselectAll();
+                    self.layout.explorer.select(subject);
+                }
+            }
+        }
+    });
+    if (instance instanceof Container) {
+        Ui.on(instance.element, Ui.Events.DRAGENTER, event => {
+            if (self.paletteDrag) {
+                event.preventDefault();
+                event.stopPropagation();
+                instance.element.classList.add('p-winnie-container-dnd-target');
+            }
+        });
+        Ui.on(instance.element, Ui.Events.DRAGLEAVE, event => {
+            if (self.paletteDrag) {
+                event.preventDefault();
+                event.stopPropagation();
+                instance.element.classList.remove('p-winnie-container-dnd-target');
+            }
+        });
+        Ui.on(instance.element, Ui.Events.DRAGOVER, event => {
+            if (self.paletteDrag) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.dropEffect = 'move';
+            }
+        });
+        Ui.on(instance.element, Ui.Events.DROP, event => {
+            if (self.paletteDrag) {
+                event.preventDefault();
+                event.stopPropagation();
+                instance.element.classList.remove('p-winnie-container-dnd-target');
+                self.layout.explorer.goTo(instance['winnie.wrapper'], true);
+                const added = self.addWidget(self.paletteDrag.item);
+                if (instance instanceof Anchors) {
+                    const wX = Ui.absoluteLeft(added.delegate.element);
+                    const wY = Ui.absoluteTop(added.delegate.element);
+                    const left = event.clientX - wX - added.delegate.width / 2;
+                    const top = event.clientY - wY - added.delegate.height / 2;
+                    added.delegate.left = left > 0 ? left : self.settings.grid.x;
+                    added.delegate.top = top > 0 ? top : self.settings.grid.y;
+                }
+                self.stickDecors();
+            }
+        });
+    }
+    return instance;
+}
 
 export default class Winnie {
     constructor() {
@@ -282,13 +427,75 @@ export default class Winnie {
     }
 
     clear() {
+        this.clearVisualRoot();
         this.editsCursor = 0;
         this.edits = [];
-        this.layout.widgets.clear();
         this.widgets.clear();
         const removed = this.forest.splice(0, this.forest.length);
         this.layout.explorer.removed(removed);
         this.layout.properties.data = [];
+        // this.lastSelected = null; // TODO: Check if this assignment is necessary.
+    }
+
+    acceptJson(source) {
+        const self = this;
+        self.clear();
+        let firstContainer = null;
+        const indexed = {};
+        for (let c in self._palette) {
+            const category = self._palette[c];
+            category.items.forEach((item) => {
+                indexed[item.from] = item;
+            });
+        }
+        function adopt(plain, parent) {
+            for (let widgetName in plain) {
+                const item = plain[widgetName];
+                const source = indexed[item.from];
+                if (source) {
+                    const created = new Wrapper(
+                            produce(self, source.widget, widgetName,
+                                    source.widget === Grid ?
+                                    {
+                                        rows: 'rows' in item.body ? item.body.rows : source.defaultInstance.rows,
+                                        columns: 'columns' in item.body ? item.body.columns : source.defaultInstance.columns
+                                    } : undefined
+                                    ),
+                            widgetName, source.defaultInstance, (newName) => {
+                        rename(self, created, newName);
+                    });
+                    created.source = source;
+                    self.widgets.set(widgetName, created);
+                    if (parent) {
+                        parent.add(created);
+                    } else {
+                        self.forest.push(created);
+                    }
+                    for (let p in item.body) {
+                        if (!(created.delegate instanceof Grid) || (p !== 'columns' && p !== 'rows')) {
+                            if (p.includes('.')) {
+                                Bound.setPathData(created.delegate, p, item.body[p]);
+                            } else {
+                                created.delegate[p] = item.body[p];
+                            }
+                        }
+                    }
+                    if (!firstContainer && created.delegate instanceof Container) {
+                        firstContainer = created;
+                    }
+                    adopt(item.children, created);
+                } else {
+                    Logger.info(`Can't read widget '${widgetName}' from unknown module '${item.from}'.`);
+                }
+            }
+        }
+        adopt(JSON.parse(source));
+        this.layout.explorer.added(this.forest);
+        if (firstContainer) {
+            this.acceptVisualRoot(firstContainer);
+            this.layout.explorer.goTo(firstContainer, true);
+            this.centerSurface();
+        }
     }
 
     addWidget(item) {
@@ -300,144 +507,9 @@ export default class Winnie {
         while (this.widgets.has(widgetName)) {
             widgetName = `${widgetNameBase}${nameAttempt++}`;
         }
-        function produce(constr) {
-            let instance;
-            if (constr === Grid) {
-                const input = prompt(i18n['winnie.grid.dimensions']);
-                const matched = input.match(/(\d+),\s*(\d+)/);
-                if (matched) {
-                    instance = new Grid(+matched[1], +matched[2], 10, 10);
-                } else {
-                    throw `Provided text: '${input}' is not useful.`;
-                }
-            } else if (constr === Box) {
-                instance = new constr(Ui.Orientation.HORIZONTAL, 10, 10);
-            } else {
-                instance = new constr();
-                if (instance instanceof ImageParagraph ||
-                        instance instanceof MenuItem ||
-                        instance instanceof CheckBox ||
-                        instance instanceof RadioButton) {
-                    instance.text = widgetName;
-                }
-            }
-            instance.onMouseEnter = () => {
-                instance.element.classList.add('p-winnie-widget-hover');
-            };
-            instance.onMouseExit = () => {
-                instance.element.classList.remove('p-winnie-widget-hover');
-            };
-            mouseDrag(instance.element, (event) => {
-                if (instance.element === self.visualRootElement()) {
-                    return startRectSelection(self.layout.view.element, event);
-                } else {
-                    return startItemsMove(self, instance);
-                }
-            }, (start, diff) => {
-                if (instance.element === self.visualRootElement()) {
-                    proceedRectSelection(start, diff);
-                } else {
-                    proceedItemsMove(self, start, diff);
-                }
-            }, (start, diff, event) => {
-                if (instance.element === self.visualRootElement()) {
-                    endRectSelection(self, start, diff, event);
-                    const subject = instance['winnie.wrapper'];
-                    self.layout.explorer.goTo(subject);
-                } else {
-                    if (diff.x !== 0 || diff.y !== 0) {
-                        endItemsMove(self, start);
-                    } else {
-                        const subject = instance['winnie.wrapper'];
-                        self.layout.explorer.goTo(subject);
-                        if (event.ctrlKey) {
-                            if (self.layout.explorer.isSelected(subject)) {
-                                self.layout.explorer.unselect(subject);
-                            } else {
-                                self.layout.explorer.select(subject);
-                            }
-                        } else {
-                            self.layout.explorer.unselectAll();
-                            self.layout.explorer.select(subject);
-                        }
-                    }
-                }
-            });
-            if (instance instanceof Container) {
-                Ui.on(instance.element, Ui.Events.DRAGENTER, event => {
-                    if (self.paletteDrag) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        instance.element.classList.add('p-winnie-container-dnd-target');
-                    }
-                });
-                Ui.on(instance.element, Ui.Events.DRAGLEAVE, event => {
-                    if (self.paletteDrag) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        instance.element.classList.remove('p-winnie-container-dnd-target');
-                    }
-                });
-                Ui.on(instance.element, Ui.Events.DRAGOVER, event => {
-                    if (self.paletteDrag) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        event.dropEffect = 'move';
-                    }
-                });
-                Ui.on(instance.element, Ui.Events.DROP, event => {
-                    if (self.paletteDrag) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        instance.element.classList.remove('p-winnie-container-dnd-target');
-                        self.layout.explorer.goTo(instance['winnie.wrapper'], true);
-                        const added = self.addWidget(self.paletteDrag.item);
-                        if (instance instanceof Anchors) {
-                            const wX = Ui.absoluteLeft(added.delegate.element);
-                            const wY = Ui.absoluteTop(added.delegate.element);
-                            const left = event.clientX - wX - added.delegate.width / 2;
-                            const top = event.clientY - wY - added.delegate.height / 2;
-                            added.delegate.left = left > 0 ? left : self.settings.grid.x;
-                            added.delegate.top = top > 0 ? top : self.settings.grid.y;
-                        }
-                        self.stickDecors();
-                    }
-                });
-            }
-            return instance;
-        }
 
-        const created = new Wrapper(produce(item.widget), widgetName, item.defaultInstance, (newName) => {
-            if (self.widgets.has(newName)) {
-                alert(i18n['winnie.name.used']);
-                self.layout.explorer.abortEditing();
-                return created.name;
-            } else if (newName.match(/^[a-zA-Z_][a-zA-Z_0-9]*$/)) {
-                const oldName = created.name;
-                self.edit({
-                    name: `Rename widget '${oldName}' as '${newName}'`,
-                    redo: () => {
-                        self.widgets.delete(oldName);
-                        created._name = newName;
-                        self.widgets.set(newName, created);
-                        self.layout.explorer.changed(created);
-                        self.layout.explorer.goTo(created, true);
-                    },
-                    undo: () => {
-                        self.widgets.delete(newName);
-                        created._name = oldName;
-                        self.widgets.set(oldName, created);
-                        self.layout.explorer.changed(created);
-                        self.layout.explorer.goTo(created, true);
-                    }
-                });
-                self.checkEnabled();
-                return newName;
-            } else {
-                alert(i18n['winnie.bad.name']);
-                self.layout.explorer.abortEditing();
-                return created.name;
-            }
+        const created = new Wrapper(produce(self, item.widget, widgetName), widgetName, item.defaultInstance, (newName) => {
+            rename(self, created, newName);
         });
         created.source = item;
         this.edit({
@@ -541,6 +613,8 @@ export default class Winnie {
     }
 
     paste() {
+        const source = prompt('Paste JSON here:');
+        this.acceptJson(source);
     }
 
     cut() {
@@ -552,7 +626,8 @@ export default class Winnie {
 
     save() {
         if (this.widgets.size > 0) {
-            const code = generateCode(this);
+            // const generated = generateCode(this);
+            const generated = generateJson(this);
             try {
                 const input = document.createElement('textarea');
                 input.style.left = input.style.top = '0px';
@@ -563,7 +638,7 @@ export default class Winnie {
                 input.style.outline = 'none';
                 input.style.boxShadow = 'none';
 
-                input.value = code;
+                input.value = generated;
                 document.body.appendChild(input);
                 try {
                     input.select();
@@ -576,7 +651,7 @@ export default class Winnie {
             } catch (e) {
                 Logger.severe(`Failed to copy code to clipboard due to an error:`);
                 Logger.severe(e);
-                Logger.info(`Generated code is:\n${code}`);
+                Logger.info(`Generated code is:\n${generated}`);
             }
         } else {
             Logger.info(`Can't generate code for an empty [forest].`);
@@ -732,26 +807,16 @@ export default class Winnie {
                     }
                 }).forEach((item) => {
                     try {
-                        const paletteItem = paletteItemOf(item);
-                        const itemMi = menuItemOf(item);
                         item.defaultInstance = new item.widget();
-                        itemMi.onAction = () => {
+                        const itemPaletteItem = paletteItemOf(item);
+                        const itemMenuItem = menuItemOf(item);
+                        itemMenuItem.onAction = () => {
                             self.addWidget(item);
                         };
                         const category = categoryOf(item);
-                        category.items.push({
-                            palette: paletteItem,
-                            mi: itemMi,
-                            widget: item.widget,
-                            from: item.from,
-                            name: item.name,
-                            defaultInstance: item.defaultInstance,
-                            description: item.description,
-                            style: item.style,
-                            category,
-                        });
-                        category.palette.content.add(paletteItem);
-                        category.menu.add(itemMi);
+                        category.palette.content.add(itemPaletteItem);
+                        category.menu.add(itemMenuItem);
+                        category.items.push(item);
                     } catch (ex) {
                         Logger.info(`Can't add palette item '${item.name}' from '${item.from}' due to exception:`);
                         Logger.severe(ex);
@@ -941,6 +1006,13 @@ export default class Winnie {
                 this.layout.widgets.element.removeChild(oldVRE);
             }
             this.layout.widgets.element.appendChild(w.delegate.element);
+        }
+    }
+
+    clearVisualRoot() {
+        const vre = this.visualRootElement();
+        if (vre) {
+            vre.parentElement.removeChild(vre);
         }
     }
 
