@@ -2,40 +2,14 @@ import KeyCodes from 'kenga/key-codes';
 import Anchors from 'kenga-containers/anchors-pane';
 import { sizeLocationSnapshot, proceedItemsMove, endItemsMove } from './location-size';
 
-function winnieKeyDown(model, event) {
-    if (event.ctrlKey && event.keyCode === KeyCodes.KEY_Z) {
-        model.checkEnabled();
-        if (event.shiftKey) {
-            model.redo();
-        } else {
-            model.undo();
-        }
-    } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_Y) {
-        model.checkEnabled();
-        model.redo();
-    } else if (event.keyCode === KeyCodes.KEY_DELETE) {
-        if (model.layout.explorer.selected.length > 0) {
-            model.checkEnabled();
-            model.removeSelected();
-        }
-    } else if (event.ctrlKey && (event.keyCode === KeyCodes.KEY_C || event.keyCode === KeyCodes.KEY_INSERT)) {
-        model.copy();
-    } else if ((event.shiftKey && event.keyCode === KeyCodes.KEY_INSERT) ||
-            (event.ctrlKey && event.keyCode === KeyCodes.KEY_V)) {
-        model.checkEnabled();
-        model.paste();
-    } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_X) {
-        if (model.layout.explorer.selected.length > 0) {
-            model.checkEnabled();
-            model.cut();
-        }
-    } else if (event.ctrlKey && event.shiftKey && event.keyCode === KeyCodes.KEY_S) {
-        model.save();
-    } else if (event.keyCode === KeyCodes.KEY_UP ||
+function surfaceKeyDown(model, event) {
+    if (event.keyCode === KeyCodes.KEY_UP ||
             event.keyCode === KeyCodes.KEY_DOWN ||
             event.keyCode === KeyCodes.KEY_LEFT ||
             event.keyCode === KeyCodes.KEY_RIGHT) {
         if (model.layout.explorer.selected.length > 0) {
+            event.stopPropagation();
+            event.preventDefault();
             model.checkEnabled();
 
             const moved = model.layout.explorer.selected
@@ -66,4 +40,36 @@ function winnieKeyDown(model, event) {
     }
 }
 
-export { winnieKeyDown };
+function winnieKeyDown(model, event) {
+    if (event.ctrlKey && event.keyCode === KeyCodes.KEY_Z) {
+        model.checkEnabled();
+        if (event.shiftKey) {
+            model.redo();
+        } else {
+            model.undo();
+        }
+    } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_Y) {
+        model.checkEnabled();
+        model.redo();
+    } else if (event.keyCode === KeyCodes.KEY_DELETE) {
+        if (model.layout.explorer.selected.length > 0) {
+            model.checkEnabled();
+            model.removeSelected();
+        }
+    } else if (event.ctrlKey && (event.keyCode === KeyCodes.KEY_C || event.keyCode === KeyCodes.KEY_INSERT)) {
+        model.copy();
+    } else if ((event.shiftKey && event.keyCode === KeyCodes.KEY_INSERT) ||
+            (event.ctrlKey && event.keyCode === KeyCodes.KEY_V)) {
+        model.checkEnabled();
+        model.paste();
+    } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_X) {
+        if (model.layout.explorer.selected.length > 0) {
+            model.checkEnabled();
+            model.cut();
+        }
+    } else if (event.ctrlKey && event.shiftKey && event.keyCode === KeyCodes.KEY_S) {
+        model.save();
+    }
+}
+
+export default { winnieKeyDown, surfaceKeyDown };

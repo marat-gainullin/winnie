@@ -123,7 +123,7 @@ export default [
     //
     {
         widget: ModelCheckBox,
-        from: 'kenga-buttons/model-check-box',
+        from: 'kenga-model-buttons/model-check-box',
         name: 'Model check box',
         description: 'Model check box with data bindnig and button group capability',
         iconStyle: 'icon-check',
@@ -131,7 +131,7 @@ export default [
     },
     {
         widget: ModelRadioButton,
-        from: 'kenga-buttons/model-radio-button',
+        from: 'kenga-model-buttons/model-radio-button',
         name: 'Model radio button',
         description: 'Radio button with data bindnig and button group capability',
         iconStyle: 'icon-dot-circled',
@@ -139,7 +139,7 @@ export default [
     },
     {
         widget: ModelToggleButton,
-        from: 'kenga-buttons/model-toggle-button',
+        from: 'kenga-model-buttons/model-toggle-button',
         name: 'Model toggle button',
         description: 'Model toggle button with data bindnig and button group capability',
         //iconStyle: 'kenga-check-box-icon',
@@ -317,103 +317,103 @@ export default [
     },
     //
     {
-        widget: ModelColorField, from: 'kenga-fields/model-color-field',
+        widget: ModelColorField, from: 'kenga-model-fields/model-color-field',
         category: 'Model fields',
         name: 'Model color field',
         decription: 'Color field with data binding'
     },
     {
-        widget: ModelDateField, from: 'kenga-fields/model-date-field',
+        widget: ModelDateField, from: 'kenga-model-fields/model-date-field',
         category: 'Model fields',
         name: 'Model date field',
         decription: 'Date field with data binding'
     },
     {
-        widget: ModelDateTimeField, from: 'kenga-fields/model-date-time-field',
+        widget: ModelDateTimeField, from: 'kenga-model-fields/model-date-time-field',
         category: 'Model fields',
         name: 'Model date time field',
         decription: 'Date time field with data binding'
     },
     {
-        widget: ModelDropDownField, from: 'kenga-fields/model-drop-down-field',
+        widget: ModelDropDownField, from: 'kenga-model-fields/model-drop-down-field',
         category: 'Model fields',
         name: 'Model drop down field',
         decription: 'Drop down field with data binding of value and of datalist as well'
     },
     {
-        widget: ModelEMailField, from: 'kenga-fields/model-email-field',
+        widget: ModelEMailField, from: 'kenga-model-fields/model-email-field',
         category: 'Model fields',
         name: 'Model e-mail field',
         decription: 'EMail field with data binding'
     },
     {
-        widget: ModelFormattedField, from: 'kenga-fields/model-formatted-field',
+        widget: ModelFormattedField, from: 'kenga-model-fields/model-formatted-field',
         category: 'Model fields',
         name: 'Model formatted field',
         decription: 'Formatted field with data binding'
     },
     {
-        widget: ModelMeterField, from: 'kenga-fields/model-meter-field',
+        widget: ModelMeterField, from: 'kenga-model-fields/model-meter-field',
         category: 'Model fields',
         name: 'Model meter field',
         decription: 'Meter field with data binding'
     },
     {
-        widget: ModelNumberField, from: 'kenga-fields/model-number-field',
+        widget: ModelNumberField, from: 'kenga-model-fields/model-number-field',
         category: 'Model fields',
         name: 'Model number field',
         decription: 'Number field with data binding'
     },
     {
-        widget: ModelPasswordField, from: 'kenga-fields/model-password-field',
+        widget: ModelPasswordField, from: 'kenga-model-fields/model-password-field',
         category: 'Model fields',
         name: 'Model password field',
         decription: 'Password field with data binding'
     },
     {
-        widget: ModelPhoneField, from: 'kenga-fields/model-phone-field',
+        widget: ModelPhoneField, from: 'kenga-model-fields/model-phone-field',
         category: 'Model fields',
         name: 'Model phone field',
         decription: 'Phone field with data binding'
     },
     {
-        widget: ModelProgressField, from: 'kenga-fields/model-progress-field',
+        widget: ModelProgressField, from: 'kenga-model-fields/model-progress-field',
         category: 'Model fields',
         name: 'Model progress field',
         decription: 'Progress field with data binding'
     },
     {
-        widget: ModelRichTextArea, from: 'kenga-fields/model-rich-text-area',
+        widget: ModelRichTextArea, from: 'kenga-model-fields/model-rich-text-area',
         category: 'Model fields',
         name: 'Model rich text area',
         decription: 'Rich text area with data binding'
     },
     {
-        widget: ModelSlider, from: 'kenga-fields/model-slider',
+        widget: ModelSlider, from: 'kenga-model-fields/model-slider',
         category: 'Model fields',
         name: 'Model slider',
         decription: 'Slider with data binding'
     },
     {
-        widget: ModelTextArea, from: 'kenga-fields/model-text-area',
+        widget: ModelTextArea, from: 'kenga-model-fields/model-text-area',
         category: 'Model fields',
         name: 'Model text area',
         decription: 'Text area with data binding'
     },
     {
-        widget: ModelTextField, from: 'kenga-fields/model-text-field',
+        widget: ModelTextField, from: 'kenga-model-fields/model-text-field',
         category: 'Model fields',
         name: 'Model text field',
         decription: 'Text field with data binding'
     },
     {
-        widget: ModelTimeField, from: 'kenga-fields/model-time-field',
+        widget: ModelTimeField, from: 'kenga-model-fields/model-time-field',
         category: 'Model fields',
         name: 'Model Time field',
         decription: 'Time field with data binding'
     },
     {
-        widget: ModelUrlField, from: 'kenga-fields/model-url-field',
+        widget: ModelUrlField, from: 'kenga-model-fields/model-url-field',
         category: 'Model fields',
         name: 'Model URL field',
         decription: 'URL field field with data binding'

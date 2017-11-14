@@ -9,7 +9,9 @@
             "dropDownButton": {
                 "from": "kenga-buttons/drop-down-button",
                 "body": {
-                    "text": "dropDownButton"
+                    "text": "dropDownButton",
+                    "element.style.left": "83px",
+                    "element.style.top": "19px"
                 },
                 "children": {}
             },
@@ -41,12 +43,12 @@
                         },
                         "children": {
                             "modelRadioButton": {
-                                "from": "kenga-buttons/model-radio-button",
+                                "from": "kenga-model-buttons/model-radio-button",
                                 "body": {},
                                 "children": {}
                             },
                             "modelCheckBox": {
-                                "from": "kenga-buttons/model-check-box",
+                                "from": "kenga-model-buttons/model-check-box",
                                 "body": {},
                                 "children": {}
                             }

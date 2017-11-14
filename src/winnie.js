@@ -1,9 +1,13 @@
 import Invoke from 'septima-utils/invoke';
 import Model from './model';
-import Palette from './palette';
+import kenga from './palette/kenga';
+import winnie from './adopts/local';
 
 const model = new Model();
-Palette.fill(model.palette);
+
+model.palette.add(kenga);
+model.adopts.add(winnie);
+
 model.layout.ground.element.style.width = '100%';
 model.layout.ground.element.style.height = '100%';
 document.body.appendChild(model.layout.ground.element);

@@ -7,6 +7,7 @@ import Flow from 'kenga-containers/flow-pane';
 import Toolbar from 'kenga-containers/tool-bar';
 import Scroll from 'kenga-containers/scroll-pane';
 import Button from 'kenga-buttons/button';
+import DropDownButton from 'kenga-buttons/drop-down-button';
 import Grid from 'kenga-grid/grid';
 import ColumnNode from 'kenga-grid/columns/column-node';
 import Menu from 'kenga-menu/menu';
@@ -34,6 +35,7 @@ export default function Layout() {
     const properties = new Grid();
     const widgets = new Flow();
     {
+        widgets.focusable = true;
         widgetColumn.field = 'name';
         widgetColumn.title = 'widget.name';
         explorer.addColumnNode(widgetColumn);
@@ -85,21 +87,32 @@ export default function Layout() {
         ground.rightSide = rightBox;
     }
 
+    const tOpen = new Button();
+    const tAdopt = new DropDownButton();
+    tAdopt.dropDownMenu = new Menu();
     const tSave = new Button();
+    const tExport = new Button();
     const tCut = new Button();
     const tCopy = new Button();
     const tPaste = new Button();
     const tRemove = new Button();
     const tUndo = new Button();
     const tRedo = new Button();
+    const tSettings = new Button();
     function withStyle(name) {
         const div = document.createElement('div');
         div.className = name;
         return div;
     }
     {
+        tOpen.icon = withStyle('icon-folder-open-empty');
+        tOpen.toolTipText = i18n['winnie.open.tooltip'];
+        tAdopt.icon = withStyle('icon-arrow-combo');
+        tAdopt.toolTipText = i18n['winnie.adopt.tooltip'];
         tSave.icon = withStyle('icon-floppy');
         tSave.toolTipText = i18n['winnie.save.tooltip'];
+        tExport.icon = withStyle('icon-export');
+        tExport.toolTipText = i18n['winnie.export.tooltip'];
         tCut.icon = withStyle('icon-scissors');
         tCut.toolTipText = i18n['winnie.cut.tooltip'];
         tCopy.icon = withStyle('icon-docs');
@@ -108,19 +121,25 @@ export default function Layout() {
         tPaste.toolTipText = i18n['winnie.paste.tooltip'];
         tRemove.icon = withStyle('icon-trash');
         tRemove.toolTipText = i18n['winnie.remove.tooltip'];
+        tSettings.icon = withStyle('icon-cogs');
+        tSettings.toolTipText = i18n['winnie.settings.tooltip'];
 
         tUndo.icon = withStyle('icon-reply-1');
         tUndo.toolTipText = i18n['winnie.undo.tooltip'];
         tRedo.icon = withStyle('icon-forward-1');
         tRedo.toolTipText = i18n['winnie.redo.tooltip'];
 
+        tools.add(tOpen);
+        tools.add(tAdopt);
         tools.add(tSave);
+        tools.add(tExport);
         tools.add(tCut);
         tools.add(tCopy);
-        tools.add(tPaste);
+        //tools.add(tPaste);
         tools.add(tUndo);
         tools.add(tRedo);
         tools.add(tRemove);
+        tools.add(tSettings);
     }
 
     const miAdd = new MenuItem(i18n['winnie.add.name']);
@@ -161,7 +180,7 @@ export default function Layout() {
         explorerMenu.add(new MenuSeparator());
         explorerMenu.add(miCut);
         explorerMenu.add(miCopy);
-        explorerMenu.add(miPaste);
+        //explorerMenu.add(miPaste);
         explorerMenu.add(new MenuSeparator());
         explorerMenu.add(miUndo);
         explorerMenu.add(miRedo);
@@ -195,12 +214,16 @@ export default function Layout() {
         miRemove,
         propNameColumn,
         propValueColumn,
+        tOpen,
+        tAdopt,
         tSave,
+        tExport,
         tCut,
         tCopy,
         tPaste,
         tUndo,
         tRedo,
-        tRemove
+        tRemove,
+        tSettings
     };
 }

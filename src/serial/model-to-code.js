@@ -1,3 +1,5 @@
+import Grid from 'kenga-containers/grid-pane';
+
 const concat = (prev, item) => {
     return `${prev}\n${item}`;
 };
@@ -18,19 +20,22 @@ function imports(model) {
 function instances(model, indent) {
     return Array.from(model.widgets.entries())
             .map(([key, item]) => {
-                return [`${indent}const ${key} = new ${item.delegate.constructor.name}();`,
+                return [item.delegate instanceof Grid ?
+                            `${indent}const ${key} = new ${item.delegate.constructor.name}(${item.delegate.rows}, ${item.delegate.columns});` :
+                            `${indent}const ${key} = new ${item.delegate.constructor.name}();`
+                            ,
                     `${indent}{`,
                     item.sheet
-                            .filter(p => p.edited)
+                            .filter(p => p.edited && (!(item.delegate instanceof Grid) || (p.name !== 'rows' && p.name !== 'columns') ))
                             .map((p) => {
                                 return `${indent}    ${key}.${p.name} = ${typeof p.value === 'string' ? `'${p.value}'` : (p.value && p.value.src ? `'${p.value.src}'` : p.value)};`;
                             })
-                            .reduce(concat),
+                            .reduce(concat, ''),
                     `${indent}}`,
                     `${indent}this.${key} = ${key};`]
                         .reduce(concat);
             })
-            .reduce(concat);
+            .reduce(concat, '');
 }
 
 function forest(model, indent) {
@@ -45,7 +50,7 @@ function forest(model, indent) {
             .map((item) => {
                 return `${indent}${item.parent.name}.add(${item.name});`;
             })
-            .reduce(concat);
+            .reduce(concat, '');
 }
 
 function generate(model) {
