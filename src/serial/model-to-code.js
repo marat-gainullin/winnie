@@ -22,8 +22,7 @@ function instances(model, indent) {
             .map(([key, item]) => {
                 return [item.delegate instanceof Grid ?
                             `${indent}const ${key} = new ${item.delegate.constructor.name}(${item.delegate.rows}, ${item.delegate.columns});` :
-                            `${indent}const ${key} = new ${item.delegate.constructor.name}();`
-                            ,
+                            `${indent}const ${key} = new ${item.delegate.constructor.name}();`,
                     `${indent}{`,
                     item.sheet
                             .filter(p => p.edited && (!(item.delegate instanceof Grid) || (p.name !== 'rows' && p.name !== 'columns') ))
@@ -54,7 +53,7 @@ function forest(model, indent) {
 }
 
 function generate(model) {
-    const generatedName = 'SavedWidgetsRenameMe';
+    const generatedName = 'KengaWidgets';
     return [
         imports(model),
         '',

@@ -1,4 +1,4 @@
-function forest(model) {
+function forest(forest) {
     function toPlain(sheet) {
         const props = {};
         sheet
@@ -19,7 +19,7 @@ function forest(model) {
         });
         return itemsObj;
     }
-    return JSON.stringify(itemsToObj(model.forest), null, 4);
+    return JSON.stringify(itemsToObj(forest), null, 4);
 }
 
 export default forest;

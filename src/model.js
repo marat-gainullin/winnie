@@ -31,8 +31,8 @@ import Shortcuts from './shortcuts';
 import { startRectSelection, proceedRectSelection, endRectSelection } from './rect-selection';
 import { resizeDecor, mouseDrag, sizeLocationSnapshot, startItemsMove, proceedItemsMove, endItemsMove } from './location-size';
 import { generalHiddenProps, datagridColumnsHiddenProps, datagridHiddenProps, tabbedPaneHiddenProps, pathProps } from './props-hidden';
-import generateCode from './serial/model-to-code';
-import generateJson from './serial/model-to-json';
+import modelToEs6 from './serial/model-to-code';
+import modelToJson from './serial/model-to-json';
 import clipboard from './clipboard';
 
 function rename(model, created, newName) {
@@ -132,6 +132,9 @@ function produce(self, constr, widgetName, gridDimensions) {
                     self.layout.explorer.unselectAll();
                     self.layout.explorer.select(subject);
                 }
+                Invoke.later(() => {
+                    self.layout.widgets.element.focus();
+                });
             }
         }
     });
@@ -229,6 +232,10 @@ function createProps(self, item) {
             });
 }
 
+function decapitalize(name) {
+    return name.substring(0, 1).toLowerCase() + name.substring(1);
+}
+
 export default class Winnie {
     constructor() {
         function explorerColumnRewidth() {
@@ -269,13 +276,24 @@ export default class Winnie {
         Ui.on(this.layout.ground.element, Ui.Events.KEYDOWN, (event) => {
             Shortcuts.winnieKeyDown(self, event);
         });
-        Ui.on(this.layout.widgets.element, Ui.Events.KEYDOWN, (event) => {
-            Shortcuts.surfaceKeyDown(self, event);
-        });
-        Ui.on(this.layout.widgets.element, 'paste', event => {
+        Ui.on(this.layout.ground.element, 'paste', event => {
             event.stopPropagation();
             event.preventDefault();
-            self.paste(event.clipboardData.getData('text/plain'));
+            let firstContainer = null;
+            const addLog = self.paste(event.clipboardData.getData('text/plain'));
+            addLog.forEach((item) => {
+                if (!firstContainer && item.subject.delegate instanceof Container) {
+                    firstContainer = item.subject;
+                }
+            });
+            if (!self.visualRootPresent() && firstContainer) {
+                self.acceptVisualRoot(firstContainer);
+                self.layout.explorer.goTo(firstContainer, true);
+                self.centerSurface();
+            }
+        });
+        Ui.on(this.layout.widgets.element, Ui.Events.KEYDOWN, (event) => {
+            Shortcuts.surfaceKeyDown(self, event);
         });
         mouseDrag(this.layout.view.element, (event) => {
             return startRectSelection(self.layout.view.element, event);
@@ -515,20 +533,20 @@ export default class Winnie {
         // this.lastSelected = null; // TODO: Check if this assignment is necessary.
     }
 
-    acceptJson(source) {
+    acceptJson(source, initialParent, undoable = false) {
         const self = this;
-        self.clear();
-        let firstContainer = null;
         const indexed = {};
-        for (let c in self._palette) {
+        Object.keys(self._palette).forEach(c => {
             const category = self._palette[c];
             category.items.forEach((item) => {
                 indexed[item.from] = item;
             });
-        }
+        });
+        const addLog = [];
         function adopt(plain, parent) {
-            for (let widgetName in plain) {
-                const item = plain[widgetName];
+            Object.keys(plain).forEach(plainName => {
+                const item = plain[plainName];
+                const widgetName = self.generateName(plainName);
                 const source = indexed[item.from];
                 if (source) {
                     const created = new Wrapper(
@@ -539,14 +557,19 @@ export default class Winnie {
                                         columns: 'columns' in item.body ? item.body.columns : source.defaultInstance.columns
                                     } : undefined
                                     ),
-                            widgetName, source.defaultInstance, (newName) => {
+                            widgetName,
+                            source.defaultInstance,
+                            (newName) => {
                         rename(self, created, newName);
-                    });
+                    }
+                    );
                     created.source = source;
                     self.widgets.set(widgetName, created);
                     if (parent) {
+                        addLog.push({subject: created, parent, at: parent.count});
                         parent.add(created);
                     } else {
+                        addLog.push({subject: created, parent: null, at: self.forest.length});
                         self.forest.push(created);
                     }
                     for (let p in item.body) {
@@ -558,76 +581,104 @@ export default class Winnie {
                             }
                         }
                     }
-                    if (!firstContainer && created.delegate instanceof Container) {
-                        firstContainer = created;
-                    }
                     created.sheet = createProps(self, created);
                     adopt(item.children, created);
                 } else {
                     Logger.info(`Can't read widget '${widgetName}' from unknown module '${item.from}'.`);
                 }
-            }
+            });
         }
-        adopt(JSON.parse(source));
-        this.layout.explorer.added(this.forest);
-        if (firstContainer) {
-            this.acceptVisualRoot(firstContainer);
-            this.layout.explorer.goTo(firstContainer, true);
-            this.centerSurface();
+        self.layout.explorer.unselectAll();
+        adopt(JSON.parse(source), initialParent);
+        if (undoable) {
+            const editBody = {
+                name: `Paste ${addLog.length === 1 ? `'${addLog[0].subject.name}' widget` : `${addLog.length} widgets`} from clipboard`,
+                redo: () => {
+                },
+                undo: () => {
+                    self.layout.explorer.unselectAll();
+                    addLog
+                            .slice(0, addLog.length)
+                            .reverse()
+                            .forEach((item) => {
+                                self.widgets.delete(item.subject.name);
+                                if (item.parent) {
+                                    item.parent.remove(item.at);
+                                } else {
+                                    self.forest.splice(item.at, 1);
+                                }
+                            });
+                    self.layout.explorer.removed(addLog.map(item => item.subject));
+                },
+            };
+            this.edit(editBody);
+            editBody.redo = () => {
+                self.layout.explorer.unselectAll();
+                addLog.forEach((item) => {
+                    self.widgets.set(item.subject.name, item.subject);
+                    if (item.parent) {
+                        item.parent.add(item.subject, item.at);
+                    } else {
+                        self.forest.splice(item.at, 0, item.subject);
+                    }
+                });
+                self.layout.explorer.added(addLog.map(item => item.subject));
+            };
         }
+        self.layout.explorer.added(addLog.map(item => item.subject));
+        return addLog;
     }
 
     acceptNatives(natives) {
         const self = this;
-        self.clear();
-        let firstContainer = null;
         const indexed = {};
-        for (let c in self._palette) {
+        Object.keys(self._palette).forEach(c => {
             const category = self._palette[c];
             category.items.forEach((item) => {
                 indexed[item.widget] = item;
             });
-        }
+        });
         function adopt(natives) {
-            for (let widgetName in natives) {
-                const native = natives[widgetName];
-                const source = indexed[native.constructor];
-                if (source) {
-                    const created = new Wrapper(native, widgetName, source.defaultInstance, (newName) => {
-                        rename(self, created, newName);
-                    });
-                    created.source = source;
-                    self.widgets.set(widgetName, created);
-                    if (!native.parent) {
-                        self.forest.push(created);
-                    }
-                    created.sheet = createProps(self, created);
-                    if (!firstContainer && created.delegate instanceof Container) {
-                        firstContainer = created;
-                    }
-                } else {
-                    Logger.info(`Can't read widget '${widgetName}' because its constructor is not registered.`);
-                }
-            }
+            return Object.keys(natives)
+                    .map(widgetName => {
+                        const native = natives[widgetName];
+                        const source = indexed[native.constructor];
+                        if (source) {
+                            const created = new Wrapper(native, widgetName, source.defaultInstance, (newName) => {
+                                rename(self, created, newName);
+                            });
+                            created.source = source;
+                            self.widgets.set(widgetName, created);
+                            if (!native.parent) {
+                                self.forest.push(created);
+                            }
+                            created.sheet = createProps(self, created);
+                            return created;
+                        } else {
+                            Logger.info(`Can't read widget '${widgetName}' because its constructor is not registered.`);
+                            return null;
+                        }
+                    })
+                    .filter(item => !!item);
         }
-        adopt(natives);
+        const created = adopt(natives);
         this.layout.explorer.added(this.forest);
-        if (firstContainer) {
-            this.acceptVisualRoot(firstContainer);
-            this.layout.explorer.goTo(firstContainer, true);
-            this.centerSurface();
+        return created;
+    }
+
+    generateName(base) {
+        let widgetName = base;
+        let nameAttempt = 1;
+        while (this.widgets.has(widgetName)) {
+            widgetName = `${base}${nameAttempt++}`;
         }
+        return widgetName;
     }
 
     addWidget(item) {
         const self = this;
         const wasSelected = this._lastSelected;
-        const widgetNameBase = item.widget.name.substring(0, 1).toLowerCase() + item.widget.name.substring(1);
-        let widgetName = widgetNameBase;
-        let nameAttempt = 1;
-        while (this.widgets.has(widgetName)) {
-            widgetName = `${widgetNameBase}${nameAttempt++}`;
-        }
+        const widgetName = this.generateName(decapitalize(item.widget.name));
 
         const created = new Wrapper(produce(self, item.widget, widgetName), widgetName, item.defaultInstance, (newName) => {
             rename(self, created, newName);
@@ -717,25 +768,54 @@ export default class Winnie {
         this.edit({
             name: `Delete ${toRemove.length > 1 ? `selected (${toRemove.length}) widgets` : `'${toRemove[0].name}' widget`}`,
             redo: () => {
-                actions.forEach((item) => {
-                    item.redo();
-                });
+                actions
+                        .forEach((item) => {
+                            item.redo();
+                        });
             },
             undo: () => {
-                actions.reverse().forEach((item) => {
-                    item.undo();
-                });
+                actions
+                        .slice(0, actions.length)
+                        .reverse()
+                        .forEach((item) => {
+                            item.undo();
+                        });
             }
         });
         this.checkEnabled();
     }
 
     copy() {
+        if (this.layout.explorer.selected.length > 0) {
+            const selected = new Set(this.layout.explorer.selected);
+            const toCopy = Array.from(selected)
+                    .filter(s => {
+                        let w = s;
+                        while (w.parent) {
+                            w = w.parent;
+                            if (selected.has(w)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    });
+            const generatedJson = modelToJson(toCopy);
+            clipboard.write(generatedJson);
+        }
     }
 
     paste(source) {
+        const self = this;
         if (source) {
-            this.acceptJson(source);
+            const initialParent = this.lastSelected ? this.lastSelected.delegate instanceof Container ? this.lastSelected : this.lastSelected.parent : null;
+            const created = this.acceptJson(source, initialParent, true);
+            created.forEach(item => {
+                self.layout.explorer.select(item.subject);
+            });
+            this.layout.widgets.element.focus();
+            return created;
+        } else {
+            return [];
         }
     }
 
@@ -759,7 +839,19 @@ export default class Winnie {
             if (input.value) {
                 const reader = new FileReader();
                 reader.onload = () => {
-                    self.acceptJson(reader.result);
+                    let firstContainer = null;
+                    self.clear();
+                    const addLog = self.acceptJson(reader.result);
+                    addLog.forEach((item) => {
+                        if (!firstContainer && item.subject.delegate instanceof Container) {
+                            firstContainer = item.subject;
+                        }
+                    });
+                    if (firstContainer) {
+                        this.acceptVisualRoot(firstContainer);
+                        this.layout.explorer.goTo(firstContainer, true);
+                        this.centerSurface();
+                    }
                 };
                 reader.readAsText(input.files[0]);
             }
@@ -775,7 +867,7 @@ export default class Winnie {
 
     generateEs6() {
         if (this.widgets.size > 0) {
-            const generatedCode = generateCode(this);
+            const generatedCode = modelToEs6(this);
             clipboard.write(generatedCode);
             Logger.info('Generated es6 code copied to the clipboard.');
             alert(i18n['winnie.generated.es6.copied']);
@@ -786,7 +878,7 @@ export default class Winnie {
 
     generateJSON() {
         if (this.widgets.size > 0) {
-            const generatedJson = generateJson(this);
+            const generatedJson = modelToJson(this.forest);
             clipboard.write(generatedJson);
             Logger.info('Generated JSON copied to the clipboard.');
             alert(i18n['winnie.generated.json.copied']);
@@ -995,7 +1087,19 @@ export default class Winnie {
                         .forEach((item) => {
                             const mi = new MenuItem(item.name);
                             mi.onAction = () => {
-                                self.acceptNatives(new item.widgets());
+                                let firstContainer = null;
+                                self.clear();
+                                self.acceptNatives(new item.widgets())
+                                        .forEach((item) => {
+                                            if (!firstContainer && item.delegate instanceof Container) {
+                                                firstContainer = item;
+                                            }
+                                        });
+                                if (firstContainer) {
+                                    this.acceptVisualRoot(firstContainer);
+                                    this.layout.explorer.goTo(firstContainer, true);
+                                    this.centerSurface();
+                                }
                             };
                             self.layout.tAdopt.dropDownMenu.add(mi);
                         });

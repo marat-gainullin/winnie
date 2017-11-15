@@ -14,4 +14,5 @@ document.body.appendChild(model.layout.ground.element);
 Invoke.later(() => {
     model.centerSurface();
     model.layout.paletteExplorerSplit.dividerLocation = (model.layout.paletteExplorerSplit.height - model.layout.paletteExplorerSplit.dividerSize) / 2;
+    model.layout.widgets.element.focus();
 });

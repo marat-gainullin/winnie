@@ -58,10 +58,6 @@ function winnieKeyDown(model, event) {
         }
     } else if (event.ctrlKey && (event.keyCode === KeyCodes.KEY_C || event.keyCode === KeyCodes.KEY_INSERT)) {
         model.copy();
-    } else if ((event.shiftKey && event.keyCode === KeyCodes.KEY_INSERT) ||
-            (event.ctrlKey && event.keyCode === KeyCodes.KEY_V)) {
-        model.checkEnabled();
-        model.paste();
     } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_X) {
         if (model.layout.explorer.selected.length > 0) {
             model.checkEnabled();
