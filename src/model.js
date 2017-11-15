@@ -34,7 +34,6 @@ import { generalHiddenProps, datagridColumnsHiddenProps, datagridHiddenProps, ta
 import modelToEs6 from './serial/model-to-code';
 import modelToJson from './serial/model-to-json';
 import clipboard from './clipboard';
-
 function rename(model, created, newName) {
     if (model.widgets.has(newName)) {
         alert(i18n['winnie.name.used']);
@@ -68,7 +67,7 @@ function rename(model, created, newName) {
     }
 }
 
-function produce(self, constr, widgetName, gridDimensions) {
+function produce(constr, widgetName, gridDimensions) {
     let instance;
     if (constr === Grid) {
         if (gridDimensions) {
@@ -93,6 +92,10 @@ function produce(self, constr, widgetName, gridDimensions) {
             instance.text = widgetName;
         }
     }
+    return instance;
+}
+
+function produced(self, instance) {
     instance.onMouseEnter = () => {
         instance.element.classList.add('p-winnie-widget-hover');
     };
@@ -105,11 +108,11 @@ function produce(self, constr, widgetName, gridDimensions) {
         } else {
             return startItemsMove(self, instance);
         }
-    }, (start, diff) => {
+    }, (start, diff, event) => {
         if (instance.element === self.visualRootElement()) {
             proceedRectSelection(start, diff);
         } else {
-            proceedItemsMove(self, start, diff);
+            proceedItemsMove(self, start, diff, event.ctrlKey ? self.settings.grid.snap : false);
         }
     }, (start, diff, event) => {
         if (instance.element === self.visualRootElement()) {
@@ -165,7 +168,8 @@ function produce(self, constr, widgetName, gridDimensions) {
                 event.preventDefault();
                 event.stopPropagation();
                 instance.element.classList.remove('p-winnie-container-dnd-target');
-                self.layout.explorer.goTo(instance['winnie.wrapper'], true);
+                self.layout.explorer.goTo(instance['winnie.wrapper']);
+                self.lastSelected = instance['winnie.wrapper'];
                 const added = self.addWidget(self.paletteDrag.item);
                 if (instance instanceof Anchors) {
                     const wX = Ui.absoluteLeft(added.delegate.element);
@@ -239,7 +243,7 @@ function decapitalize(name) {
 export default class Winnie {
     constructor() {
         function explorerColumnRewidth() {
-            // TODO: Ensure proper work with expanded explorer tree
+// TODO: Ensure proper work with expanded explorer tree
             self.layout.widgetColumn.width = self.layout.explorer.width - self.layout.widgetColumn.column.padding;
         }
         const enabled = [];
@@ -254,7 +258,7 @@ export default class Winnie {
         this.checkEnabled = checkEnabled;
         const self = this;
         this.settings = {
-            grid: {x: 10, y: 10},
+            grid: {x: 10, y: 10, snap: true},
             undoDepth: 1024 * 1024
         };
         this.paletteDrag = null;
@@ -272,6 +276,14 @@ export default class Winnie {
         this.layout.ground.element.classList.add('p-winnie-ground');
         this.layout.view.element.classList.add('p-winnie-view');
         this.layout.widgets.element.classList.add('p-winnie-widgets');
+        this.hints = document.createElement('div');
+        this.hints.className = 'p-winnie-hints';
+        this.hints.innerHTML = '' +
+                '<ul>' +
+                `<li class="p-winnie-hint p-winnie-add-hint">${i18n['winnie.add.hint']}</li>` +
+                // `<li class="p-winnie-hint p-winnie-edit-hint">${i18n['winnie.edit.hint']}</li>` +
+                '</ul>';
+        this.layout.widgets.element.appendChild(this.hints);
 
         Ui.on(this.layout.ground.element, Ui.Events.KEYDOWN, (event) => {
             Shortcuts.winnieKeyDown(self, event);
@@ -388,14 +400,12 @@ export default class Winnie {
             return false;
         }
         this.move = move;
-
         this.layout.explorer.onDropInto = (w, dest) => {
             (self.layout.explorer.isSelected(w) ?
                     self.layout.explorer.selected :
                     [w])
                     .forEach(m => move(m, dest, dest.count));
         };
-
         this.layout.explorer.onDropBefore = (w, before) => {
             const dest = before.parent;
             const addAt = dest ? dest.indexOf(before) : self.forest.indexOf(before);
@@ -405,7 +415,6 @@ export default class Winnie {
                     .reverse()
                     .forEach(m => move(m, dest, addAt));
         };
-
         this.layout.explorer.onDropAfter = (w, after) => {
             const dest = after.parent;
             const addAt = dest ? dest.indexOf(after) : self.forest.indexOf(after);
@@ -415,14 +424,11 @@ export default class Winnie {
                     .reverse()
                     .forEach(m => move(m, dest, addAt + 1));
         };
-
-
         reWidth(this.layout.paletteExplorerSplit, self.layout.leftSizer, this.layout.view, 1, explorerColumnRewidth);
         reWidth(this.layout.propertiesBox, self.layout.rightSizer, this.layout.view, -1, () => {
             self.layout.propNameColumn.width = (self.layout.propertiesBox.width - 30) / 2;
             self.layout.propValueColumn.width = (self.layout.propertiesBox.width - 30) / 2;
         });
-
         this.layout.propNameColumn.field = 'name';
         this.layout.propValueColumn.editor = new TextNumberField();
         this.layout.propValueColumn.field = 'value';
@@ -442,6 +448,7 @@ export default class Winnie {
             checkEnabled();
             self.acceptVisualRoot(self._lastSelected);
             self.centerSurface();
+            self.layout.explorer.changed(self._lastSelected);
         };
         this.layout.tOpen.onAction = () => {
             checkEnabled();
@@ -482,7 +489,6 @@ export default class Winnie {
             w.onAction = () => {
                 checkEnabled();
                 self.layout.widgets.element.focus();
-                self.layout.widgets.element.dispatchEvent(new KeyboardEvent('keydown', {ctrlKey: true, keyCode: KeyCodes.KEY_V, bubbles: true}));
                 //self.paste();
             };
         });
@@ -550,13 +556,13 @@ export default class Winnie {
                 const source = indexed[item.from];
                 if (source) {
                     const created = new Wrapper(
-                            produce(self, source.widget, widgetName,
+                            produced(self, produce(source.widget, widgetName,
                                     source.widget === Grid ?
                                     {
                                         rows: 'rows' in item.body ? item.body.rows : source.defaultInstance.rows,
                                         columns: 'columns' in item.body ? item.body.columns : source.defaultInstance.columns
                                     } : undefined
-                                    ),
+                                    )),
                             widgetName,
                             source.defaultInstance,
                             (newName) => {
@@ -644,7 +650,7 @@ export default class Winnie {
                         const native = natives[widgetName];
                         const source = indexed[native.constructor];
                         if (source) {
-                            const created = new Wrapper(native, widgetName, source.defaultInstance, (newName) => {
+                            const created = new Wrapper(produced(self, native), widgetName, source.defaultInstance, (newName) => {
                                 rename(self, created, newName);
                             });
                             created.source = source;
@@ -679,8 +685,7 @@ export default class Winnie {
         const self = this;
         const wasSelected = this._lastSelected;
         const widgetName = this.generateName(decapitalize(item.widget.name));
-
-        const created = new Wrapper(produce(self, item.widget, widgetName), widgetName, item.defaultInstance, (newName) => {
+        const created = new Wrapper(produced(self, produce(item.widget, widgetName)), widgetName, item.defaultInstance, (newName) => {
             rename(self, created, newName);
         });
         created.source = item;
@@ -1115,11 +1120,9 @@ export default class Winnie {
         this.widgets.forEach((item, name) => {
             item.delegate.element.classList.remove('p-winnie-widget-selected');
         });
-
         this.layout.explorer.selected.forEach((selectedItem) => {
             selectedItem.delegate.element.classList.add('p-winnie-widget-selected');
         });
-
         self.undecorate();
         if (this._lastSelected !== item) {
             if (this._lastSelected) {
@@ -1220,7 +1223,9 @@ export default class Winnie {
     visualRootElement() {
         let child = this.layout.widgets.element.firstElementChild;
         while (child) {
-            if (child.tagName.toLowerCase() !== 'style' && !child.className.includes('p-winnie-decoration')) {
+            if (child.tagName.toLowerCase() !== 'style' &&
+                    !child.className.includes('p-winnie-decoration') &&
+                    !child.className.includes('p-winnie-hint')) {
                 return child;
             }
             child = child.nextElementSibling;

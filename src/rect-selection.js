@@ -54,10 +54,14 @@ function endRectSelection(model, start, diff, event) {
         const rectX = Ui.absoluteLeft(start.rect);
         const rectY = Ui.absoluteTop(start.rect);
         let child = visualRootElement.firstElementChild;
-        while (child && !hitTestElement(rectX, rectY, child)) {
+        let hitted = 0;
+        while (child) {
+            if (hitTestElement(rectX, rectY, child)) {
+                hitted++;
+            }
             child = child.nextElementSibling;
         }
-        if (!child) {
+        if (hitted === 0 && diff.x === 0 && diff.y === 0) {
             hitTestElement(rectX, rectY, visualRootElement);
         }
     }

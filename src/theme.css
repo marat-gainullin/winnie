@@ -163,7 +163,7 @@
     padding: 500px;
 }
 
-.p-winnie-widgets > div {
+.p-winnie-widgets > .p-widget {
     box-shadow: 0 3px 8px rgba(0, 0, 0, .3);
     border-radius: 3px;
     background: #f6f7f9;
@@ -342,4 +342,19 @@
 
 .p-winnie-visual-root {
     font-weight: bold;
+}
+
+.p-winnie-hints {
+    line-height: normal;
+    font-size: 16px;
+    color: lightgray;
+}
+.p-winnie-hints > ul {
+    list-style-type: none;
+}
+
+.p-winnie-hint {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    white-space: nowrap;
 }

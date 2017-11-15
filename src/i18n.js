@@ -32,5 +32,8 @@ export default {
         'winnie.name.used': 'This name is already used by another widget. Try again please.',
         'winnie.bad.name': "This name can't be used as a widget name. Try again please.",
         'winnie.grid.dimensions': "Provide grid dimensions, please in the 'rows, columns' form.",
-        'winnie.to.surface.name': 'Edit selected'
+        'winnie.to.surface.name': 'Edit selected',
+        'winnie.add.hint': 'Right click to add a widget',
+        'winnie.edit.hint': "'Edit selected' to change container"
+
 };

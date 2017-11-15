@@ -33,7 +33,7 @@ function surfaceKeyDown(model, event) {
                     } else {
                         throw 'Unknown key for selected widgets movement.';
                     }
-                })());
+                })(), event.ctrlKey ? false : model.settings.grid.snap);
                 endItemsMove(model, moved);
             }
         }

@@ -264,10 +264,22 @@ function startItemsMove(model, pickedWidget) {
             });
 }
 
-function proceedItemsMove(model, items, diff) {
+function proceedItemsMove(model, items, diff, snap) {
+    function snapX(v) {
+        return snap ?
+                Math.round(v / model.settings.grid.x) * model.settings.grid.x :
+                v;
+    }
+    function snapY(v) {
+        return snap ?
+                Math.round(v / model.settings.grid.y) * model.settings.grid.y :
+                v;
+    }
     items.forEach((moved) => {
-        moved.item.delegate.left = moved.startSnapshot.left + diff.x;
-        moved.item.delegate.top = moved.startSnapshot.top + diff.y;
+        const left = moved.startSnapshot.left + diff.x;
+        const top = moved.startSnapshot.top + diff.y;
+        moved.item.delegate.left = snapX(left);
+        moved.item.delegate.top = snapY(top);
         model.stickDecors();
     });
 }
