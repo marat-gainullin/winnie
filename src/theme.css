@@ -8,27 +8,6 @@
     text-align: center;
 }
 
-/* TODO: remove after update of kenga-labels */
-.p-image,
-.p-paragraph {
-    line-height: normal;
-}
-/**/
-/* TODO: Remove after kenga update */
-.p-widget {
-    font-family: Helevica, Arial, sans-serif;
-}
-/**/
-/* TODO: Remove after kenga-menu update */
-.p-menu-item {
-    white-space: nowrap;
-}
-.p-menu-item > input[type=checkbox] {
-    display: inline-block;
-    vertical-align: middle;
-}
-/**/
-
 .icon-scissors:before {
     transform: scaleY(-1);
 }
@@ -103,6 +82,8 @@
     padding-right: 20px;
     padding-top: 10px;
     padding-bottom: 10px;
+    margin-top: 0px;
+    margin-bottom: 0px;
     border-left: 1px solid rgba(0, 0, 0, .15);
 }
 

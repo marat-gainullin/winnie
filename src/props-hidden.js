@@ -11,8 +11,8 @@ const generalHiddenProps = new Set([
     'count',
     'attached',
     'font', // TODO: Remove this line when font selector will be implemented
-    'contextMenu', // TODO: Remove this line when widget selector will be implemented
-    'buttonGroup', // TODO: Remove this line when widget selector will be implemented
+    'contextMenu',
+    'buttonGroup',
     'title',
     'visibleDisplay',
     'winnie.wrapper'

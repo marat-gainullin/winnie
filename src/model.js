@@ -6,18 +6,22 @@ import Widget from 'kenga/widget';
 import Container from 'kenga/container';
 import KeyCodes from 'kenga/key-codes';
 import Label from 'kenga-labels/label';
+import Button from 'kenga-buttons/button';
 import CheckBox from 'kenga-buttons/check-box';
 import RadioButton from 'kenga-buttons/radio-button';
 import ImageParagraph from 'kenga-labels/image-paragraph';
 import Box from 'kenga-containers/box-pane';
 import Flow from 'kenga-containers/flow-pane';
 import Scroll from 'kenga-containers/scroll-pane';
-import Grid from 'kenga-containers/grid-pane';
+import Split from 'kenga-containers/split-pane';
+import GridPane from 'kenga-containers/grid-pane';
 import Anchors from 'kenga-containers/anchors-pane';
 import TabbedPane from 'kenga-containers/tabbed-pane';
 import CardPane from 'kenga-containers/card-pane';
 import Menu from 'kenga-menu/menu';
+import MenuBar from 'kenga-menu/menu-bar';
 import MenuItem from 'kenga-menu/menu-item';
+import BoxField from 'kenga/box-field';
 import DataGrid from 'kenga-grid/grid';
 import ColumnNode from 'kenga-grid/columns/column-node';
 import TextNumberField from './text-number-field';
@@ -69,14 +73,14 @@ function rename(model, created, newName) {
 
 function produce(constr, widgetName, gridDimensions) {
     let instance;
-    if (constr === Grid) {
+    if (constr === GridPane) {
         if (gridDimensions) {
-            instance = new Grid(gridDimensions.rows, gridDimensions.columns, 10, 10);
+            instance = new GridPane(gridDimensions.rows, gridDimensions.columns, 10, 10);
         } else {
             const input = prompt(i18n['winnie.grid.dimensions']);
             const matched = input.match(/(\d+),\s*(\d+)/);
             if (matched) {
-                instance = new Grid(+matched[1], +matched[2], 10, 10);
+                instance = new GridPane(+matched[1], +matched[2], 10, 10);
             } else {
                 throw `Provided text: '${input}' is not useful.`;
             }
@@ -240,10 +244,59 @@ function decapitalize(name) {
     return name.substring(0, 1).toLowerCase() + name.substring(1);
 }
 
+/**
+ * This transformation is necessary due to obfuscation of constructors names.
+ * @param {Widget} instance
+ * @returns {String}
+ */
+function constructorName(instance) {
+    if (instance instanceof Box) {
+        return 'BoxPane';
+    } else if (instance instanceof Anchors) {
+        return 'AnchorsPane';
+    } else if (instance instanceof Flow) {
+        return 'FlowPane';
+    } else if (instance instanceof Scroll) {
+        return 'ScrollPane';
+    } else if (instance instanceof Split) {
+        return 'SplitPane';
+    } else if (instance instanceof TabbedPane) {
+        return 'TabbedPane';
+    } else if (instance instanceof CardPane) {
+        return 'CardPane';
+    } else if (instance instanceof GridPane) {
+        return 'GridPane';
+    } else if (instance instanceof Container) {
+        return 'Container';
+    } else if (instance instanceof BoxField) {
+        return 'Field';
+    } else if (instance instanceof Label) {
+        return 'Label';
+    } else if (instance instanceof Button) {
+        return 'Button';
+    } else if (instance instanceof CheckBox) {
+        return 'CheckBox';
+    } else if (instance instanceof RadioButton) {
+        return 'RadioButton';
+    } else if (instance instanceof Menu) {
+        return 'Menu';
+    } else if (instance instanceof MenuBar) {
+        return 'MenuBar';
+    } else if (instance instanceof MenuItem) {
+        return 'MenuItem';
+    } else if (instance instanceof DataGrid) {
+        return 'DataGrid';
+    } else if (instance instanceof ColumnNode) {
+        return 'ColumnNode';
+    } else {
+        return 'Widget';
+    }
+}
+
 export default class Winnie {
     constructor() {
         function explorerColumnRewidth() {
-// TODO: Ensure proper work with expanded explorer tree
+            // TODO: Ensure proper work with expanded explorer tree
             self.layout.widgetColumn.width = self.layout.explorer.width - self.layout.widgetColumn.column.padding;
         }
         const enabled = [];
@@ -285,10 +338,10 @@ export default class Winnie {
                 '</ul>';
         this.layout.widgets.element.appendChild(this.hints);
 
-        Ui.on(this.layout.ground.element, Ui.Events.KEYDOWN, (event) => {
+        Ui.on(this.layout.widgets.element, Ui.Events.KEYDOWN, (event) => {
             Shortcuts.winnieKeyDown(self, event);
         });
-        Ui.on(this.layout.ground.element, 'paste', event => {
+        Ui.on(this.layout.widgets.element, 'paste', event => {
             event.stopPropagation();
             event.preventDefault();
             let firstContainer = null;
@@ -534,9 +587,9 @@ export default class Winnie {
         this.edits = [];
         this.widgets.clear();
         const removed = this.forest.splice(0, this.forest.length);
+        this.layout.explorer.unselectAll();
         this.layout.explorer.removed(removed);
         this.layout.properties.data = [];
-        // this.lastSelected = null; // TODO: Check if this assignment is necessary.
     }
 
     acceptJson(source, initialParent, undoable = false) {
@@ -557,7 +610,7 @@ export default class Winnie {
                 if (source) {
                     const created = new Wrapper(
                             produced(self, produce(source.widget, widgetName,
-                                    source.widget === Grid ?
+                                    source.widget === GridPane ?
                                     {
                                         rows: 'rows' in item.body ? item.body.rows : source.defaultInstance.rows,
                                         columns: 'columns' in item.body ? item.body.columns : source.defaultInstance.columns
@@ -579,7 +632,7 @@ export default class Winnie {
                         self.forest.push(created);
                     }
                     for (let p in item.body) {
-                        if (!(created.delegate instanceof Grid) || (p !== 'columns' && p !== 'rows')) {
+                        if (!(created.delegate instanceof GridPane) || (p !== 'columns' && p !== 'rows')) {
                             if (p.includes('.')) {
                                 Bound.setPathData(created.delegate, p, item.body[p]);
                             } else {
@@ -684,7 +737,7 @@ export default class Winnie {
     addWidget(item) {
         const self = this;
         const wasSelected = this._lastSelected;
-        const widgetName = this.generateName(decapitalize(item.widget.name));
+        const widgetName = this.generateName(decapitalize(constructorName(item.defaultInstance)));
         const created = new Wrapper(produced(self, produce(item.widget, widgetName)), widgetName, item.defaultInstance, (newName) => {
             rename(self, created, newName);
         });
@@ -806,6 +859,7 @@ export default class Winnie {
                     });
             const generatedJson = modelToJson(toCopy);
             clipboard.write(generatedJson);
+            Logger.info(`Copied ${toCopy.length === 1 ? `'${toCopy[0].name}' widget` : `${toCopy.length} widgets`} to clipboard.`);
         }
     }
 
@@ -994,9 +1048,6 @@ export default class Winnie {
             itemLabel.icon = div;
             itemLabel.opaque = true;
             itemLabel.element.classList.add('p-widget-palette-item');
-            // TODO: remove after kenga update
-            itemLabel.background = '#e9ebee';
-            //
             if ('description' in item) {
                 itemLabel.toolTipText = item.description;
             }

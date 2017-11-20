@@ -59,6 +59,9 @@ function endRectSelection(model, start, diff, event) {
             if (hitTestElement(rectX, rectY, child)) {
                 hitted++;
             }
+            if(hitted > 0 && diff.x === 0 && diff.y === 0){
+                break;
+            }
             child = child.nextElementSibling;
         }
         if (hitted === 0 && diff.x === 0 && diff.y === 0) {

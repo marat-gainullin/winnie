@@ -87,9 +87,9 @@ export default function Layout() {
         ground.rightSide = rightBox;
     }
 
-    const tOpen = new Button();
     const tAdopt = new DropDownButton();
     tAdopt.dropDownMenu = new Menu();
+    const tOpen = new Button();
     const tSave = new Button();
     const tExport = new Button();
     const tCut = new Button();
@@ -105,10 +105,10 @@ export default function Layout() {
         return div;
     }
     {
-        tOpen.icon = withStyle('icon-folder-open-empty');
-        tOpen.toolTipText = i18n['winnie.open.tooltip'];
         tAdopt.icon = withStyle('icon-arrow-combo');
         tAdopt.toolTipText = i18n['winnie.adopt.tooltip'];
+        tOpen.icon = withStyle('icon-folder-open-empty');
+        tOpen.toolTipText = i18n['winnie.open.tooltip'];
         tSave.icon = withStyle('icon-floppy');
         tSave.toolTipText = i18n['winnie.save.tooltip'];
         tExport.icon = withStyle('icon-export');
@@ -129,8 +129,8 @@ export default function Layout() {
         tRedo.icon = withStyle('icon-forward-1');
         tRedo.toolTipText = i18n['winnie.redo.tooltip'];
 
-        tools.add(tOpen);
         tools.add(tAdopt);
+        tools.add(tOpen);
         tools.add(tSave);
         tools.add(tExport);
         tools.add(tCut);
