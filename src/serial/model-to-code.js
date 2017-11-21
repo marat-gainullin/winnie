@@ -94,16 +94,8 @@ class Es6Generator {
                     return [item.delegate instanceof Grid ?
                                 `${indent}const ${widgetConstName} = new ${this.constructorNameOf(item.source)}(${item.delegate.rows}, ${item.delegate.columns});` :
                                 `${indent}const ${widgetConstName} = new ${this.constructorNameOf(item.source)}();`,
-                        `${indent}{`,
-                        item.sheet
-                                .filter(p => p.edited && (!(item.delegate instanceof Grid) || (p.name !== 'rows' && p.name !== 'columns')))
-                                .map((p) => {
-                                    return `${indent}    ${widgetConstName}.${p.name} = ${typeof p.value === 'string' ? `'${p.value}'` : (p.value && p.value.src ? `'${p.value.src}'` : p.value)};`;
-                                })
-                                .reduce(concat, ''),
-                        `${indent}}`,
-                        `${indent}this.${widgetConstName} = ${widgetConstName};`]
-                            .reduce(concat);
+                        `${indent}this.${widgetConstName} = ${widgetConstName};`
+                    ].reduce(concat);
                 })
                 .reduce(concat, '');
     }
@@ -123,6 +115,24 @@ class Es6Generator {
                 .reduce(concat, '');
     }
 
+    sheets(indent) {
+        return Array.from(this.model.widgets.entries())
+                .map(([key, item]) => {
+                    const widgetConstName = this.constNameOf(key);
+                    return [
+                        `${indent}{`,
+                        item.sheet
+                                .filter(p => p.edited && (!(item.delegate instanceof Grid) || (p.name !== 'rows' && p.name !== 'columns')))
+                                .map((p) => {
+                                    return `${indent}    ${widgetConstName}.${p.name} = ${typeof p.value === 'string' ? `'${p.value}'` : (p.value && p.value.src ? `'${p.value.src}'` : p.value)};`;
+                                })
+                                .reduce(concat, ''),
+                        `${indent}}`
+                    ].reduce(concat);
+                })
+                .reduce(concat, '');
+    }
+
     assemble() {
         const generatedName = 'KengaWidgets';
         return [
@@ -132,6 +142,7 @@ class Es6Generator {
             '    constructor () {',
             this.instances('        '),
             this.forest('        '),
+            this.sheets('        '),
             '    }',
             '}',
             `export default ${generatedName};`]

@@ -1,4 +1,4 @@
-const generalHiddenProps = new Set([
+const widget = new Set([
     'name',
     'top',
     'left',
@@ -17,7 +17,7 @@ const generalHiddenProps = new Set([
     'visibleDisplay',
     'winnie.wrapper'
 ]);
-const datagridColumnsHiddenProps = new Set([
+const datagridColumns = new Set([
     'children',
     'childrenNodes',
     'depthRemainder',
@@ -28,7 +28,7 @@ const datagridColumnsHiddenProps = new Set([
     'renderer',
     'editor'
 ]);
-const datagridHiddenProps = new Set([
+const datagrid = new Set([
     'headerLeft',
     'headerRight',
     'frozenLeft',
@@ -52,9 +52,36 @@ const datagridHiddenProps = new Set([
     'focusedColumn'
 ]);
 
-const tabbedPaneHiddenProps = new Set([
+const tabbedPane = new Set([
     'selected',
     'selectedIndex'
+]);
+
+const holyGrailPane = new Set([
+    'leftSide',
+    'rightSide',
+    'header',
+    'footer',
+    'content'
+]);
+
+const scrollPane = new Set([
+    'view'
+]);
+
+const splitPane = new Set([
+    'first',
+    'second'
+]);
+
+const cardPane = new Set([
+    'selected',
+    'selectedIndex'
+]);
+
+const desktopPane = new Set([
+    'forms',
+    'shownForms'
 ]);
 
 const pathProps = [
@@ -69,4 +96,5 @@ const pathProps = [
     'tab.toolTipText',
     'tab.closable'
 ];
-export { generalHiddenProps, datagridColumnsHiddenProps, datagridHiddenProps, tabbedPaneHiddenProps, pathProps };
+
+export { widget, datagridColumns, datagrid, tabbedPane, holyGrailPane, scrollPane, splitPane, cardPane, desktopPane, pathProps };

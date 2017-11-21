@@ -7,7 +7,6 @@ import Flow from 'kenga-containers/flow-pane';
 import Toolbar from 'kenga-containers/tool-bar';
 import Scroll from 'kenga-containers/scroll-pane';
 import Button from 'kenga-buttons/button';
-import DropDownButton from 'kenga-buttons/drop-down-button';
 import Grid from 'kenga-grid/grid';
 import ColumnNode from 'kenga-grid/columns/column-node';
 import Menu from 'kenga-menu/menu';
@@ -87,8 +86,8 @@ export default function Layout() {
         ground.rightSide = rightBox;
     }
 
-    const tAdopt = new DropDownButton();
-    tAdopt.dropDownMenu = new Menu();
+    const tTemplates = new Button();
+    const templatesMenu = new Menu();
     const tOpen = new Button();
     const tSave = new Button();
     const tExport = new Button();
@@ -105,8 +104,8 @@ export default function Layout() {
         return div;
     }
     {
-        tAdopt.icon = withStyle('icon-arrow-combo');
-        tAdopt.toolTipText = i18n['winnie.adopt.tooltip'];
+        tTemplates.icon = withStyle('icon-arrow-combo');
+        tTemplates.toolTipText = i18n['winnie.adopt.tooltip'];
         tOpen.icon = withStyle('icon-folder-open-empty');
         tOpen.toolTipText = i18n['winnie.open.tooltip'];
         tSave.icon = withStyle('icon-floppy');
@@ -129,13 +128,13 @@ export default function Layout() {
         tRedo.icon = withStyle('icon-forward-1');
         tRedo.toolTipText = i18n['winnie.redo.tooltip'];
 
-        tools.add(tAdopt);
+        tools.add(tTemplates);
         tools.add(tOpen);
         tools.add(tSave);
         tools.add(tExport);
         tools.add(tCut);
         tools.add(tCopy);
-        //tools.add(tPaste);
+        tools.add(tPaste);
         tools.add(tUndo);
         tools.add(tRedo);
         tools.add(tRemove);
@@ -215,7 +214,8 @@ export default function Layout() {
         propNameColumn,
         propValueColumn,
         tOpen,
-        tAdopt,
+        tTemplates,
+        templatesMenu,
         tSave,
         tExport,
         tCut,

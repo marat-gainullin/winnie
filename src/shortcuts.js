@@ -42,6 +42,8 @@ function surfaceKeyDown(model, event) {
 
 function winnieKeyDown(model, event) {
     if (event.ctrlKey && event.keyCode === KeyCodes.KEY_Z) {
+        event.stopPropagation();
+        event.preventDefault();
         model.checkEnabled();
         if (event.shiftKey) {
             model.redo();
@@ -49,23 +51,53 @@ function winnieKeyDown(model, event) {
             model.undo();
         }
     } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_Y) {
+        event.stopPropagation();
+        event.preventDefault();
         model.checkEnabled();
         model.redo();
+    } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_O) {
+        event.stopPropagation();
+        event.preventDefault();
+        model.openJSON();
+    } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_S) {
+        event.stopPropagation();
+        event.preventDefault();
+        model.generateJSON();
+    } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_E) {
+        event.stopPropagation();
+        event.preventDefault();
+        model.generateEs6();
     } else if (event.keyCode === KeyCodes.KEY_DELETE) {
-        if (model.layout.explorer.selected.length > 0) {
+        if (model.layout.explorer.selected.length > 0 &&
+                !model.layout.explorer.activeEditor &&
+                !model.layout.properties.activeEditor
+                ) {
+            event.stopPropagation();
+            event.preventDefault();
             model.checkEnabled();
             model.removeSelected();
         }
     } else if (event.ctrlKey && (event.keyCode === KeyCodes.KEY_C || event.keyCode === KeyCodes.KEY_INSERT)) {
-        model.copy();
-    } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_X) {
-        if (model.layout.explorer.selected.length > 0) {
+        if (model.layout.explorer.selected.length > 0 &&
+                !model.layout.explorer.activeEditor &&
+                !model.layout.properties.activeEditor
+                ) {
+            event.stopPropagation();
+            event.preventDefault();
+            model.checkEnabled();
+            model.copy();
+        }
+    } else if ((event.ctrlKey && event.keyCode === KeyCodes.KEY_X) || (event.shiftKey && event.keyCode === KeyCodes.KEY_DELETE)) {
+        if (model.layout.explorer.selected.length > 0 &&
+                !model.layout.explorer.activeEditor &&
+                !model.layout.properties.activeEditor
+                ) {
+            event.stopPropagation();
+            event.preventDefault();
             model.checkEnabled();
             model.cut();
         }
-    } else if (event.ctrlKey && event.shiftKey && event.keyCode === KeyCodes.KEY_S) {
-        model.save();
     }
 }
 
-export default { winnieKeyDown, surfaceKeyDown };
+export default {winnieKeyDown, surfaceKeyDown};
