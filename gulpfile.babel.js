@@ -223,7 +223,7 @@ bundler.on('log', gulpUtil.log);
 
 gulp.task('bundle', ['bundle-index', 'bundle-html', 'bundle-icons'], bundle);
 
-gulp.task('launch', [/*'bundle'*/], () => {
+gulp.task('launch', ['bundle'], () => {
     return gulp.src(`${paths.bundle}${pkg.name}.html`, {cwd: paths.project})
             .pipe(gulpOpen());
 });
