@@ -150,6 +150,16 @@ class KengaWidgets {
         this.radioButton2 = radioButton2;
         const checkBox1 = new CheckBox();
         this.checkBox1 = checkBox1;
+        const button10 = new Button();
+        this.button10 = button10;
+        const button15 = new DropDownButton();
+        this.button15 = button15;
+        const button19 = new Button();
+        this.button19 = button19;
+        const radioButton3 = new RadioButton();
+        this.radioButton3 = radioButton3;
+        const radioButton4 = new RadioButton();
+        this.radioButton4 = radioButton4;
         anchorsPane.add(boxPane);
         anchorsPane.add(boxPane1);
         anchorsPane.add(cardPane);
@@ -160,6 +170,7 @@ class KengaWidgets {
         anchorsPane.add(scrollPane);
         anchorsPane.add(splitPane);
         anchorsPane.add(anchorsPane1);
+        anchorsPane.add(radioButton4);
         container.add(menuItem);
         container.add(menuItem1);
         container.add(widget);
@@ -200,6 +211,10 @@ class KengaWidgets {
         gridPane.add(checkBox1);
         gridPane.add(button20);
         container2.add(button26);
+        container2.add(button10);
+        container2.add(button15);
+        container2.add(button19);
+        container2.add(radioButton3);
         scrollPane.add(button27);
         splitPane.add(button28);
         splitPane.add(button29);
@@ -253,7 +268,6 @@ class KengaWidgets {
         {
             radioButton.text = 'radioButton';
             radioButton.selected = true;
-            radioButton.value = true;
         }
         {
             button2.text = 'button2';
@@ -309,37 +323,30 @@ class KengaWidgets {
         {
             button5.text = 'button5';
             button5.selected = true;
-            button5.value = true;
         }
         {
             button51.text = 'button5';
             button51.selected = true;
-            button51.value = true;
         }
         {
             button52.text = 'button5';
             button52.selected = true;
-            button52.value = true;
         }
         {
             button53.text = 'button5';
             button53.selected = true;
-            button53.value = true;
         }
         {
             button54.text = 'button5';
             button54.selected = true;
-            button54.value = true;
         }
         {
             button55.text = 'button5';
             button55.selected = true;
-            button55.value = true;
         }
         {
             button56.text = 'button5';
             button56.selected = true;
-            button56.value = true;
         }
         {
             gridPane.hgap = 10;
@@ -361,7 +368,6 @@ class KengaWidgets {
         {
             button9.text = 'button9';
             button9.selected = true;
-            button9.value = true;
         }
         {
             button13.text = 'button13';
@@ -418,6 +424,7 @@ class KengaWidgets {
             button27.element.style.height = '194px';
         }
         {
+            splitPane.dividerLocation = 60;
             splitPane.element.style.left = '10px';
             splitPane.element.style.width = '132px';
             splitPane.element.style.top = '470px';
@@ -447,6 +454,23 @@ class KengaWidgets {
         }
         {
             checkBox1.text = 'checkBox1';
+        }
+        {
+            button10.text = 'button10';
+        }
+        {
+            button15.text = 'button15';
+        }
+        {
+            button19.text = 'button19';
+        }
+        {
+            radioButton3.text = 'radioButton3';
+        }
+        {
+            radioButton4.text = 'radioButton4';
+            radioButton4.element.style.left = '224.5px';
+            radioButton4.element.style.top = '459px';
         }
     }
 }

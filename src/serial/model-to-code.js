@@ -54,7 +54,7 @@ class Es6Generator {
         } else {
             const base = nvl('W',
                     capitalize(lastSlashTail(item.from))
-                    .replace(/[^a-z0-9_]/gi, ''),
+                    .replace(/[^a-z0-9_]/gi, '')
                     );
             const constructorLocalName = this.generateConstName(base);
             this.fromToLocalConstructor.set(item.from, constructorLocalName);

@@ -104,7 +104,7 @@ export default function Layout() {
         return div;
     }
     {
-        tTemplates.icon = withStyle('icon-arrow-combo');
+        tTemplates.icon = withStyle('icon-buffer');
         tTemplates.toolTipText = i18n['winnie.adopt.tooltip'];
         tOpen.icon = withStyle('icon-folder-open-empty');
         tOpen.toolTipText = i18n['winnie.open.tooltip'];

@@ -102,7 +102,8 @@ export default [
         name: 'Check box',
         description: 'Check box with button group capability',
         iconStyle: 'icon-check',
-        category: 'Buttons'
+        category: 'Buttons',
+        hidden: ['value']
     },
     {
         widget: RadioButton,
@@ -110,7 +111,8 @@ export default [
         name: 'Radio button',
         description: 'Radio button with button group capability',
         iconStyle: 'icon-dot-circled',
-        category: 'Buttons'
+        category: 'Buttons',
+        hidden: ['value']
     },
     {
         widget: ToggleButton,
@@ -118,7 +120,8 @@ export default [
         name: 'Toggle button',
         description: 'Toggle button with button group capability',
         //iconStyle: 'kenga-check-box-icon',
-        category: 'Buttons'
+        category: 'Buttons',
+        hidden: ['value']
     },
     //
     {
@@ -127,7 +130,8 @@ export default [
         name: 'Model check box',
         description: 'Model check box with data bindnig and button group capability',
         iconStyle: 'icon-check',
-        category: 'Model buttons'
+        category: 'Model buttons',
+        hidden: ['value']
     },
     {
         widget: ModelRadioButton,
@@ -135,7 +139,8 @@ export default [
         name: 'Model radio button',
         description: 'Radio button with data bindnig and button group capability',
         iconStyle: 'icon-dot-circled',
-        category: 'Model buttons'
+        category: 'Model buttons',
+        hidden: ['value']
     },
     {
         widget: ModelToggleButton,
@@ -143,7 +148,8 @@ export default [
         name: 'Model toggle button',
         description: 'Model toggle button with data bindnig and button group capability',
         //iconStyle: 'kenga-check-box-icon',
-        category: 'Model buttons'
+        category: 'Model buttons',
+        hidden: ['value']
     },
     //
     {
@@ -156,13 +162,22 @@ export default [
         widget: CardPane, from: 'kenga-containers/card-pane',
         category: 'Stacks',
         name: 'Cards',
-        description: 'Container of children arranged as a stack of cards'
+        description: 'Container of children arranged as a stack of cards',
+        hidden: [
+            'selected',
+            'selectedIndex'
+        ]
     },
     {
         widget: TabbedPane, from: 'kenga-containers/tabbed-pane',
         category: 'Stacks',
         name: 'Tabs',
-        description: 'Container with every child labeled on the top'
+        description: 'Container with every child labeled on the top',
+        hidden: [
+            'selected',
+            'selectedIndex'
+        ]
+
     },
     {
         widget: FlowPane, from: 'kenga-containers/flow-pane',
@@ -180,25 +195,43 @@ export default [
         widget: HolyGrailPane, from: 'kenga-containers/holy-grail-pane',
         category: 'Containers',
         name: 'Holy grail',
-        description: 'Container with five children used as header, content, footer, left and right sides'
+        description: 'Container with five children used as header, content, footer, left and right sides',
+        hidden: [
+            'leftSide',
+            'rightSide',
+            'header',
+            'footer',
+            'content'
+        ]
     },
     {
         widget: ScrollPane, from: 'kenga-containers/scroll-pane',
         category: 'Containers',
         name: 'Scroll',
-        description: 'Container of a single child and scroll bars'
+        description: 'Container of a single child and scroll bars',
+        hidden: [
+            'view'
+        ]
     },
     {
         widget: SplitPane, from: 'kenga-containers/split-pane',
         category: 'Containers',
         name: 'Split',
-        description: 'Container with two widgets and splitter.'
+        description: 'Container with two widgets and splitter.',
+        hidden: [
+            'first',
+            'second'
+        ]
     },
     {
         widget: DesktopPane, from: 'kenga-containers/desktop-pane',
         category: 'Containers',
         name: 'Desktop',
-        description: 'Container of internal windows. Multi document UI host.'
+        description: 'Container of internal windows. Multi document UI host.',
+        hidden: [
+            'forms',
+            'shownForms'
+        ]
     },
     {
         widget: BoxPane, from: 'kenga-containers/box-pane',
@@ -320,7 +353,7 @@ export default [
         widget: ModelColorField, from: 'kenga-model-fields/model-color-field',
         category: 'Model fields',
         name: 'Model color field',
-        decription: 'Color field with data binding'
+        decription: 'Color field with data binding',
     },
     {
         widget: ModelDateField, from: 'kenga-model-fields/model-date-field',
@@ -459,7 +492,30 @@ export default [
         widget: DataGrid, from: 'kenga-grid/grid',
         category: 'Model grid & columns',
         name: 'Grid',
-        decription: 'Data grid with binding, multi level header, tree grid capability, sorting, rows DnD, etc.'
+        decription: 'Data grid with binding, multi level header, tree grid capability, sorting, rows DnD, etc.',
+        hidden: [
+            'headerLeft',
+            'headerRight',
+            'frozenLeft',
+            'frozenRight',
+            'bodyLeft',
+            'bodyRight',
+            'footerLeft',
+            'footerRight',
+            'onRender',
+            'selected',
+            'dynamicCellClassName',
+            'activeEditor',
+            'rows',
+            'columns',
+            'viewRows',
+            'header',
+            'treeIndicatorColumn',
+            'columnNodesCount',
+            'columnsCount',
+            'focusedRow',
+            'focusedColumn'
+        ]
     },
     {
         widget: ColumnNode, from: 'kenga-grid/columns/column-node',

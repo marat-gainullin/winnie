@@ -6,14 +6,9 @@ import Widget from 'kenga/widget';
 import Container from 'kenga/container';
 import KeyCodes from 'kenga/key-codes';
 import Label from 'kenga-labels/label';
-import Button from 'kenga-buttons/button';
-import CheckBox from 'kenga-buttons/check-box';
-import RadioButton from 'kenga-buttons/radio-button';
-import ImageParagraph from 'kenga-labels/image-paragraph';
 import Box from 'kenga-containers/box-pane';
-import Flow from 'kenga-containers/flow-pane';
+import FlowPane from 'kenga-containers/flow-pane';
 import Scroll from 'kenga-containers/scroll-pane';
-import Split from 'kenga-containers/split-pane';
 import Desktop from 'kenga-containers/desktop-pane';
 import GridPane from 'kenga-containers/grid-pane';
 import Anchors from 'kenga-containers/anchors-pane';
@@ -21,286 +16,27 @@ import TabbedPane from 'kenga-containers/tabbed-pane';
 import CardPane from 'kenga-containers/card-pane';
 import HolyGrailPane from 'kenga-containers/holy-grail-pane';
 import Menu from 'kenga-menu/menu';
-import MenuBar from 'kenga-menu/menu-bar';
 import MenuItem from 'kenga-menu/menu-item';
-import BoxField from 'kenga/box-field';
 import DataGrid from 'kenga-grid/grid';
 import ColumnNode from 'kenga-grid/columns/column-node';
 import TextNumberField from './text-number-field';
 import ground from './ground';
 import i18n from './i18n';
 import Wrapper from './winnie-widget';
-import WinnieProperty from './winnie-property';
 import reWidth from './rewidth';
-import propValueOnRender from './props-render';
+import propValueOnRender from './properties/render';
 import Shortcuts from './shortcuts';
 import { startRectSelection, proceedRectSelection, endRectSelection } from './rect-selection';
-import { resizeDecor, mouseDrag, sizeLocationSnapshot, startItemsMove, proceedItemsMove, endItemsMove } from './location-size';
-import * as hiddenProps from './props-hidden';
+import { resizeDecor, mouseDrag } from './location-size';
 import modelToEs6 from './serial/model-to-code';
 import modelToJson from './serial/model-to-json';
 import Clipboard from './clipboard';
-
-function rename(model, created, newName) {
-    if (model.widgets.has(newName)) {
-        alert(i18n['winnie.name.used']);
-        model.layout.explorer.abortEditing();
-        return created.name;
-    } else if (newName.match(/^[a-zA-Z_][a-zA-Z_0-9]*$/)) {
-        const oldName = created.name;
-        model.edit({
-            name: `Rename widget '${oldName}' as '${newName}'`,
-            redo: () => {
-                model.widgets.delete(oldName);
-                created._name = newName;
-                model.widgets.set(newName, created);
-                model.layout.explorer.changed(created);
-                model.layout.explorer.goTo(created, true);
-            },
-            undo: () => {
-                model.widgets.delete(newName);
-                created._name = oldName;
-                model.widgets.set(oldName, created);
-                model.layout.explorer.changed(created);
-                model.layout.explorer.goTo(created, true);
-            }
-        });
-        model.checkEnabled();
-        return newName;
-    } else {
-        alert(i18n['winnie.bad.name']);
-        model.layout.explorer.abortEditing();
-        return created.name;
-    }
-}
-
-function produce(constr, widgetName, gridDimensions) {
-    let instance;
-    if (constr === GridPane) {
-        if (gridDimensions) {
-            instance = new GridPane(gridDimensions.rows, gridDimensions.columns, 10, 10);
-        } else {
-            const input = prompt(i18n['winnie.grid.dimensions']);
-            const matched = input.match(/(\d+),\s*(\d+)/);
-            if (matched) {
-                instance = new GridPane(+matched[1], +matched[2], 10, 10);
-            } else {
-                throw `Provided text: '${input}' is not useful.`;
-            }
-        }
-    } else if (constr === Box) {
-        instance = new constr(Ui.Orientation.HORIZONTAL, 10, 10);
-    } else {
-        instance = new constr();
-        if (instance instanceof ImageParagraph ||
-                instance instanceof MenuItem ||
-                instance instanceof CheckBox ||
-                instance instanceof RadioButton) {
-            instance.text = widgetName;
-        }
-    }
-    return instance;
-}
-
-function produced(self, instance) {
-    if (instance instanceof Widget) {
-        instance.onMouseEnter = () => {
-            instance.element.classList.add('p-winnie-widget-hover');
-        };
-        instance.onMouseExit = () => {
-            instance.element.classList.remove('p-winnie-widget-hover');
-        };
-        mouseDrag(instance.element, (event) => {
-            if (instance.element === self.visualRootElement()) {
-                return startRectSelection(self.layout.view.element, event);
-            } else {
-                return startItemsMove(self, instance);
-            }
-        }, (start, diff, event) => {
-            if (instance.element === self.visualRootElement()) {
-                proceedRectSelection(start, diff);
-            } else {
-                proceedItemsMove(self, start, diff, event.ctrlKey ? self.settings.grid.snap : false);
-            }
-        }, (start, diff, event) => {
-            if (instance.element === self.visualRootElement()) {
-                endRectSelection(self, start, diff, event);
-                const subject = instance['winnie.wrapper'];
-                self.layout.explorer.goTo(subject);
-            } else {
-                if (diff.x !== 0 || diff.y !== 0) {
-                    endItemsMove(self, start);
-                } else {
-                    const subject = instance['winnie.wrapper'];
-                    self.layout.explorer.goTo(subject);
-                    if (event.ctrlKey) {
-                        if (self.layout.explorer.isSelected(subject)) {
-                            self.layout.explorer.unselect(subject);
-                        } else {
-                            self.layout.explorer.select(subject);
-                        }
-                    } else {
-                        self.layout.explorer.unselectAll();
-                        self.layout.explorer.select(subject);
-                    }
-                    Invoke.later(() => {
-                        self.layout.widgets.element.focus();
-                    });
-                }
-            }
-        });
-        if (instance instanceof Container || instance instanceof DataGrid) {
-            Ui.on(instance.element, Ui.Events.DRAGENTER, event => {
-                if (self.paletteDrag) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    instance.element.classList.add('p-winnie-container-dnd-target');
-                }
-            });
-            Ui.on(instance.element, Ui.Events.DRAGLEAVE, event => {
-                if (self.paletteDrag) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    instance.element.classList.remove('p-winnie-container-dnd-target');
-                }
-            });
-            Ui.on(instance.element, Ui.Events.DRAGOVER, event => {
-                if (self.paletteDrag) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    event.dropEffect = 'move';
-                }
-            });
-            Ui.on(instance.element, Ui.Events.DROP, event => {
-                if (self.paletteDrag) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    instance.element.classList.remove('p-winnie-container-dnd-target');
-                    self.layout.explorer.goTo(instance['winnie.wrapper']);
-                    self.lastSelected = instance['winnie.wrapper'];
-                    const added = self.addWidget(self.paletteDrag.item);
-                    if (instance instanceof Anchors && added.delegate instanceof Widget) {
-                        const wX = Ui.absoluteLeft(added.delegate.element);
-                        const wY = Ui.absoluteTop(added.delegate.element);
-                        const left = event.clientX - wX - added.delegate.width / 2;
-                        const top = event.clientY - wY - added.delegate.height / 2;
-                        added.delegate.left = left > 0 ? left : self.settings.grid.x;
-                        added.delegate.top = top > 0 ? top : self.settings.grid.y;
-                    }
-                    self.stickDecors();
-                }
-            });
-        }
-    }
-    return instance;
-}
-
-function createProps(self, item) {
-    const propNames = Object.getOwnPropertyNames(item.delegate);
-    if (item.delegate instanceof Widget) {
-        propNames.push(...hiddenProps.pathProps);
-    }
-    return propNames
-            .filter(key =>
-                typeof item.delegate[key] !== 'function' &&
-                        (!(item.delegate instanceof Widget) || !hiddenProps.widget.has(key)) &&
-                        (!(item.delegate instanceof DataGrid) || !hiddenProps.datagrid.has(key)) &&
-                        (!(item.delegate instanceof ColumnNode) || !hiddenProps.datagridColumns.has(key)) &&
-                        (!(item.delegate instanceof TabbedPane) || !hiddenProps.tabbedPane.has(key)) &&
-                        (!(item.delegate instanceof CardPane) || !hiddenProps.cardPane.has(key)) &&
-                        (!(item.delegate instanceof HolyGrailPane) || !hiddenProps.holyGrailPane.has(key)) &&
-                        (!(item.delegate instanceof Scroll) || !hiddenProps.scrollPane.has(key)) &&
-                        (!(item.delegate instanceof Split) || !hiddenProps.splitPane.has(key)) &&
-                        (!(item.delegate instanceof Desktop) || !hiddenProps.desktopPane.has(key)) &&
-                        !key.startsWith('on')
-            )
-            .map((key) => {
-                const prop = new WinnieProperty(item.delegate, key, newValue => {
-                    const editBody = {
-                        name: `Property '${key}' of widget '${item.name}' change`,
-                        redo: () => {
-                            const oldValue = key.includes('.') ? Bound.getPathData(item.delegate, key) : item.delegate[key];
-                            if (key.includes('.')) {
-                                Bound.setPathData(item.delegate, key, newValue);
-                            } else {
-                                item.delegate[key] = newValue;
-                            }
-                            if (!prop.silent) {
-                                self.layout.properties.changed(prop);
-                                self.layout.properties.goTo(prop, true);
-                            }
-                            prop.silent = false;
-                            self.stickDecors();
-                            editBody.undo = () => {
-                                if (key.includes('.')) {
-                                    Bound.setPathData(item.delegate, key, oldValue);
-                                } else {
-                                    item.delegate[key] = oldValue;
-                                }
-                                self.layout.properties.changed(prop);
-                                self.layout.properties.goTo(prop, true);
-                                self.stickDecors();
-                            };
-                        }
-                    };
-                    self.edit(editBody);
-                    self.checkEnabled();
-                }, key.includes('.') ? Bound.getPathData(item.defaultInstance, key) : item.defaultInstance[key]);
-                return prop;
-            });
-}
+import {produce, produced, rename} from './model/widgets';
+import constructorName from './model/classes';
+import createProps from './model/properties';
 
 function decapitalize(name) {
     return name.substring(0, 1).toLowerCase() + name.substring(1);
-}
-
-/**
- * This transformation is necessary due to obfuscation of constructors names.
- * @param {Widget} instance
- * @returns {String}
- */
-function constructorName(instance) {
-    if (instance instanceof Box) {
-        return 'BoxPane';
-    } else if (instance instanceof Anchors) {
-        return 'AnchorsPane';
-    } else if (instance instanceof Flow) {
-        return 'FlowPane';
-    } else if (instance instanceof Scroll) {
-        return 'ScrollPane';
-    } else if (instance instanceof Split) {
-        return 'SplitPane';
-    } else if (instance instanceof TabbedPane) {
-        return 'TabbedPane';
-    } else if (instance instanceof CardPane) {
-        return 'CardPane';
-    } else if (instance instanceof GridPane) {
-        return 'GridPane';
-    } else if (instance instanceof Container) {
-        return 'Container';
-    } else if (instance instanceof BoxField) {
-        return 'Field';
-    } else if (instance instanceof Label) {
-        return 'Label';
-    } else if (instance instanceof Button) {
-        return 'Button';
-    } else if (instance instanceof CheckBox) {
-        return 'CheckBox';
-    } else if (instance instanceof RadioButton) {
-        return 'RadioButton';
-    } else if (instance instanceof Menu) {
-        return 'Menu';
-    } else if (instance instanceof MenuBar) {
-        return 'MenuBar';
-    } else if (instance instanceof MenuItem) {
-        return 'MenuItem';
-    } else if (instance instanceof DataGrid) {
-        return 'DataGrid';
-    } else if (instance instanceof ColumnNode) {
-        return 'ColumnNode';
-    } else {
-        return 'Widget';
-    }
 }
 
 export default class Winnie {
@@ -524,7 +260,7 @@ export default class Winnie {
         };
         this.layout.tTemplates.onAction = () => {
             checkEnabled();
-            self.layout.templatesMenu.popupRelativeTo(self.layout.tTemplates.element);
+            self.layout.templatesMenu.popupRelativeTo(self.layout.tTemplates.element, false);
         };
         this.layout.tSave.onAction = () => {
             checkEnabled();
@@ -622,13 +358,14 @@ export default class Winnie {
                 const source = indexed[item.from];
                 if (source) {
                     const created = new Wrapper(
-                            produced(self, produce(source.widget, widgetName,
+                            produced(self,
                                     source.widget === GridPane ?
-                                    {
-                                        rows: 'rows' in item.body ? item.body.rows : source.defaultInstance.rows,
-                                        columns: 'columns' in item.body ? item.body.columns : source.defaultInstance.columns
-                                    } : undefined
-                                    )),
+                                    new GridPane(
+                                            'rows' in item.body ? item.body.rows : source.defaultInstance.rows,
+                                            'columns' in item.body ? item.body.columns : source.defaultInstance.columns
+                                            )
+                                    : new source.widget()
+                                    ),
                             widgetName,
                             source.defaultInstance,
                             (newName) => {
@@ -639,7 +376,7 @@ export default class Winnie {
                     self.widgets.set(widgetName, created);
                     if (parent) {
                         addLog.push({subject: created, parent, at: parent.count});
-                        parent.add(created);
+                        parent.add(created, parent.count);
                     } else {
                         addLog.push({subject: created, parent: null, at: self.forest.length});
                         self.forest.push(created);
@@ -751,7 +488,7 @@ export default class Winnie {
         const self = this;
         const wasSelected = this._lastSelected;
         const widgetName = this.generateName(decapitalize(constructorName(item.defaultInstance)));
-        const created = new Wrapper(produced(self, produce(item.widget, widgetName)), widgetName, item.defaultInstance, (newName) => {
+        const created = new Wrapper(produced(self, produce(item.widget, widgetName, self.settings.grid.x, self.settings.grid.y)), widgetName, item.defaultInstance, (newName) => {
             rename(self, created, newName);
         });
         created.source = item;
@@ -1036,7 +773,7 @@ export default class Winnie {
             headerIcon.className = 'icon-down-open';
             header.icon = headerIcon;
             header.element.classList.add('p-widget-category-header');
-            const content = new Flow(5, 5);
+            const content = new FlowPane(5, 5);
             content.element.classList.add('p-widget-category-content');
             box.add(header);
             box.add(content);
@@ -1128,24 +865,36 @@ export default class Winnie {
                     } else {
                         return true;
                     }
-                }).forEach((item) => {
-                    try {
-                        item.defaultInstance = new item.widget();
-                        const itemPaletteItem = paletteItemOf(item);
-                        const itemMenuItem = menuItemOf(item);
-                        itemMenuItem.onAction = () => {
-                            self.addWidget(item);
-                        };
-                        const category = categoryOf(item);
-                        category.palette.content.add(itemPaletteItem);
-                        category.menu.add(itemMenuItem);
-                        category.items.push(item);
-                    } catch (ex) {
-                        Logger.info(`Can't add palette item '${item.name}' from '${item.from}' due to exception:`);
-                        Logger.severe(ex);
-                        Logger.info(`Palette item '${item.name}' from '${item.from}' skipped.`);
-                    }
-                });
+                })
+                        .map((item) => {
+                            return {
+                                widget: item.widget,
+                                from: item.from,
+                                name: item.name,
+                                description: item.description,
+                                iconStyle: item.iconStyle,
+                                category: item.category,
+                                hidden: new Set(Array.isArray(item.hidden) ? item.hidden : [])
+                            };
+                        })
+                        .forEach((item) => {
+                            try {
+                                item.defaultInstance = new item.widget();
+                                const itemPaletteItem = paletteItemOf(item);
+                                const itemMenuItem = menuItemOf(item);
+                                itemMenuItem.onAction = () => {
+                                    self.addWidget(item);
+                                };
+                                const category = categoryOf(item);
+                                category.palette.content.add(itemPaletteItem);
+                                category.menu.add(itemMenuItem);
+                                category.items.push(item);
+                            } catch (ex) {
+                                Logger.info(`Can't add palette item '${item.name}' from '${item.from}' due to exception:`);
+                                Logger.severe(ex);
+                                Logger.info(`Palette item '${item.name}' from '${item.from}' skipped.`);
+                            }
+                        });
             }
         };
     }
@@ -1269,7 +1018,7 @@ export default class Winnie {
                     });
                     if (subject.delegate.parent instanceof Anchors) {
                         return [decors.lt, decors.lm, decors.lb, decors.mt, decors.mb, decors.rt, decors.rm, decors.rb];
-                    } else if (subject.delegate.parent instanceof Flow || subject.delegate.parent instanceof Scroll) {
+                    } else if (subject.delegate.parent instanceof FlowPane || subject.delegate.parent instanceof Scroll) {
                         return [decors.mb, decors.rm, decors.rb];
                     } else if (subject.delegate.parent instanceof Box && subject.delegate.parent.orientation === Ui.Orientation.VERTICAL) {
                         return [decors.mb];

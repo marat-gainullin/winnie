@@ -19,8 +19,6 @@
 
 .p-toolbar {
     background: #4267b2;
-    padding-top: 10px;
-    padding-bottom: 10px;
     border-bottom: 1px solid #29487d;
 }
 
@@ -208,8 +206,17 @@
     background: #f6f7f9;
 }
 
-.p-split-divider {
+.p-split-horizontal > .p-split-divider {
+    cursor: ew-resize;
+}
+
+.p-split-vertical > .p-split-divider {
     cursor: ns-resize;
+}
+
+.p-split-divider {
+    border-left: 1px solid rgba(0, 0, 0, .15);
+    border-right: 1px solid rgba(0, 0, 0, .15);
 }
 
 .p-widget-category-header {
@@ -338,4 +345,121 @@
     padding-top: 5px;
     padding-bottom: 5px;
     white-space: nowrap;
+}
+
+.p-toolbar-chevron {
+    text-align: center;
+    color: lightgray;
+}
+
+.p-toolbar-chevron:hover {
+    color: white;
+}
+
+.p-tabs-chevron {
+    text-align: center;
+    color: brown;
+    background: whitesmoke;
+    border-top: 1px solid rgba(0, 0, 0, .15);
+    border-left: 1px solid rgba(0, 0, 0, .15);
+    border-right: 1px solid rgba(0, 0, 0, .15);
+}
+
+.p-tabs-chevron:hover {
+    color: darkred;
+}
+
+.p-tab-caption-close-tool::after,
+.p-toolbar-chevron-left::before,
+.p-tabs-chevron-left::before,
+.p-toolbar-chevron-right::before,
+.p-tabs-chevron-right::before {
+    font-family: "fontello";
+    font-style: normal;
+    font-weight: normal;
+    speak: none;
+
+    display: inline-block;
+    text-decoration: inherit;
+    width: 1em;
+    margin-right: .2em;
+    text-align: center;
+    /* opacity: .8; */
+
+    /* For safety - reset parent styles, that can break glyph codes*/
+    font-variant: normal;
+    text-transform: none;
+
+    /* fix buttons height, for twitter bootstrap */
+    line-height: 1em;
+
+    /* Animation center compensation - margins should be symmetric */
+    /* remove if not needed */
+    margin-left: .2em;
+
+    /* you can be more comfortable with increased icons size */
+    /* font-size: 120%; */
+
+    /* Font smoothing. That was taken from TWBS */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3);
+}
+
+.p-toolbar-chevron-left::before,
+.p-tabs-chevron-left::before,
+.p-toolbar-chevron-right::before,
+.p-tabs-chevron-right::before {
+    position: relative;
+    top: 50%;
+    margin-top: -0.5em;
+}
+
+.p-toolbar-chevron-left::before,
+.p-tabs-chevron-left::before {
+    content: '\e82d';
+}
+
+.p-toolbar-chevron-right::before,
+.p-tabs-chevron-right::before {
+    content: '\e80a';
+}
+
+.p-tabs-captions-shell {
+    border-bottom: 1px solid rgba(0, 0, 0, .15);
+}
+
+.p-tab-caption {
+    border-top: 1px solid rgba(0, 0, 0, .15);
+    border-left: 1px solid rgba(0, 0, 0, .15);
+    border-right: 1px solid rgba(0, 0, 0, .15);
+    margin-left: 1px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    background: lightgray;
+}
+
+.p-tab-caption:hover {
+    background: whitesmoke;
+}
+
+.p-tab-caption-selected {
+    background: whitesmoke;
+}
+
+.p-tab-caption-text {
+    padding: 5px;
+}
+
+.p-tab-caption-close-tool::after {
+    content: '\e827';
+    position: relative;
+    top: 50%;
+    margin-top: -0.5em;
+    color: #787878;
+}
+
+.p-tab-caption-close-tool:hover::after {
+    color: #444;
 }
