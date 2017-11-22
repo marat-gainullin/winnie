@@ -8,7 +8,8 @@
   "license": "BSD-3-Clause",
   "private": false,
   "scripts": {
-    "test": "karma start karma.conf.js"
+    "test": "karma start karma.conf.js",
+    "start": "gulp launch"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -26,6 +27,7 @@
     "gulp-concat": "^2.6.1",
     "gulp-if": "^2.0.2",
     "gulp-jshint": "^2.0.4",
+    "gulp-open": "^2.0.0",
     "gulp-sourcemaps": "^2.6.1",
     "gulp-uglify": "^3.0.0",
     "jasmine-core": "^2.8.0",

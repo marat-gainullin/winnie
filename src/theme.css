@@ -145,7 +145,7 @@
 .p-winnie-widgets > .p-widget {
     box-shadow: 0 3px 8px rgba(0, 0, 0, .3);
     border-radius: 3px;
-    background: #f6f7f9;
+    background: whitesmoke;
 }
 
 .p-winnie-widget-hover {
