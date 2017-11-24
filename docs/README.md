@@ -14,7 +14,7 @@ It contains widgets palette, visual playground, properties pane and view structu
 * Snap to grid while visual manipulation with mouse.
 * Undo/redo of every action.
 * Opening layout composition from `.json` files with `JSON` data.
-* Adoption pre created kenga composition modules and edit them.
+* Adoption of an already created kenga composition module and editing it.
 * Saving results to clipboad as `JSON` data.
 * Generating of Es6 code that creates a layout in runtime without dependecies on Winnie.
 * Saving only edited properties if thiers values are not same as default ones.
