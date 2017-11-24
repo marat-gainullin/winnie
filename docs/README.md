@@ -9,7 +9,7 @@ It contains widgets palette, visual playground, properties pane and view structu
 * Some predefined templates.
 * Comprehensive palette of widgets.
 * Extensible palette.
-* Extensible templattes.
+* Extensible templates.
 * Darg & drop from palette to visual playground.
 * Snap to grid while visual manipulation with mouse.
 * Undo/redo of every action.
