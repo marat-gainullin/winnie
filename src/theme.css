@@ -152,12 +152,11 @@
     outline: 1px dashed rgba(80, 40, 190, .5);
 }
 
-/*
 .p-winnie-widget-hover {
-    outline: 2px dashed rgba(80, 40, 190, .5);
+    outline: 1px dashed rgb(80, 40, 190);
     cursor: pointer;
 }
-*/
+
 .p-winnie-container-dnd-target {
     outline: 3px dashed rgba(80, 40, 190, .5) !important;
     cursor: pointer;
@@ -213,15 +212,18 @@
 
 .p-split-horizontal > .p-split-divider {
     cursor: ew-resize;
+    border-left: 1px solid rgba(0, 0, 0, .15);
+    border-right: 1px solid rgba(0, 0, 0, .15);
 }
 
 .p-split-vertical > .p-split-divider {
     cursor: ns-resize;
+    border-top: 1px solid rgba(0, 0, 0, .15);
+    border-bottom: 1px solid rgba(0, 0, 0, .15);
 }
 
-.p-split-divider {
-    border-left: 1px solid rgba(0, 0, 0, .15);
-    border-right: 1px solid rgba(0, 0, 0, .15);
+.p-winnie-palette-explorer > .p-split-divider {
+    border: none;
 }
 
 .p-widget-category-header {

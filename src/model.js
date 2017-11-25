@@ -7,6 +7,7 @@ import Container from 'kenga/container';
 import KeyCodes from 'kenga/key-codes';
 import Label from 'kenga-labels/label';
 import Box from 'kenga-containers/box-pane';
+import Toolbar from 'kenga-containers/tool-bar';
 import FlowPane from 'kenga-containers/flow-pane';
 import Scroll from 'kenga-containers/scroll-pane';
 import Desktop from 'kenga-containers/desktop-pane';
@@ -72,6 +73,7 @@ export default class Winnie {
         this.layout.propertiesHeader.element.classList.add('p-winnie-properties-header');
         this.layout.palette.element.classList.add('p-winnie-palette');
         this.layout.explorer.element.classList.add('p-winnie-explorer');
+        this.layout.paletteExplorerSplit.element.classList.add('p-winnie-palette-explorer');
         this.layout.ground.element.classList.add('p-winnie-ground');
         this.layout.view.element.classList.add('p-winnie-view');
         this.layout.widgets.element.classList.add('p-winnie-widgets');
@@ -541,7 +543,7 @@ export default class Winnie {
             self.layout.explorer.unselectAll();
             self.layout.explorer.select(item);
             self.layout.explorer.added(item);
-            if(wasVisualRoot){
+            if (wasVisualRoot) {
                 self.acceptVisualRoot(item);
             }
         }
@@ -1025,8 +1027,10 @@ export default class Winnie {
                         return [decors.mb, decors.rm, decors.rb];
                     } else if (subject.delegate.parent instanceof Box && subject.delegate.parent.orientation === Ui.Orientation.VERTICAL) {
                         return [decors.mb];
-                    } else if (subject.delegate.parent instanceof Box && subject.delegate.parent.orientation === Ui.Orientation.VERTICAL) {
-                        return [decors.mb];
+                    } else if (
+                            (subject.delegate.parent instanceof Box && subject.delegate.parent.orientation === Ui.Orientation.HORIZONTAL) ||
+                            subject.delegate.parent instanceof Toolbar) {
+                        return [decors.rm];
                     } else {
                         return [];
                     }

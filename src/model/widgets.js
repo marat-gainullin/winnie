@@ -51,14 +51,12 @@ function produce(constr, widgetName, hgap, vgap) {
 function produced(model, instance) {
     if (instance instanceof Widget) {
         instance.element.classList.add('p-winnie-widget');
-        /*
         Ui.on(instance.element, Ui.Events.MOUSEOVER, () => {
             instance.element.classList.add('p-winnie-widget-hover');
         });
         Ui.on(instance.element, Ui.Events.MOUSEOUT, () => {
             instance.element.classList.remove('p-winnie-widget-hover');
         });
-        */
         mouseDrag(instance.element, (event) => {
             if (instance.element === model.visualRootElement()) {
                 return startRectSelection(model.layout.view.element, event);
