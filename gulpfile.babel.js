@@ -175,7 +175,7 @@ gulp.task('bundle-html', ['clean'], () => {
     content(`${pkg.name}.html`, `<!DOCTYPE html>
 <html>
     <head>
-        <title>${pkg.name} test page</title>
+        <title>${pkg.name.substring(0, 1).toUpperCase() + pkg.name.substring(1)} demo page</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>

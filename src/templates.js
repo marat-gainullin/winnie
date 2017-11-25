@@ -1,7 +1,6 @@
 import Blank from './templates/blank';
 import Login from './templates/login';
 import Crud from './templates/crud';
-import Test from './templates/containers-test';
 
 export default [
     {
@@ -15,9 +14,5 @@ export default [
     {
         name: 'Crud',
         widgets: Crud
-    },
-    {
-        name: 'Test',
-        widgets: Test
     }
 ];

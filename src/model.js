@@ -537,15 +537,18 @@ export default class Winnie {
 
     removeSelected() {
         const self = this;
-        function added(item) {
+        function added(item, wasVisualRoot) {
             self.layout.explorer.unselectAll();
             self.layout.explorer.select(item);
             self.layout.explorer.added(item);
+            if(wasVisualRoot){
+                self.acceptVisualRoot(item);
+            }
         }
         function removed(item) {
             self.layout.explorer.unselect(item);
             self.layout.explorer.removed(item);
-            self.revokeVisualRoot(item);
+            return self.revokeVisualRoot(item);
         }
         const toRemove = this.layout.explorer.selected;
         const actions = toRemove.map((item) => {
@@ -559,7 +562,7 @@ export default class Winnie {
                     self.forest.splice(removedAt, 1);
                 }
                 self.widgets.delete(item.name);
-                removed(item);
+                const wasVisualRoot = removed(item);
                 ur.undo = () => {
                     self.widgets.set(item.name, item);
                     if (itemParent) {
@@ -567,7 +570,7 @@ export default class Winnie {
                         added(item);
                     } else {
                         self.forest.splice(removedAt, 0, item);
-                        added(item);
+                        added(item, wasVisualRoot);
                     }
                 };
             };
@@ -1086,6 +1089,9 @@ export default class Winnie {
     revokeVisualRoot(w) {
         if (w.delegate instanceof Container && w.delegate.element.parentElement === this.layout.widgets.element) {
             this.layout.widgets.element.removeChild(w.delegate.element);
+            return true;
+        } else {
+            return false;
         }
     }
 
