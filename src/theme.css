@@ -148,11 +148,16 @@
     background: whitesmoke;
 }
 
-.p-winnie-widget-hover {
+.p-winnie-widget {
     outline: 1px dashed rgba(80, 40, 190, .5);
-    cursor: pointer;
 }
 
+/*
+.p-winnie-widget-hover {
+    outline: 2px dashed rgba(80, 40, 190, .5);
+    cursor: pointer;
+}
+*/
 .p-winnie-container-dnd-target {
     outline: 3px dashed rgba(80, 40, 190, .5) !important;
     cursor: pointer;

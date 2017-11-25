@@ -77,7 +77,7 @@ export default [
         from: 'kenga-labels/label',
         name: 'Label',
         description: 'Image with text paragraph',
-        //iconStyle: 'kenga-check-box-icon',
+        iconStyle: 'icon-picture',
         category: 'Buttons'
     },
     {
@@ -85,7 +85,7 @@ export default [
         from: 'kenga-buttons/button',
         name: 'Push button',
         description: 'Push button',
-        //iconStyle: 'kenga-check-box-icon',
+        iconStyle: 'icon-flash',
         category: 'Buttons'
     },
     {
@@ -93,7 +93,7 @@ export default [
         from: 'kenga-buttons/drop-down-button',
         name: 'Drop down button',
         description: 'Button with drop down menu',
-        //iconStyle: 'kenga-check-box-icon',
+        iconStyle: 'icon-down-open',
         category: 'Buttons'
     },
     {
@@ -119,7 +119,7 @@ export default [
         from: 'kenga-buttons/toggle-button',
         name: 'Toggle button',
         description: 'Toggle button with button group capability',
-        //iconStyle: 'kenga-check-box-icon',
+        iconStyle: 'icon-toggle-on',
         category: 'Buttons',
         hidden: ['value']
     },
@@ -147,7 +147,7 @@ export default [
         from: 'kenga-model-buttons/model-toggle-button',
         name: 'Model toggle button',
         description: 'Model toggle button with data bindnig and button group capability',
-        //iconStyle: 'kenga-check-box-icon',
+        iconStyle: 'icon-toggle-on',
         category: 'Model buttons',
         hidden: ['value']
     },
@@ -163,6 +163,7 @@ export default [
         category: 'Stacks',
         name: 'Cards',
         description: 'Container of children arranged as a stack of cards',
+        iconStyle: 'icon-buffer',
         hidden: [
             'selected',
             'selectedIndex'
@@ -173,6 +174,7 @@ export default [
         category: 'Stacks',
         name: 'Tabs',
         description: 'Container with every child labeled on the top',
+        iconStyle: 'icon-buffer',
         hidden: [
             'selected',
             'selectedIndex'
@@ -189,6 +191,7 @@ export default [
         widget: GridPane, from: 'kenga-containers/grid-pane',
         category: 'Containers',
         name: 'Grid',
+        iconStyle: 'icon-th-thumb-empty',
         description: 'Containers with prefefined grid of children with equal spacing'
     },
     {
@@ -218,6 +221,7 @@ export default [
         category: 'Containers',
         name: 'Split',
         description: 'Container with two widgets and splitter.',
+        iconStyle: 'icon-columns',
         hidden: [
             'first',
             'second'
@@ -228,6 +232,7 @@ export default [
         category: 'Containers',
         name: 'Desktop',
         description: 'Container of internal windows. Multi document UI host.',
+        iconStyle: 'icon-window-restore',
         hidden: [
             'forms',
             'shownForms'
@@ -250,36 +255,42 @@ export default [
         widget: ColorField, from: 'kenga-fields/color-field',
         category: 'Fields',
         name: 'Color field',
+        iconStyle: 'icon-art-gallery',
         decription: 'Color field'
     },
     {
         widget: DateField, from: 'kenga-fields/date-field',
         category: 'Fields',
         name: 'Date field',
+        iconStyle: 'icon-calendar',
         decription: 'Date field'
     },
     {
         widget: DateTimeField, from: 'kenga-fields/date-time-field',
         category: 'Fields',
         name: 'Date time field',
+        iconStyle: 'icon-calendar',
         decription: 'Date time field'
     },
     {
         widget: DropDownField, from: 'kenga-fields/drop-down-field',
         category: 'Fields',
         name: 'Drop down field',
+        iconStyle: 'icon-arrow-combo',
         decription: 'Drop down field'
     },
     {
         widget: EMailField, from: 'kenga-fields/email-field',
         category: 'Fields',
         name: 'E-mail field',
+        iconStyle: 'icon-mail',
         decription: 'E-mail field'
     },
     {
         widget: FormattedField, from: 'kenga-fields/formatted-field',
         category: 'Fields',
         name: 'Formatted field',
+        iconStyle: 'icon-sort-numeric-outline',
         decription: 'Formatted field'
     },
     {
@@ -292,60 +303,70 @@ export default [
         widget: NumberField, from: 'kenga-fields/number-field',
         category: 'Fields',
         name: 'Number field',
+        iconStyle: 'icon-calc',
         decription: 'Number field'
     },
     {
         widget: PasswordField, from: 'kenga-fields/password-field',
         category: 'Fields',
         name: 'Password field',
+        iconStyle: 'icon-key-1',
         decription: 'Password field'
     },
     {
         widget: PhoneField, from: 'kenga-fields/phone-field',
         category: 'Fields',
         name: 'Phone field',
+        iconStyle: 'icon-phone',
         decription: 'Phone field'
     },
     {
         widget: ProgressField, from: 'kenga-fields/progress-field',
         category: 'Fields',
         name: 'Progress field',
+        iconStyle: 'icon-progress-2',
         decription: 'Progress field'
     },
     {
         widget: RichTextArea, from: 'kenga-fields/rich-text-area',
         category: 'Fields',
         name: 'Rich text area',
+        iconStyle: 'icon-edit',
         decription: 'Multi line rich text area'
     },
     {
         widget: Slider, from: 'kenga-fields/slider',
         category: 'Fields',
         name: 'Slider',
+        iconStyle: 'icon-sliders',
         decription: 'Slider'
     },
     {
         widget: TextArea, from: 'kenga-fields/text-area',
         category: 'Fields',
         name: 'Text area',
+        iconStyle: 'icon-edit',
         decription: 'Multiline text area'
     },
     {
         widget: TextField, from: 'kenga-fields/text-field',
         category: 'Fields',
         name: 'Text field',
+        iconStyle: 'icon-progress-0',
         decription: 'Single line text field'
     },
     {
         widget: TimeField, from: 'kenga-fields/time-field',
         category: 'Fields',
         name: 'Time field',
+        iconStyle: 'icon-clock-1',
         decription: 'Time field'
     },
     {
         widget: UrlField, from: 'kenga-fields/url-field',
         category: 'Fields',
         name: 'Url field',
+        iconStyle: 'icon-link',
         decription: 'Url field'
     },
     //
@@ -353,36 +374,42 @@ export default [
         widget: ModelColorField, from: 'kenga-model-fields/model-color-field',
         category: 'Model fields',
         name: 'Model color field',
-        decription: 'Color field with data binding',
+        iconStyle: 'icon-art-gallery',
+        decription: 'Color field with data binding'
     },
     {
         widget: ModelDateField, from: 'kenga-model-fields/model-date-field',
         category: 'Model fields',
         name: 'Model date field',
+        iconStyle: 'icon-calendar',
         decription: 'Date field with data binding'
     },
     {
         widget: ModelDateTimeField, from: 'kenga-model-fields/model-date-time-field',
         category: 'Model fields',
         name: 'Model date time field',
+        iconStyle: 'icon-calendar',
         decription: 'Date time field with data binding'
     },
     {
         widget: ModelDropDownField, from: 'kenga-model-fields/model-drop-down-field',
         category: 'Model fields',
         name: 'Model drop down field',
+        iconStyle: 'icon-arrow-combo',
         decription: 'Drop down field with data binding of value and of datalist as well'
     },
     {
         widget: ModelEMailField, from: 'kenga-model-fields/model-email-field',
         category: 'Model fields',
         name: 'Model e-mail field',
+        iconStyle: 'icon-mail',
         decription: 'EMail field with data binding'
     },
     {
         widget: ModelFormattedField, from: 'kenga-model-fields/model-formatted-field',
         category: 'Model fields',
         name: 'Model formatted field',
+        iconStyle: 'icon-sort-numeric-outline',
         decription: 'Formatted field with data binding'
     },
     {
@@ -395,66 +422,77 @@ export default [
         widget: ModelNumberField, from: 'kenga-model-fields/model-number-field',
         category: 'Model fields',
         name: 'Model number field',
+        iconStyle: 'icon-calc',
         decription: 'Number field with data binding'
     },
     {
         widget: ModelPasswordField, from: 'kenga-model-fields/model-password-field',
         category: 'Model fields',
         name: 'Model password field',
+        iconStyle: 'icon-key-1',
         decription: 'Password field with data binding'
     },
     {
         widget: ModelPhoneField, from: 'kenga-model-fields/model-phone-field',
         category: 'Model fields',
         name: 'Model phone field',
+        iconStyle: 'icon-phone',
         decription: 'Phone field with data binding'
     },
     {
         widget: ModelProgressField, from: 'kenga-model-fields/model-progress-field',
         category: 'Model fields',
         name: 'Model progress field',
+        iconStyle: 'icon-progress-2',
         decription: 'Progress field with data binding'
     },
     {
         widget: ModelRichTextArea, from: 'kenga-model-fields/model-rich-text-area',
         category: 'Model fields',
         name: 'Model rich text area',
+        iconStyle: 'icon-edit',
         decription: 'Rich text area with data binding'
     },
     {
         widget: ModelSlider, from: 'kenga-model-fields/model-slider',
         category: 'Model fields',
         name: 'Model slider',
+        iconStyle: 'icon-sliders',
         decription: 'Slider with data binding'
     },
     {
         widget: ModelTextArea, from: 'kenga-model-fields/model-text-area',
         category: 'Model fields',
         name: 'Model text area',
+        iconStyle: 'icon-edit',
         decription: 'Text area with data binding'
     },
     {
         widget: ModelTextField, from: 'kenga-model-fields/model-text-field',
         category: 'Model fields',
         name: 'Model text field',
+        iconStyle: 'icon-progress-0',
         decription: 'Text field with data binding'
     },
     {
         widget: ModelTimeField, from: 'kenga-model-fields/model-time-field',
         category: 'Model fields',
         name: 'Model Time field',
+        iconStyle: 'icon-clock-1',
         decription: 'Time field with data binding'
     },
     {
         widget: ModelUrlField, from: 'kenga-model-fields/model-url-field',
         category: 'Model fields',
         name: 'Model URL field',
+        iconStyle: 'icon-link',
         decription: 'URL field field with data binding'
     },
     {
         widget: Menu, from: 'kenga-menu/menu',
         category: 'Menu',
         name: 'Menu',
+        iconStyle: 'icon-menu-outline',
         decription: 'Menu items container'
     },
     {
@@ -478,13 +516,15 @@ export default [
     {
         widget: CheckBoxMenuItem, from: 'kenga-menu/check-box-menu-item',
         category: 'Menu',
-        name: 'Chec box menu item',
+        name: 'Check box menu item',
+        iconStyle: 'icon-check',
         decription: 'Menu item with check box instead of icon'
     },
     {
         widget: RadioButtonMenuItem, from: 'kenga-menu/radio-button-menu-item',
         category: 'Menu',
         name: 'Radio button menu item',
+        iconStyle: 'icon-dot-circled',
         decription: 'Menu item with radio button instead of icon'
     },
 //
@@ -493,6 +533,7 @@ export default [
         category: 'Model grid & columns',
         name: 'Grid',
         decription: 'Data grid with binding, multi level header, tree grid capability, sorting, rows DnD, etc.',
+        iconStyle: 'icon-table',
         hidden: [
             'headerLeft',
             'headerRight',
@@ -527,6 +568,7 @@ export default [
         widget: CheckBoxServiceNode, from: 'kenga-grid/columns/nodes/check-box-service-node',
         category: 'Model grid & columns',
         name: 'Check column',
+        iconStyle: 'icon-check',
         decription: 'Column node of data grid header with check box. Governs selection of rows'
     },
     {
@@ -539,12 +581,14 @@ export default [
         widget: OrderNumServiceNode, from: 'kenga-grid/columns/nodes/order-num-service-node',
         category: 'Model grid & columns',
         name: 'Ordinal column',
+        iconStyle: 'icon-sort-numeric-outline',
         decription: "Service column node of data grid header. Presents row's ordinal number"
     },
     {
         widget: RadioButtonServiceNode, from: 'kenga-grid/columns/nodes/radio-button-service-node',
         category: 'Model grid & columns',
         name: 'Radio column',
+        iconStyle: 'icon-dot-circled',
         decription: 'Column node of data grid header with radio button. Governs selection of rows'
     }
 ];
