@@ -3,7 +3,7 @@ import Anchors from 'kenga-containers/anchors-pane';
 
 function leftInSpaceOf(elem, parent) {
     let left = 0;
-    let curr = elem;
+    let curr = elem.offsetParent;
     // This intentionally excludes body which has a null offsetParent.
     while (curr.offsetParent && curr !== parent) {
         left -= curr.scrollLeft;
@@ -18,7 +18,7 @@ function leftInSpaceOf(elem, parent) {
 
 function topInSpaceOf(elem, parent) {
     let top = 0;
-    let curr = elem;
+    let curr = elem.offsetParent;
     // This intentionally excludes body which has a null offsetParent.
     while (curr.offsetParent && curr !== parent) {
         top -= curr.scrollTop;
