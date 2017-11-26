@@ -98,28 +98,30 @@ function produced(model, instance) {
         });
         if (instance instanceof Container || instance instanceof DataGrid) {
             Ui.on(instance.element, Ui.Events.DRAGENTER, event => {
-                if (model.paletteDrag) {
+                if (event.target === instance.element && model.paletteDrag) {
                     event.preventDefault();
                     event.stopPropagation();
                     instance.element.classList.add('p-winnie-container-dnd-target');
                 }
             });
             Ui.on(instance.element, Ui.Events.DRAGLEAVE, event => {
-                if (model.paletteDrag) {
+                if (event.target === instance.element && model.paletteDrag) {
                     event.preventDefault();
                     event.stopPropagation();
                     instance.element.classList.remove('p-winnie-container-dnd-target');
                 }
             });
             Ui.on(instance.element, Ui.Events.DRAGOVER, event => {
-                if (model.paletteDrag) {
+                if (event.target === instance.element && model.paletteDrag) {
                     event.preventDefault();
                     event.stopPropagation();
                     event.dropEffect = 'move';
+                } else {
+                    event.dropEffect = 'none';
                 }
             });
             Ui.on(instance.element, Ui.Events.DROP, event => {
-                if (model.paletteDrag) {
+                if (event.target === instance.element && model.paletteDrag) {
                     event.preventDefault();
                     event.stopPropagation();
                     instance.element.classList.remove('p-winnie-container-dnd-target');
