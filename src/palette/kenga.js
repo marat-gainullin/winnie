@@ -190,9 +190,9 @@ export default [
     {
         widget: GridPane, from: 'kenga-containers/grid-pane',
         category: 'Containers',
-        name: 'Grid',
+        name: 'Cells',
         iconStyle: 'icon-th-thumb-empty',
-        description: 'Containers with prefefined grid of children with equal spacing'
+        description: 'Containers with prefefined grid of children cells with equal spacing'
     },
     {
         widget: HolyGrailPane, from: 'kenga-containers/holy-grail-pane',

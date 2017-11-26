@@ -46,13 +46,20 @@ function produce(constr, widgetName, hgap, vgap) {
             instance instanceof RadioButton) {
         instance.text = widgetName;
     }
-    if(instance instanceof ColumnNode){
+    if (instance instanceof ColumnNode && !instance.title) {
         instance.title = widgetName;
     }
     return instance;
 }
 
 function produced(model, instance) {
+    function inRect(element, event) {
+        const rect = element.getBoundingClientRect();
+        return event.clientX >= rect.left &&
+                event.clientY >= rect.top &&
+                event.clientX < rect.right &&
+                event.clientY < rect.bottom;
+    }
     if (instance instanceof Widget) {
         instance.element.classList.add('p-winnie-widget');
         Ui.on(instance.element, Ui.Events.MOUSEOVER, () => {
@@ -102,30 +109,40 @@ function produced(model, instance) {
         });
         if (instance instanceof Container || instance instanceof DataGrid) {
             Ui.on(instance.element, Ui.Events.DRAGENTER, event => {
-                if (event.target === instance.element && model.paletteDrag) {
+                if (model.paletteDrag && (
+                        instance instanceof Container && event.target === instance.element ||
+                        instance instanceof DataGrid && inRect(instance.element, event)
+                        )) {
                     event.preventDefault();
                     event.stopPropagation();
                     instance.element.classList.add('p-winnie-container-dnd-target');
                 }
             });
             Ui.on(instance.element, Ui.Events.DRAGLEAVE, event => {
-                if (event.target === instance.element && model.paletteDrag) {
+                if (model.paletteDrag && (
+                        instance instanceof Container && event.target === instance.element ||
+                        instance instanceof DataGrid && !inRect(instance.element, event)
+                        )) {
                     event.preventDefault();
                     event.stopPropagation();
                     instance.element.classList.remove('p-winnie-container-dnd-target');
                 }
             });
             Ui.on(instance.element, Ui.Events.DRAGOVER, event => {
-                if (event.target === instance.element && model.paletteDrag) {
+                if (model.paletteDrag && (
+                        instance instanceof Container && event.target === instance.element ||
+                        instance instanceof DataGrid && inRect(instance.element, event)
+                        )) {
                     event.preventDefault();
                     event.stopPropagation();
                     event.dropEffect = 'move';
-                } else {
-                    event.dropEffect = 'none';
                 }
             });
             Ui.on(instance.element, Ui.Events.DROP, event => {
-                if (event.target === instance.element && model.paletteDrag) {
+                if (model.paletteDrag && (
+                        instance instanceof Container && event.target === instance.element ||
+                        instance instanceof DataGrid && inRect(instance.element, event)
+                        )) {
                     event.preventDefault();
                     event.stopPropagation();
                     instance.element.classList.remove('p-winnie-container-dnd-target');

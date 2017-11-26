@@ -45,7 +45,7 @@ function constructorName(instance) {
     } else if (instance instanceof CardPane) {
         return 'CardPane';
     } else if (instance instanceof GridPane) {
-        return 'GridPane';
+        return 'Cells';
     } else if (instance instanceof Container) {
         return 'Container';
     } else if (instance instanceof BoxField) {
