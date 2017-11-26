@@ -20,4 +20,4 @@ It contains widgets palette, visual playground, properties pane and view structu
 * Saving only edited properties if thiers values are not same as default ones.
 
 ## Demo
-There is a demo application with Winnie - [KengaJS Designer Demo](kengajs.com/demo/winnie.html)
+There is a demo application with Winnie - [KengaJS Designer Demo](http://kengajs.com/demo/winnie.html)
