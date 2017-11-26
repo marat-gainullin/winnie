@@ -561,7 +561,7 @@ export default [
     {
         widget: ColumnNode, from: 'kenga-grid/columns/column-node',
         category: 'Model grid & columns',
-        name: 'Column',
+        name: 'ColumnNode',
         decription: 'Column node of data grid header'
     },
     {

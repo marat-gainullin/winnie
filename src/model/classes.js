@@ -67,7 +67,7 @@ function constructorName(instance) {
     } else if (instance instanceof DataGrid) {
         return 'DataGrid';
     } else if (instance instanceof ColumnNode) {
-        return 'ColumnNode';
+        return 'Column';
     } else {
         return 'Widget';
     }

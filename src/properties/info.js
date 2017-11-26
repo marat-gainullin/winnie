@@ -27,7 +27,10 @@ const dataGridColumnsHidden = new Set([
     'column',
     'view',
     'renderer',
-    'editor'
+    'editor',
+    'parent',
+    'font',
+    'winnie.wrapper'
 ]);
 const fieldsHidden = new Set([
     'value',

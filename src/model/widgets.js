@@ -12,6 +12,7 @@ import Anchors from 'kenga-containers/anchors-pane';
 import HolyGrailPane from 'kenga-containers/holy-grail-pane';
 import MenuItem from 'kenga-menu/menu-item';
 import DataGrid from 'kenga-grid/grid';
+import ColumnNode from 'kenga-grid/columns/column-node';
 import i18n from '../i18n';
 import { mouseDrag, startItemsMove, proceedItemsMove, endItemsMove } from '../location-size';
 import { startRectSelection, endRectSelection, proceedRectSelection } from '../rect-selection';
@@ -44,6 +45,9 @@ function produce(constr, widgetName, hgap, vgap) {
             instance instanceof CheckBox ||
             instance instanceof RadioButton) {
         instance.text = widgetName;
+    }
+    if(instance instanceof ColumnNode){
+        instance.title = widgetName;
     }
     return instance;
 }
