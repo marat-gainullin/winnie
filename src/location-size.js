@@ -5,7 +5,7 @@ function leftInSpaceOf(elem, parent) {
     let left = 0;
     let curr = elem.offsetParent;
     // This intentionally excludes body which has a null offsetParent.
-    while (curr.offsetParent && curr !== parent) {
+    while (curr && curr !== parent && curr.offsetParent) {
         left -= curr.scrollLeft;
         curr = curr.parentNode;
     }
@@ -95,6 +95,15 @@ function sizeLocationSnapshot(subject) {
             bottom: subject.element.style.bottom
         }
     };
+}
+
+function applySizeLocationSnapshot(snapshot, subject) {
+    subject.element.style.left = snapshot.anchors.left;
+    subject.element.style.width = snapshot.anchors.width;
+    subject.element.style.right = snapshot.anchors.right;
+    subject.element.style.top = snapshot.anchors.top;
+    subject.element.style.height = snapshot.anchors.height;
+    subject.element.style.bottom = snapshot.anchors.bottom;
 }
 
 function resizeDecor(surface, subject, onEnd) {
@@ -252,29 +261,31 @@ function startItemsMove(model, pickedWidget) {
     const pickedItem = pickedWidget['winnie.wrapper'];
     return (() => {
         return model.layout.explorer.isSelected(pickedItem) ?
-                model.layout.explorer.selected :
-                [pickedItem];
+            model.layout.explorer.selected :
+            [pickedItem];
     })()
-            .filter((item) => item.delegate.attached && item.delegate.parent instanceof Anchors)
-            .map((item) => {
-                return {
-                    item,
-                    startSnapshot: sizeLocationSnapshot(item.delegate)
-                };
-            });
+        .filter((item) => item.delegate.attached && item.delegate.parent instanceof Anchors)
+        .map((item) => {
+            return {
+                item,
+                startSnapshot: sizeLocationSnapshot(item.delegate)
+            };
+        });
 }
 
 function proceedItemsMove(model, items, diff, snap) {
     function snapX(v) {
         return snap ?
-                Math.round(v / model.settings.grid.x) * model.settings.grid.x :
-                v;
+            Math.round(v / model.settings.grid.x) * model.settings.grid.x :
+            v;
     }
+
     function snapY(v) {
         return snap ?
-                Math.round(v / model.settings.grid.y) * model.settings.grid.y :
-                v;
+            Math.round(v / model.settings.grid.y) * model.settings.grid.y :
+            v;
     }
+
     items.forEach((moved) => {
         const left = moved.startSnapshot.left + diff.x;
         const top = moved.startSnapshot.top + diff.y;
@@ -293,25 +304,13 @@ function endItemsMove(model, items) {
             name: (items.length === 1 ? `Widget '${items[0].item.name}' moved` : `Move of (${items.length}) widgets`),
             redo: () => {
                 items.forEach((moved) => {
-                    const subjectElement = moved.item.delegate.element;
-                    subjectElement.style.left = moved.endSnapshot.anchors.left;
-                    subjectElement.style.width = moved.endSnapshot.anchors.width;
-                    subjectElement.style.right = moved.endSnapshot.anchors.right;
-                    subjectElement.style.top = moved.endSnapshot.anchors.top;
-                    subjectElement.style.height = moved.endSnapshot.anchors.height;
-                    subjectElement.style.bottom = moved.endSnapshot.anchors.bottom;
+                    applySizeLocationSnapshot(moved.endSnapshot, moved.item.delegate);
                 });
                 model.stickDecors();
             },
             undo: () => {
                 items.forEach((moved) => {
-                    const subjectElement = moved.item.delegate.element;
-                    subjectElement.style.left = moved.startSnapshot.anchors.left;
-                    subjectElement.style.width = moved.startSnapshot.anchors.width;
-                    subjectElement.style.right = moved.startSnapshot.anchors.right;
-                    subjectElement.style.top = moved.startSnapshot.anchors.top;
-                    subjectElement.style.height = moved.startSnapshot.anchors.height;
-                    subjectElement.style.bottom = moved.startSnapshot.anchors.bottom;
+                    applySizeLocationSnapshot(moved.startSnapshot, moved.item.delegate);
                 });
                 model.stickDecors();
             }
@@ -319,4 +318,4 @@ function endItemsMove(model, items) {
     }
 }
 
-export {resizeDecor, mouseDrag, sizeLocationSnapshot, startItemsMove, proceedItemsMove, endItemsMove};
+export {resizeDecor, mouseDrag, sizeLocationSnapshot, applySizeLocationSnapshot, startItemsMove, proceedItemsMove, endItemsMove};

@@ -163,7 +163,7 @@
 }
 
 .p-winnie-widget-selected {
-    outline: 1px solid rgba(80, 40, 190, .5);
+    outline: 2px dashed rgba(80, 40, 190, .5);
 }
 
 .p-winnie-decoration {
@@ -469,4 +469,7 @@
 
 .p-tab-caption-close-tool:hover::after {
     color: #444;
+}
+.p-container {
+    overflow-clip: ;
 }

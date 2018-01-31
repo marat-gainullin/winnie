@@ -9,6 +9,7 @@ import Box from 'kenga-containers/box-pane';
 import FlowPane from 'kenga-containers/flow-pane';
 import GridPane from 'kenga-containers/grid-pane';
 import Anchors from 'kenga-containers/anchors-pane';
+import TabbedPane from 'kenga-containers/tabbed-pane';
 import HolyGrailPane from 'kenga-containers/holy-grail-pane';
 import MenuItem from 'kenga-menu/menu-item';
 import DataGrid from 'kenga-grid/grid';
@@ -111,6 +112,8 @@ function produced(model, instance) {
             Ui.on(instance.element, Ui.Events.DRAGENTER, event => {
                 if (model.paletteDrag && (
                         instance instanceof Container && event.target === instance.element ||
+                        instance instanceof HolyGrailPane && event.target.parentElement === instance.element ||
+                        instance instanceof TabbedPane && event.target.parentElement === instance.element ||
                         instance instanceof DataGrid && inRect(instance.element, event)
                         )) {
                     event.preventDefault();
@@ -121,6 +124,8 @@ function produced(model, instance) {
             Ui.on(instance.element, Ui.Events.DRAGLEAVE, event => {
                 if (model.paletteDrag && (
                         instance instanceof Container && event.target === instance.element ||
+                        instance instanceof HolyGrailPane && event.target.parentElement === instance.element ||
+                        instance instanceof TabbedPane && event.target.parentElement === instance.element ||
                         instance instanceof DataGrid && !inRect(instance.element, event)
                         )) {
                     event.preventDefault();
@@ -131,6 +136,8 @@ function produced(model, instance) {
             Ui.on(instance.element, Ui.Events.DRAGOVER, event => {
                 if (model.paletteDrag && (
                         instance instanceof Container && event.target === instance.element ||
+                        instance instanceof HolyGrailPane && event.target.parentElement === instance.element ||
+                        instance instanceof TabbedPane && event.target.parentElement === instance.element ||
                         instance instanceof DataGrid && inRect(instance.element, event)
                         )) {
                     event.preventDefault();
@@ -141,6 +148,8 @@ function produced(model, instance) {
             Ui.on(instance.element, Ui.Events.DROP, event => {
                 if (model.paletteDrag && (
                         instance instanceof Container && event.target === instance.element ||
+                        instance instanceof HolyGrailPane && event.target.parentElement === instance.element ||
+                        instance instanceof TabbedPane && event.target.parentElement === instance.element ||
                         instance instanceof DataGrid && inRect(instance.element, event)
                         )) {
                     event.preventDefault();

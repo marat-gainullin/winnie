@@ -44,15 +44,15 @@
     "yargs": "^9.0.1"
   },
   "dependencies": {
-    "kenga": "^0.0.24",
-    "kenga-buttons": "^0.0.14",
-    "kenga-containers": "^0.0.13",
-    "kenga-fields": "^0.0.12",
-    "kenga-grid": "^0.0.11",
-    "kenga-labels": "^0.0.13",
-    "kenga-menu": "^0.0.12",
-    "kenga-model-buttons": "^0.0.10",
-    "kenga-model-fields": "^0.0.10",
-    "septima-utils": "^0.0.4"
+    "kenga": "0.0.26",
+    "kenga-buttons": "0.0.16",
+    "kenga-containers": "0.0.14",
+    "kenga-fields": "0.0.13",
+    "kenga-grid": "0.0.14",
+    "kenga-labels": "0.0.16",
+    "kenga-menu": "0.0.13",
+    "kenga-model-buttons": "0.0.11",
+    "kenga-model-fields": "0.0.11",
+    "septima-utils": "0.0.5"
   }
 }

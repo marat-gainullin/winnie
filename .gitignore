@@ -6,6 +6,7 @@ build
 
 # IDE specific
 nbproject
+.idea
 
 # misc
 yarn.lock
