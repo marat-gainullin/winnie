@@ -169,10 +169,10 @@
 .p-winnie-decoration {
     position: absolute;
     display: inline-block;
-    border: solid 2.5px rgba(165, 42, 42, .8);
+    border: solid 5px rgba(165, 42, 42, .8);
     border-radius: 5px;
-    margin-left: -2.5px;
-    margin-top: -2.5px;
+    margin-left: -5px;
+    margin-top: -5px;
 }
 
 .p-winnie-decoration-left-top {

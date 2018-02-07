@@ -55,7 +55,7 @@ export default function Layout() {
     const propNameColumn = new ColumnNode();
     const propValueColumn = new ColumnNode();
     {
-        propertiesBox.width = 200;
+        propertiesBox.width = 310;
         propNameColumn.width = (propertiesBox.width - 30) / 2;
         propValueColumn.width = (propertiesBox.width - 30) / 2;
         propNameColumn.title = i18n['winnie.prop.name'];

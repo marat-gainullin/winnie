@@ -7,7 +7,10 @@ export default class WinnieProperty {
         this.name = name;
         this.onChange = onChange;
         this.defaultValue = defaultValue;
-        this.visible = target['visible'];
+        if(name === 'visible') {
+            this.visible = target.visible;
+            target.visible = true;
+        }
     }
 
     get value() {

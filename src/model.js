@@ -172,19 +172,19 @@ export default class Winnie {
                                             w.delegate.element.style.right = '';
                                             w.delegate.element.style.top = '';
                                             w.delegate.element.style.height = '';
-                                            w.delegate.element.style.bottom = ''
+                                            w.delegate.element.style.bottom = '';
                                         } else if (dest.delegate instanceof Box && dest.delegate.orientation === Ui.Orientation.VERTICAL) {
                                             w.delegate.element.style.left = '';
                                             w.delegate.element.style.width = '';
                                             w.delegate.element.style.right = '';
                                             w.delegate.element.style.top = '';
-                                            w.delegate.element.style.bottom = ''
+                                            w.delegate.element.style.bottom = '';
                                         } else if (dest.delegate instanceof Box && dest.delegate.orientation === Ui.Orientation.HORIZONTAL) {
                                             w.delegate.element.style.left = '';
                                             w.delegate.element.style.right = '';
                                             w.delegate.element.style.top = '';
                                             w.delegate.element.style.height = '';
-                                            w.delegate.element.style.bottom = ''
+                                            w.delegate.element.style.bottom = '';
                                         }
                                     } else if (dest.delegate instanceof HolyGrailPane) {
                                     }
