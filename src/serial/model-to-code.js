@@ -1,4 +1,5 @@
 import Grid from 'kenga-containers/grid-pane';
+import ColumnNode from 'kenga-grid/columns/column-node';
 
 function concat(prev, item) {
     return !!prev ? `${prev}\n${item}` : item;
@@ -110,7 +111,7 @@ class Es6Generator {
         }
         return queue
                 .map((item) => {
-                    return `${indent}${this.constNameOf(item.parent.name)}.add(${this.constNameOf(item.name)});`;
+                    return `${indent}${this.constNameOf(item.parent.name)}.${item.delegate instanceof ColumnNode ? 'addColumnNode' : 'add'}(${this.constNameOf(item.name)});`;
                 })
                 .reduce(concat, '');
     }

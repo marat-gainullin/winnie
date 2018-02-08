@@ -160,7 +160,7 @@ export default class Winnie {
                                 addAt--;
                             }
                             if (source !== dest || removeAt !== addAt) {
-                                const oldLocationSize = sizeLocationSnapshot(w.delegate);
+                                const oldLocationSize = w.delegate instanceof ColumnNode ? {} : sizeLocationSnapshot(w.delegate);
                                 if (dest) {
                                     if (source !== dest) {
                                         if (dest.delegate instanceof TabbedPane ||
@@ -189,7 +189,7 @@ export default class Winnie {
                                     } else if (dest.delegate instanceof HolyGrailPane) {
                                     }
                                 }
-                                const newLocationSize = sizeLocationSnapshot(w.delegate);
+                                const newLocationSize = w.delegate instanceof ColumnNode ? {} : sizeLocationSnapshot(w.delegate);
                                 const ur = {
                                     name: `Move widget '${w.name}' to container '${dest ? dest.name : '[forest]'}' at position ${addAt}`,
                                     redo: () => {
@@ -207,7 +207,9 @@ export default class Winnie {
                                         self.layout.explorer.added(w);
                                         self.layout.explorer.goTo(w, true);
 
-                                        applySizeLocationSnapshot(newLocationSize, w.delegate);
+                                        if (!(w.delegate instanceof ColumnNode)) {
+                                            applySizeLocationSnapshot(newLocationSize, w.delegate);
+                                        }
                                         ur.undo = () => {
                                             if (dest) {
                                                 dest.remove(addAt);
@@ -223,7 +225,9 @@ export default class Winnie {
                                             self.layout.explorer.added(w);
                                             self.layout.explorer.goTo(w, true);
 
-                                            applySizeLocationSnapshot(oldLocationSize, w.delegate);
+                                            if (!(w.delegate instanceof ColumnNode)) {
+                                                applySizeLocationSnapshot(oldLocationSize, w.delegate);
+                                            }
                                         };
                                     }
                                 };
@@ -1089,13 +1093,13 @@ export default class Winnie {
                     } else if (subject.delegate.parent instanceof Box && subject.delegate.parent.orientation === Ui.Orientation.HORIZONTAL ||
                         subject.delegate.parent instanceof Toolbar) {
                         return [decors.rm];
-                    } else if (subject.delegate.parent instanceof HolyGrailPane && subject.delegate.parent.header === subject.delegate){
+                    } else if (subject.delegate.parent instanceof HolyGrailPane && subject.delegate.parent.header === subject.delegate) {
                         return [decors.mb];
-                    } else if (subject.delegate.parent instanceof HolyGrailPane && subject.delegate.parent.leftSide === subject.delegate){
+                    } else if (subject.delegate.parent instanceof HolyGrailPane && subject.delegate.parent.leftSide === subject.delegate) {
                         return [decors.rm];
-                    } else if (subject.delegate.parent instanceof HolyGrailPane && subject.delegate.parent.rightSide === subject.delegate){
+                    } else if (subject.delegate.parent instanceof HolyGrailPane && subject.delegate.parent.rightSide === subject.delegate) {
                         return [decors.lm];
-                    } else if (subject.delegate.parent instanceof HolyGrailPane && subject.delegate.parent.footer === subject.delegate){
+                    } else if (subject.delegate.parent instanceof HolyGrailPane && subject.delegate.parent.footer === subject.delegate) {
                         return [decors.mt];
                     } else {
                         return [];
