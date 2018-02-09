@@ -312,11 +312,11 @@ export default class Winnie {
         };
         this.layout.tSave.onAction = () => {
             checkEnabled();
-            self.generateJSON();
+            self.save();
         };
         this.layout.tExport.onAction = () => {
             checkEnabled();
-            self.generateEs6();
+            self.export();
         };
         [this.layout.tCut, this.layout.miCut].forEach((w) => {
             enabled.push(() => {
@@ -376,6 +376,17 @@ export default class Winnie {
         checkEnabled();
         this._palette = {};
         this._adopts = [];
+        this.save = function save() {
+            if (this.widgets.size > 0) {
+                const generatedJson = modelToJson(this.forest);
+                Clipboard.write(generatedJson);
+                this.layout.widgets.element.focus();
+                Logger.info('Generated JSON copied to the clipboard.');
+                alert(i18n['winnie.generated.json.copied']);
+            } else {
+                Logger.info(`Can't generate JSON for an empty [forest].`);
+            }
+        };
     }
 
     clear() {
@@ -753,7 +764,7 @@ export default class Winnie {
         this.layout.widgets.element.focus();
     }
 
-    generateEs6() {
+    export() {
         if (this.widgets.size > 0) {
             const generatedCode = modelToEs6(this);
             Clipboard.write(generatedCode);
@@ -762,18 +773,6 @@ export default class Winnie {
             alert(i18n['winnie.generated.es6.copied']);
         } else {
             Logger.info(`Can't generate code for an empty [forest].`);
-        }
-    }
-
-    generateJSON() {
-        if (this.widgets.size > 0) {
-            const generatedJson = modelToJson(this.forest);
-            Clipboard.write(generatedJson);
-            this.layout.widgets.element.focus();
-            Logger.info('Generated JSON copied to the clipboard.');
-            alert(i18n['winnie.generated.json.copied']);
-        } else {
-            Logger.info(`Can't generate JSON for an empty [forest].`);
         }
     }
 

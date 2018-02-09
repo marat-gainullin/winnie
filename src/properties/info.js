@@ -49,4 +49,4 @@ const pathProps = [
     'tab.closable'
 ];
 
-export { widgetHidden, dataGridColumnsHidden, fieldsHidden, pathProps };
+export {widgetHidden, dataGridColumnsHidden, fieldsHidden, pathProps};

@@ -1,3 +1,4 @@
+import Widget from 'kenga/widget';
 import Bound from 'kenga/bound';
 
 export default class WinnieProperty {
@@ -7,7 +8,7 @@ export default class WinnieProperty {
         this.name = name;
         this.onChange = onChange;
         this.defaultValue = defaultValue;
-        if(name === 'visible') {
+        if (name === 'visible') {
             this.visible = target.visible;
             target.visible = true;
         }

@@ -62,11 +62,11 @@ function winnieKeyDown(model, event) {
     } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_S) {
         event.stopPropagation();
         event.preventDefault();
-        model.generateJSON();
+        model.save();
     } else if (event.ctrlKey && event.keyCode === KeyCodes.KEY_E) {
         event.stopPropagation();
         event.preventDefault();
-        model.generateEs6();
+        model.export();
     } else if (event.keyCode === KeyCodes.KEY_DELETE) {
         if (model.layout.explorer.selected.length > 0 &&
                 !model.layout.explorer.activeEditor &&

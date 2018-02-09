@@ -8,6 +8,9 @@ import WinnieProperty from '../properties/winnie-property';
 function createProps(model, item) {
     const propNames = Object.getOwnPropertyNames(item.delegate);
     if (item.delegate instanceof Widget) {
+        if (item.delegate instanceof Widget && !propNames.includes('classes')) {
+            propNames.push('classes');
+        }
         propNames.push(...PropsInfo.pathProps);
     }
     return propNames
@@ -29,6 +32,15 @@ function createProps(model, item) {
                                 item.delegate[key];
                         if (key === 'visible') {
                             prop.visible = newValue;
+                        } else if (key === 'classes' && item.delegate instanceof Widget) {
+                            const element = item.delegate.element;
+                            if (oldValue) {
+                                oldValue.split(' ').forEach(className => element.classList.remove(className));
+                            }
+                            item.delegate[key] = newValue;
+                            if (newValue) {
+                                newValue.split(' ').forEach(className => element.classList.add(className));
+                            }
                         } else {
                             if (key.includes('.')) {
                                 Bound.setPathData(item.delegate, key, newValue);
@@ -45,6 +57,15 @@ function createProps(model, item) {
                         editBody.undo = () => {
                             if (key === 'visible') {
                                 prop.visible = oldValue;
+                            } else if (key === 'classes' && item.delegate instanceof Widget) {
+                                const element = item.delegate.element;
+                                if (newValue) {
+                                    newValue.split(' ').forEach(className => element.classList.remove(className));
+                                }
+                                item.delegate[key] = oldValue;
+                                if (oldValue) {
+                                    oldValue.split(' ').forEach(className => element.classList.add(className));
+                                }
                             } else {
                                 if (key.includes('.')) {
                                     Bound.setPathData(item.delegate, key, oldValue);
@@ -61,6 +82,9 @@ function createProps(model, item) {
                 model.edit(editBody);
                 model.checkEnabled();
             }, key.includes('.') ? Bound.getPathData(item.defaultInstance, key) : item.defaultInstance[key]);
+            if (item.delegate instanceof Widget && key === 'classes' && item.delegate[key]) {
+                item.delegate.element.className += ` ${item.delegate[key]}`;
+            }
             return prop;
         });
 }
