@@ -100,7 +100,7 @@ export default class Winnie {
                 let firstContainer = null;
                 const addLog = self.paste(event.clipboardData.getData('text/plain'));
                 addLog.forEach((item) => {
-                    if (!firstContainer && item.subject.delegate instanceof Container) {
+                    if (!firstContainer && item.subject.delegate instanceof Container && !item.subject.delegate.parent) {
                         firstContainer = item.subject;
                     }
                 });
@@ -725,7 +725,7 @@ export default class Winnie {
                     self.clear();
                     const addLog = self.acceptJson(reader.result);
                     addLog.forEach((item) => {
-                        if (!firstContainer && item.subject.delegate instanceof Container) {
+                        if (!firstContainer && item.subject.delegate instanceof Container && !item.subject.delegate.parent) {
                             firstContainer = item.subject;
                         }
                     });
@@ -752,7 +752,7 @@ export default class Winnie {
         this.clear();
         this.acceptNatives(new Natives())
             .forEach((item) => {
-                if (!firstContainer && item.delegate instanceof Container) {
+                if (!firstContainer && item.delegate instanceof Container && !item.delegate.parent) {
                     firstContainer = item;
                 }
             });
@@ -1143,12 +1143,12 @@ export default class Winnie {
     }
 
     acceptVisualRoot(w) {
-        const oldVRE = this.visualRootElement();
-        if (oldVRE !== w.delegate.element) {
-            if (oldVRE) {
-                this.layout.widgets.element.removeChild(oldVRE);
+        if(!w.delegate.parent) { // Only roots of widgets heirarchy can be accepted as visual root of designer
+            const oldVRE = this.visualRootElement();
+            if (oldVRE !== w.delegate.element) {
+                this.clearVisualRoot();
+                this.layout.widgets.element.appendChild(w.delegate.element);
             }
-            this.layout.widgets.element.appendChild(w.delegate.element);
         }
     }
 
