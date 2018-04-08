@@ -277,7 +277,10 @@ export default [
         category: 'Fields',
         name: 'Drop down field',
         iconStyle: 'icon-arrow-combo',
-        decription: 'Drop down field'
+        decription: 'Drop down field',
+        hidden: [
+            'text'
+        ]
     },
     {
         widget: EMailField, from: 'kenga-fields/email-field',
@@ -396,7 +399,10 @@ export default [
         category: 'Model fields',
         name: 'Model drop down field',
         iconStyle: 'icon-arrow-combo',
-        decription: 'Drop down field with data binding of value and of datalist as well'
+        decription: 'Drop down field with data binding of value and of datalist as well',
+        hidden: [
+            'text'
+        ]
     },
     {
         widget: ModelEMailField, from: 'kenga-model-fields/model-email-field',
