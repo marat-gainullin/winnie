@@ -7,8 +7,8 @@ function startRectSelection(rectHost, event) {
     rect.className = 'p-winnie-selection-rect';
     rectHost.appendChild(rect);
     rect.style.position = 'absolute';
-    const x = event.clientX - viewX;
-    const y = event.clientY - viewY;
+    const x = event.clientX - viewX + rectHost.scrollLeft;
+    const y = event.clientY - viewY + rectHost.scrollTop;
     rect.style.left = `${x}px`;
     rect.style.top = `${y}px`;
     rect.style.width = rect.style.height = '0px';

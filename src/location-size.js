@@ -287,10 +287,14 @@ function proceedItemsMove(model, items, diff, snap) {
     }
 
     items.forEach((moved) => {
-        const left = moved.startSnapshot.left + diff.x;
-        const top = moved.startSnapshot.top + diff.y;
-        moved.item.delegate.left = snapX(left);
-        moved.item.delegate.top = snapY(top);
+        if (diff.x !== 0) {
+            const left = moved.startSnapshot.left + diff.x;
+            moved.item.delegate.left = snapX(left);
+        }
+        if (diff.y !== 0) {
+            const top = moved.startSnapshot.top + diff.y;
+            moved.item.delegate.top = snapY(top);
+        }
         model.stickDecors();
     });
 }
@@ -318,4 +322,12 @@ function endItemsMove(model, items) {
     }
 }
 
-export {resizeDecor, mouseDrag, sizeLocationSnapshot, applySizeLocationSnapshot, startItemsMove, proceedItemsMove, endItemsMove};
+export {
+    resizeDecor,
+    mouseDrag,
+    sizeLocationSnapshot,
+    applySizeLocationSnapshot,
+    startItemsMove,
+    proceedItemsMove,
+    endItemsMove
+};

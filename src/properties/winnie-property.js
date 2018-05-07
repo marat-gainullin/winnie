@@ -1,4 +1,3 @@
-import Widget from 'kenga/widget';
 import Bound from 'kenga/bound';
 
 export default class WinnieProperty {
