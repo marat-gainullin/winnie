@@ -1,10 +1,12 @@
+import * as Serials from "./serials";
+
 function forest(forest) {
     function toPlain(sheet) {
         const props = {};
         sheet
                 .filter(p => p.edited)
                 .forEach((p) => {
-                    props[p.name] = p.value && p.value.src ? p.value.src : p.value;
+                    props[p.name] = p.value && p.value.src ? Serials.relativize(p.value.src) : p.value;
                 });
         return props;
     }
