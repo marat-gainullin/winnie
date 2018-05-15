@@ -5,6 +5,8 @@ const widgetHidden = new Set([
     'width',
     'height',
     'tab',
+    'box',
+    'shell',
     'data',
     'parent',
     'element',
