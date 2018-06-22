@@ -520,7 +520,11 @@ export default class Winnie {
                         });
                         created.source = source;
                         self.widgets.set(widgetName, created);
-                        if (!native.parent) {
+                        if (native instanceof ColumnNode) {
+                            if (!native.column || !native.column.grid) {
+                                self.forest.push(created);
+                            }
+                        } else if (!native.parent) {
                             self.forest.push(created);
                         }
                         created.sheet = createProps(self, created);
@@ -1143,7 +1147,7 @@ export default class Winnie {
     }
 
     acceptVisualRoot(w) {
-        if(!w.delegate.parent) { // Only roots of widgets heirarchy can be accepted as visual root of designer
+        if (!w.delegate.parent) { // Only roots of widgets heirarchy can be accepted as visual root of designer
             const oldVRE = this.visualRootElement();
             if (oldVRE !== w.delegate.element) {
                 this.clearVisualRoot();
