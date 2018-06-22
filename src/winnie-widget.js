@@ -133,9 +133,6 @@ class WidgetWrapper {
     add(subject, index) {
         if (this.delegate instanceof DataGrid || this.delegate instanceof ColumnNode) {
             this.delegate.insertColumnNode(index, subject.delegate);
-            if(this.delegate instanceof ColumnNode && this.delegate.column && this.delegate.column.grid){
-                this.delegate.column.grid.applyColumnsNodes();
-            }
         } else if (this.delegate instanceof GrailPane) {
             const children = this.children;
             children.splice(index, 0, subject);
@@ -174,9 +171,6 @@ class WidgetWrapper {
     remove(index) {
         if (this.delegate instanceof DataGrid || this.delegate instanceof ColumnNode) {
             this.delegate.removeColumnNodeAt(index);
-            if(this.delegate instanceof ColumnNode && this.delegate.column && this.delegate.column.grid){
-                this.delegate.column.grid.applyColumnsNodes();
-            }
         } else if (this.delegate instanceof GrailPane) {
             const children = this.children;
             children.splice(index, 1);
