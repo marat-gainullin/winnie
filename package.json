@@ -1,6 +1,6 @@
 {
   "name": "winnie",
-  "version": "0.1.23",
+  "version": "0.1.24",
   "description": "WYSIWYG editor of Kenga widgets",
   "main": "index.js",
   "repository": "https://github.com/marat-gainullin/winnie.git",
@@ -48,7 +48,7 @@
     "kenga-buttons": "0.0.22",
     "kenga-containers": "0.0.25",
     "kenga-fields": "0.0.19",
-    "kenga-grid": "0.0.27",
+    "kenga-grid": "0.0.28",
     "kenga-labels": "0.0.24",
     "kenga-menu": "0.0.21",
     "kenga-model-buttons": "0.0.17",
