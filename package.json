@@ -1,6 +1,6 @@
 {
   "name": "winnie",
-  "version": "0.1.31",
+  "version": "0.1.32",
   "description": "WYSIWYG editor of Kenga widgets",
   "main": "index.js",
   "repository": "https://github.com/marat-gainullin/winnie.git",
@@ -44,15 +44,15 @@
     "yargs": "^9.0.1"
   },
   "dependencies": {
-    "kenga": "0.0.40",
-    "kenga-buttons": "0.0.24",
-    "kenga-containers": "0.0.27",
-    "kenga-fields": "0.0.21",
-    "kenga-grid": "0.0.34",
-    "kenga-labels": "0.0.26",
-    "kenga-menu": "0.0.23",
-    "kenga-model-buttons": "0.0.19",
-    "kenga-model-fields": "0.0.19",
+    "kenga": "0.0.41",
+    "kenga-buttons": "0.0.25",
+    "kenga-containers": "0.0.28",
+    "kenga-fields": "0.0.22",
+    "kenga-grid": "0.0.35",
+    "kenga-labels": "0.0.27",
+    "kenga-menu": "0.0.24",
+    "kenga-model-buttons": "0.0.20",
+    "kenga-model-fields": "0.0.20",
     "septima-utils": "0.0.7"
   }
 }
