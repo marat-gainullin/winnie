@@ -310,11 +310,11 @@ export default class Winnie {
             checkEnabled();
             self.layout.templatesMenu.popupRelativeTo(self.layout.tTemplates.element, false);
         };
-        this.layout.tSave.onAction = () => {
+        this.layout.tSave.element.onclick = () => {
             checkEnabled();
             self.save();
         };
-        this.layout.tExport.onAction = () => {
+        this.layout.tExport.element.onclick = () => {
             checkEnabled();
             self.export();
         };
