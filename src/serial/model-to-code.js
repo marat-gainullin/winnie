@@ -4,7 +4,12 @@ import Widget from "kenga/widget";
 import * as Serials from "./serials";
 
 function concat(prev, item) {
-    return !!prev ? `${prev}\n${item}` : item;
+    if (!!prev && !!item)
+        return `${prev}\n${item}`;
+    else if (!!prev)
+        return prev;
+    else
+        return item;
 }
 
 function decapitalize(name) {
@@ -78,7 +83,7 @@ class Es6Generator {
     }
 
     imports() {
-        return Array.from(new Set(Array.from(this.model.widgets.values())
+        const importsContent = Array.from(new Set(Array.from(this.model.widgets.values())
             .sort((item1, item2) => {
                 return item1.source.from < item2.source.from ?
                     -1 : item1.source.from > item2.source.from ?
@@ -88,6 +93,7 @@ class Es6Generator {
                 return `import ${this.constructorNameOf(item.source)} from '${item.source.from}';`;
             })))
             .reduce(concat);
+        return !!importsContent ? `${importsContent}\n` : ''
     }
 
     instances(indent) {
@@ -122,36 +128,37 @@ class Es6Generator {
         return Array.from(this.model.widgets.entries())
             .map(([key, item]) => {
                 const widgetConstName = this.constNameOf(key);
-                return [
+                const props = item.sheet
+                    .filter(p => p.edited && (!(item.delegate instanceof Grid) || (p.name !== 'rows' && p.name !== 'columns')))
+                    .map((p) => {
+                        let assignment = `${indent}    ${widgetConstName}.${p.name} = ${typeof p.value === 'string' ? `'${p.value}'` : (p.value && p.value.src ? `'${Serials.relativize(p.value.src)}'` : p.value)};`;
+                        if (item.delegate instanceof Widget && p.name === 'classes' && p.value) {
+                            assignment += `\n${indent}    ${widgetConstName}.element.className += ' ' + ${widgetConstName}.${p.name};`;
+                        }
+                        return assignment;
+                    })
+                    .reduce(concat, '');
+                return !!props ? [
                     `${indent}{`,
-                    item.sheet
-                        .filter(p => p.edited && (!(item.delegate instanceof Grid) || (p.name !== 'rows' && p.name !== 'columns')))
-                        .map((p) => {
-                            let assignment = `${indent}    ${widgetConstName}.${p.name} = ${typeof p.value === 'string' ? `'${p.value}'` : (p.value && p.value.src ? `'${Serials.relativize(p.value.src)}'` : p.value)};`;
-                            if (item.delegate instanceof Widget && p.name === 'classes' && p.value) {
-                                assignment += `\n${indent}    ${widgetConstName}.element.className += ' ' + ${widgetConstName}.${p.name};`;
-                            }
-                            return assignment;
-                        })
-                        .reduce(concat, ''),
+                    props,
                     `${indent}}`
-                ].reduce(concat);
+                ].reduce(concat) : '';
             })
             .reduce(concat, '');
     }
 
     assemble() {
         const generatedName = 'KengaWidgets';
+        const indent8 = '        ';
         return [
             this.imports(),
-            '',
             `class ${generatedName} {`,
             '    constructor () {',
-            this.instances('        '),
-            this.forest('        '),
-            this.sheets('        '),
+            this.instances(indent8),
+            this.forest(indent8),
+            this.sheets(indent8),
             '    }',
-            '}',
+            '}\n',
             `export default ${generatedName};`]
             .reduce(concat);
     }

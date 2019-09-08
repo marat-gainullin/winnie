@@ -138,7 +138,7 @@ export default function Layout() {
         tools.add(tUndo);
         tools.add(tRedo);
         tools.add(tRemove);
-        tools.add(tSettings);
+        //tools.add(tSettings);
     }
 
     const miAdd = new MenuItem(i18n['winnie.add.name']);
