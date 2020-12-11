@@ -381,7 +381,7 @@ export default class Winnie {
                 const generatedJson = modelToJson(this.forest);
                 Clipboard.write(generatedJson);
                 this.layout.widgets.element.focus();
-                Logger.info('Generated JSON copied to the clipboard.');
+                Logger.info(i18n['winnie.generated.json.copied']);
                 alert(i18n['winnie.generated.json.copied']);
             } else {
                 Logger.info(`Can't generate JSON for an empty [forest].`);
@@ -773,7 +773,7 @@ export default class Winnie {
             const generatedCode = modelToEs6(this);
             Clipboard.write(generatedCode);
             this.layout.widgets.element.focus();
-            Logger.info('Generated es6 code copied to the clipboard.');
+            Logger.info(i18n['winnie.generated.es6.copied']);
             alert(i18n['winnie.generated.es6.copied']);
         } else {
             Logger.info(`Can't generate code for an empty [forest].`);
