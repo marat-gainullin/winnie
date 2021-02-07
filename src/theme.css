@@ -1,7 +1,7 @@
-@import 'node_modules/kenga-buttons/theme.css';
-@import 'node_modules/kenga-containers/theme.css';
-@import 'node_modules/kenga-grid/theme.css';
-@import 'node_modules/kenga-menu/theme.css';
+@import 'kenga-buttons/theme.css';
+@import 'kenga-containers/theme.css';
+@import 'kenga-grid/theme.css';
+@import 'kenga-menu/theme.css';
 @import './icons/css/fontello.css';
 
 .p-image-paragraph-column {

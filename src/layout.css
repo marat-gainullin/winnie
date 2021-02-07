@@ -1,7 +1,7 @@
-@import 'node_modules/kenga-buttons/layout.css';
-@import 'node_modules/kenga-containers/layout.css';
-@import 'node_modules/kenga-grid/layout.css';
-@import 'node_modules/kenga-menu/layout.css';
+@import 'kenga-buttons/layout.css';
+@import 'kenga-containers/layout.css';
+@import 'kenga-grid/layout.css';
+@import 'kenga-menu/layout.css';
 
 input[type="checkbox"],
 input[type="radio"] {
