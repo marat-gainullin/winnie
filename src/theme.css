@@ -8,14 +8,14 @@
     text-align: center;
 }
 
-.icon-scissors:before {
+.winnie-icon-scissors:before {
     transform: scaleY(-1);
 }
 
-.icon-space {
+.winnie-icon-space {
     visibility: hidden;
 }
-.icon-space:before { content: '\e800'; }
+.winnie-icon-space:before { content: '\e800'; }
 
 .p-toolbar {
     background: #4267b2;

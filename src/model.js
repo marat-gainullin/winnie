@@ -376,17 +376,18 @@ export default class Winnie {
         checkEnabled();
         this._palette = {};
         this._adopts = [];
-        this.save = function save() {
-            if (this.widgets.size > 0) {
-                const generatedJson = modelToJson(this.forest);
-                Clipboard.write(generatedJson);
-                this.layout.widgets.element.focus();
-                Logger.info(i18n['winnie.generated.json.copied']);
-                alert(i18n['winnie.generated.json.copied']);
-            } else {
-                Logger.info(`Can't generate JSON for an empty [forest].`);
-            }
-        };
+    }
+
+    save() {
+        if (this.widgets.size > 0) {
+            const generatedCode = modelToEs6(this);
+            Clipboard.write(generatedCode);
+            this.layout.widgets.element.focus();
+            Logger.info(i18n['winnie.generated.es6.copied']);
+            alert(i18n['winnie.generated.es6.copied']);
+        } else {
+            Logger.info(`Can't generate code for an empty [forest].`);
+        }
     }
 
     clear() {
@@ -400,7 +401,7 @@ export default class Winnie {
         this.layout.properties.data = [];
     }
 
-    acceptJson(source, initialParent, undoable = false) {
+    acceptJson(parsed, initialParent, undoable = false) {
         const self = this;
         const indexed = {};
         Object.keys(self._palette).forEach(c => {
@@ -459,7 +460,7 @@ export default class Winnie {
         }
 
         self.layout.explorer.unselectAll();
-        adopt(JSON.parse(source), initialParent);
+        adopt(parsed, initialParent);
         if (undoable) {
             const editBody = {
                 name: `Paste ${addLog.length === 1 ? `'${addLog[0].subject.name}' widget` : `${addLog.length} widgets`} from clipboard`,
@@ -691,7 +692,7 @@ export default class Winnie {
         const self = this;
         if (source) {
             const initialParent = this.lastSelected ? this.lastSelected.delegate instanceof Container ? this.lastSelected : this.lastSelected.parent : null;
-            const created = this.acceptJson(source, initialParent, true);
+            const created = this.acceptJson(JSON.parse(source), initialParent, true);
             created.forEach(item => {
                 if (item.subject.delegate.parent instanceof Anchors) {
                     item.subject.delegate.left += self.settings.grid.x;
@@ -725,19 +726,7 @@ export default class Winnie {
             if (input.value) {
                 const reader = new FileReader();
                 reader.onload = () => {
-                    let firstContainer = null;
-                    self.clear();
-                    const addLog = self.acceptJson(reader.result);
-                    addLog.forEach((item) => {
-                        if (!firstContainer && item.subject.delegate instanceof Container && !item.subject.delegate.parent) {
-                            firstContainer = item.subject;
-                        }
-                    });
-                    if (firstContainer) {
-                        this.acceptVisualRoot(firstContainer);
-                        this.layout.explorer.goTo(firstContainer, true);
-                        this.centerSurface();
-                    }
+                    self.openParsedJson(JSON.parse(reader.result));
                 };
                 reader.readAsText(input.files[0]);
             }
@@ -749,6 +738,23 @@ export default class Winnie {
             }
         });
         input.click();
+    }
+
+    openParsedJson(parsed) {
+        const self = this;
+        let firstContainer = null;
+        self.clear();
+        const addLog = self.acceptJson(parsed);
+        addLog.forEach((item) => {
+            if (!firstContainer && item.subject.delegate instanceof Container && !item.subject.delegate.parent) {
+                firstContainer = item.subject;
+            }
+        });
+        if (firstContainer) {
+            this.acceptVisualRoot(firstContainer);
+            this.layout.explorer.goTo(firstContainer, true);
+            this.centerSurface();
+        }
     }
 
     openNatives(Natives) {
@@ -770,13 +776,13 @@ export default class Winnie {
 
     export() {
         if (this.widgets.size > 0) {
-            const generatedCode = modelToEs6(this);
-            Clipboard.write(generatedCode);
+            const generatedJson = modelToJson(this.forest);
+            Clipboard.write(generatedJson);
             this.layout.widgets.element.focus();
-            Logger.info(i18n['winnie.generated.es6.copied']);
-            alert(i18n['winnie.generated.es6.copied']);
+            Logger.info(i18n['winnie.generated.json.copied']);
+            alert(i18n['winnie.generated.json.copied']);
         } else {
-            Logger.info(`Can't generate code for an empty [forest].`);
+            Logger.info(`Can't generate JSON for an empty [forest].`);
         }
     }
 
@@ -833,7 +839,7 @@ export default class Winnie {
             const box = new Box(Ui.Orientation.VERTICAL);
             const header = new Label(name);
             const headerIcon = document.createElement('div');
-            headerIcon.className = 'icon-down-open';
+            headerIcon.className = 'winnie-icon-down-open';
             header.icon = headerIcon;
             header.element.classList.add('p-widget-category-header');
             const content = new FlowPane(5, 5);
@@ -842,19 +848,19 @@ export default class Winnie {
             box.add(content);
             self.layout.palette.add(box);
             header.onMouseClick = (evt) => {
-                if (headerIcon.classList.contains('icon-down-open')) {
-                    headerIcon.classList.remove('icon-down-open');
-                    headerIcon.classList.add('icon-right-open');
+                if (headerIcon.classList.contains('winnie-icon-down-open')) {
+                    headerIcon.classList.remove('winnie-icon-down-open');
+                    headerIcon.classList.add('winnie-icon-right-open');
                     content.height = 0;
                 } else {
-                    headerIcon.classList.remove('icon-right-open');
-                    headerIcon.classList.add('icon-down-open');
+                    headerIcon.classList.remove('winnie-icon-right-open');
+                    headerIcon.classList.add('winnie-icon-down-open');
                     content.height = null;
                 }
             };
             const menuItem = new MenuItem(name);
             const menuIcon = document.createElement('div');
-            menuIcon.className = 'icon-space';
+            menuIcon.className = 'winnie-icon-space';
             menuItem.icon = menuIcon;
             menuItem.subMenu = new Menu();
             self.layout.miAdd.subMenu.add(menuItem);
@@ -882,7 +888,7 @@ export default class Winnie {
             itemLabel.horizontalTextPosition = Ui.HorizontalPosition.CENTER;
             itemLabel.verticalTextPosition = Ui.VerticalPosition.BOTTOM;
             const div = document.createElement('div');
-            div.className = item.iconStyle ? item.iconStyle : 'icon-wrench';
+            div.className = item.iconStyle ? item.iconStyle : 'winnie-icon-wrench';
             itemLabel.icon = div;
             itemLabel.opaque = true;
             itemLabel.element.classList.add('p-widget-palette-item');
@@ -910,7 +916,7 @@ export default class Winnie {
         function menuItemOf(item) {
             const itemMi = new MenuItem(item.name);
             const div = document.createElement('div');
-            div.className = item.iconStyle ? item.iconStyle : 'icon-wrench';
+            div.className = item.iconStyle ? item.iconStyle : 'winnie-icon-wrench';
             itemMi.icon = div;
             return itemMi;
         }

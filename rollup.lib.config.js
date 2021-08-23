@@ -25,6 +25,7 @@ const config = {
         copy({
             targets: [
                 {src: 'src/*.css', dest: destDir},
+                {src: 'src/*.html', dest: destDir},
                 {src: 'src/icons/css/*', dest: `${destDir}/icons/css`},
                 {src: 'src/icons/font/*', dest: `${destDir}/icons/font`},
                 {src: 'package.json', dest: destDir}

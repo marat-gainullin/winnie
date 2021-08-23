@@ -98,34 +98,35 @@ export default function Layout() {
     const tUndo = new Button();
     const tRedo = new Button();
     const tSettings = new Button();
+
     function withStyle(name) {
         const div = document.createElement('div');
         div.className = name;
         return div;
     }
     {
-        tTemplates.icon = withStyle('icon-buffer');
+        tTemplates.icon = withStyle('winnie-icon-buffer');
         tTemplates.toolTipText = i18n['winnie.adopt.tooltip'];
-        tOpen.icon = withStyle('icon-folder-open-empty');
+        tOpen.icon = withStyle('winnie-icon-folder-open-empty');
         tOpen.toolTipText = i18n['winnie.open.tooltip'];
-        tSave.icon = withStyle('icon-floppy');
+        tSave.icon = withStyle('winnie-icon-floppy');
         tSave.toolTipText = i18n['winnie.save.tooltip'];
-        tExport.icon = withStyle('icon-export');
+        tExport.icon = withStyle('winnie-icon-export');
         tExport.toolTipText = i18n['winnie.export.tooltip'];
-        tCut.icon = withStyle('icon-scissors');
+        tCut.icon = withStyle('winnie-icon-scissors');
         tCut.toolTipText = i18n['winnie.cut.tooltip'];
-        tCopy.icon = withStyle('icon-docs');
+        tCopy.icon = withStyle('winnie-icon-docs');
         tCopy.toolTipText = i18n['winnie.copy.tooltip'];
-        tPaste.icon = withStyle('icon-clipboard');
+        tPaste.icon = withStyle('winnie-icon-clipboard');
         tPaste.toolTipText = i18n['winnie.paste.tooltip'];
-        tRemove.icon = withStyle('icon-trash');
+        tRemove.icon = withStyle('winnie-icon-trash');
         tRemove.toolTipText = i18n['winnie.remove.tooltip'];
-        tSettings.icon = withStyle('icon-cogs');
+        tSettings.icon = withStyle('winnie-icon-cogs');
         tSettings.toolTipText = i18n['winnie.settings.tooltip'];
 
-        tUndo.icon = withStyle('icon-reply-1');
+        tUndo.icon = withStyle('winnie-icon-reply-1');
         tUndo.toolTipText = i18n['winnie.undo.tooltip'];
-        tRedo.icon = withStyle('icon-forward-1');
+        tRedo.icon = withStyle('winnie-icon-forward-1');
         tRedo.toolTipText = i18n['winnie.redo.tooltip'];
 
         tools.add(tTemplates);
@@ -151,14 +152,14 @@ export default function Layout() {
     const miRedo = new MenuItem(i18n['winnie.redo.name']);
     const miRemove = new MenuItem(i18n['winnie.remove.name']);
     {
-        miAdd.icon = withStyle('icon-space');
-        miToSurface.icon = withStyle('icon-space');
-        miCut.icon = withStyle('icon-scissors');
-        miCopy.icon = withStyle('icon-docs');
-        miPaste.icon = withStyle('icon-clipboard');
-        miUndo.icon = withStyle('icon-reply-1');
-        miRedo.icon = withStyle('icon-forward-1');
-        miRemove.icon = withStyle('icon-trash');
+        miAdd.icon = withStyle('winnie-icon-space');
+        miToSurface.icon = withStyle('winnie-icon-space');
+        miCut.icon = withStyle('winnie-icon-scissors');
+        miCopy.icon = withStyle('winnie-icon-docs');
+        miPaste.icon = withStyle('winnie-icon-clipboard');
+        miUndo.icon = withStyle('winnie-icon-reply-1');
+        miRedo.icon = withStyle('winnie-icon-forward-1');
+        miRemove.icon = withStyle('winnie-icon-trash');
         
         [
             miAdd,

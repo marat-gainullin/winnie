@@ -148,7 +148,7 @@ class Es6Generator {
     }
 
     assemble() {
-        const generatedName = 'KengaWidgets';
+        const generatedName = 'KengaView';
         const indent8 = '        ';
         return [
             this.imports(),
