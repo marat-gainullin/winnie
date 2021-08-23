@@ -10,4 +10,5 @@ nbproject
 
 # misc
 yarn.lock
+package-lock.json
 *.log
