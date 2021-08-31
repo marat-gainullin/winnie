@@ -78,7 +78,11 @@ export default [
         name: 'Label',
         description: 'Image with text paragraph',
         iconStyle: 'winnie-icon-picture',
-        category: 'Buttons'
+        category: 'Buttons',
+        selects: {
+            horizontalTextPosition: ['left', 'center', 'right'],
+            verticalTextPosition: ['top', 'center', 'bottom']
+        }
     },
     {
         widget: Button,
@@ -86,7 +90,11 @@ export default [
         name: 'Push button',
         description: 'Push button',
         iconStyle: 'winnie-icon-flash',
-        category: 'Buttons'
+        category: 'Buttons',
+        selects: {
+            horizontalTextPosition: ['left', 'center', 'right'],
+            verticalTextPosition: ['top', 'center', 'bottom']
+        }
     },
     {
         widget: DropDownButton,
@@ -94,7 +102,11 @@ export default [
         name: 'Drop down button',
         description: 'Button with drop down menu',
         iconStyle: 'winnie-icon-down-open',
-        category: 'Buttons'
+        category: 'Buttons',
+        selects: {
+            horizontalTextPosition: ['left', 'center', 'right'],
+            verticalTextPosition: ['top', 'center', 'bottom']
+        }
     },
     {
         widget: CheckBox,
@@ -121,7 +133,11 @@ export default [
         description: 'Toggle button with button group capability',
         iconStyle: 'winnie-icon-toggle-on',
         category: 'Buttons',
-        hidden: ['value']
+        hidden: ['value'],
+        selects: {
+            horizontalTextPosition: ['left', 'center', 'right'],
+            verticalTextPosition: ['top', 'center', 'bottom']
+        }
     },
     //
     {
@@ -131,7 +147,7 @@ export default [
         description: 'Model check box with data bindnig and button group capability',
         iconStyle: 'winnie-icon-check',
         category: 'Model buttons',
-        hidden: ['value']
+        hidden: ['value', 'selected']
     },
     {
         widget: ModelRadioButton,
@@ -140,7 +156,7 @@ export default [
         description: 'Radio button with data bindnig and button group capability',
         iconStyle: 'winnie-icon-dot-circled',
         category: 'Model buttons',
-        hidden: ['value']
+        hidden: ['value', 'selected']
     },
     {
         widget: ModelToggleButton,
@@ -149,7 +165,11 @@ export default [
         description: 'Model toggle button with data bindnig and button group capability',
         iconStyle: 'winnie-icon-toggle-on',
         category: 'Model buttons',
-        hidden: ['value']
+        hidden: ['value', 'selected'],
+        selects: {
+            horizontalTextPosition: ['left', 'center', 'right'],
+            verticalTextPosition: ['top', 'center', 'bottom']
+        }
     },
     //
     {
@@ -241,8 +261,20 @@ export default [
     {
         widget: BoxPane, from: 'kenga-containers/box-pane',
         category: 'Boxes',
-        name: 'Box',
-        description: 'Container with children arranged as a row of as a column'
+        name: 'HBox',
+        description: 'Container with children arranged as a row',
+        selects: {
+            orientation: ['horizontal']
+        }
+    },
+    {
+        widget: BoxPane, from: 'kenga-containers/box-pane',
+        category: 'Boxes',
+        name: 'VBox',
+        description: 'Container with children arranged as a column',
+        selects: {
+            orientation: ['vertical']
+        }
     },
     {
         widget: Toolbar, from: 'kenga-containers/tool-bar',

@@ -2,14 +2,16 @@ import Bound from 'kenga/bound';
 
 export default class WinnieProperty {
 
-    constructor(target, name, onChange, defaultValue) {
-        this.target = target;
+    constructor(wWrapper, name, onChange, defaultValue) {
+        this.target = wWrapper.delegate;
+        const selects = wWrapper.source.selects
+        this.options = selects[name] ? selects[name] : null;
         this.name = name;
         this.onChange = onChange;
         this.defaultValue = defaultValue;
         if (name === 'visible') {
-            this.visible = target.visible;
-            target.visible = true;
+            this.visible = this.target.visible;
+            this.target.visible = true;
         }
     }
 

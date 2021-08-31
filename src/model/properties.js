@@ -1,3 +1,4 @@
+import Invoke from 'septima-utils/invoke';
 import Bound from 'kenga/bound';
 import Widget from 'kenga/widget';
 import BoxField from 'kenga/box-field';
@@ -23,13 +24,13 @@ function createProps(model, item) {
             !key.startsWith('on')
         )
         .map((key) => {
-            const prop = new WinnieProperty(item.delegate, key, newValue => {
+            const prop = new WinnieProperty(item, key, newValue => {
+                const oldValue = key === 'visible' ? prop.visible :
+                    key.includes('.') ? Bound.getPathData(item.delegate, key) :
+                        item.delegate[key];
                 const editBody = {
                     name: `Property '${key}' of widget '${item.name}' change`,
                     redo: () => {
-                        const oldValue = key === 'visible' ? prop.visible :
-                            key.includes('.') ? Bound.getPathData(item.delegate, key) :
-                                item.delegate[key];
                         if (key === 'visible') {
                             prop.visible = newValue;
                         } else if (key === 'classes' && item.delegate instanceof Widget) {
@@ -53,30 +54,34 @@ function createProps(model, item) {
                             model.layout.properties.goTo(prop, true);
                         }
                         prop.silent = false;
-                        model.stickDecors();
-                        editBody.undo = () => {
-                            if (key === 'visible') {
-                                prop.visible = oldValue;
-                            } else if (key === 'classes' && item.delegate instanceof Widget) {
-                                const element = item.delegate.element;
-                                if (newValue) {
-                                    newValue.split(' ').forEach(className => element.classList.remove(className));
-                                }
-                                item.delegate[key] = oldValue;
-                                if (oldValue) {
-                                    oldValue.split(' ').forEach(className => element.classList.add(className));
-                                }
-                            } else {
-                                if (key.includes('.')) {
-                                    Bound.setPathData(item.delegate, key, oldValue);
-                                } else {
-                                    item.delegate[key] = oldValue;
-                                }
-                            }
-                            model.layout.properties.changed(prop);
-                            model.layout.properties.goTo(prop, true);
+                        Invoke.delayed(10, () => {
                             model.stickDecors();
-                        };
+                        });
+                    },
+                    undo: () => {
+                        if (key === 'visible') {
+                            prop.visible = oldValue;
+                        } else if (key === 'classes' && item.delegate instanceof Widget) {
+                            const element = item.delegate.element;
+                            if (newValue) {
+                                newValue.split(' ').forEach(className => element.classList.remove(className));
+                            }
+                            item.delegate[key] = oldValue;
+                            if (oldValue) {
+                                oldValue.split(' ').forEach(className => element.classList.add(className));
+                            }
+                        } else {
+                            if (key.includes('.')) {
+                                Bound.setPathData(item.delegate, key, oldValue);
+                            } else {
+                                item.delegate[key] = oldValue;
+                            }
+                        }
+                        model.layout.properties.changed(prop);
+                        model.layout.properties.goTo(prop, true);
+                        Invoke.delayed(10, () => {
+                            model.stickDecors();
+                        });
                     }
                 };
                 model.edit(editBody);

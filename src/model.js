@@ -24,6 +24,7 @@ import i18n from './i18n';
 import Wrapper from './winnie-widget';
 import reWidth from './rewidth';
 import propValueOnRender from './properties/render';
+import propValueOnEdit from './properties/edit';
 import Shortcuts from './shortcuts';
 import {startRectSelection, proceedRectSelection, endRectSelection} from './rect-selection';
 import {resizeDecor, mouseDrag, sizeLocationSnapshot, applySizeLocationSnapshot} from './location-size';
@@ -146,7 +147,7 @@ export default class Winnie {
             return !!child.parent;
         }
 
-        function move(w, dest, addAt) {
+        function move(w, dest, addAt, parentUR) {
             if (!dest ||
                 dest.delegate instanceof Container && w.delegate instanceof Widget ||
                 dest.delegate instanceof DataGrid && w.delegate instanceof ColumnNode ||
@@ -173,20 +174,31 @@ export default class Winnie {
                                             w.delegate.element.style.top = '';
                                             w.delegate.element.style.height = '';
                                             w.delegate.element.style.bottom = '';
-                                        } else if (dest.delegate instanceof Box && dest.delegate.orientation === Ui.Orientation.VERTICAL) {
+                                        } else if (dest.delegate instanceof Box) {
                                             w.delegate.element.style.left = '';
-                                            w.delegate.element.style.width = '';
-                                            w.delegate.element.style.right = '';
                                             w.delegate.element.style.top = '';
-                                            w.delegate.element.style.bottom = '';
-                                        } else if (dest.delegate instanceof Box && dest.delegate.orientation === Ui.Orientation.HORIZONTAL) {
-                                            w.delegate.element.style.left = '';
                                             w.delegate.element.style.right = '';
-                                            w.delegate.element.style.top = '';
-                                            w.delegate.element.style.height = '';
                                             w.delegate.element.style.bottom = '';
+                                            if (dest.delegate.orientation === Ui.Orientation.VERTICAL) {
+                                                w.delegate.element.style.width = '';
+                                            } else {
+                                                w.delegate.element.style.height = '';
+                                            }
+                                        } else if (dest.delegate instanceof HolyGrailPane) {
+                                            if (addAt === 0 || addAt === 4) {
+                                                w.delegate.element.style.left = '';
+                                                w.delegate.element.style.width = '';
+                                                w.delegate.element.style.right = '';
+                                                w.delegate.element.style.top = '';
+                                                w.delegate.element.style.bottom = '';
+                                            } else if (addAt === 1 || addAt === 3) {
+                                                w.delegate.element.style.left = '';
+                                                w.delegate.element.style.height = '';
+                                                w.delegate.element.style.right = '';
+                                                w.delegate.element.style.top = '';
+                                                w.delegate.element.style.bottom = '';
+                                            }
                                         }
-                                    } else if (dest.delegate instanceof HolyGrailPane) {
                                     }
                                 }
                                 const newLocationSize = w.delegate instanceof ColumnNode ? {} : sizeLocationSnapshot(w.delegate);
@@ -210,28 +222,28 @@ export default class Winnie {
                                         if (!(w.delegate instanceof ColumnNode)) {
                                             applySizeLocationSnapshot(newLocationSize, w.delegate);
                                         }
-                                        ur.undo = () => {
-                                            if (dest) {
-                                                dest.remove(addAt);
-                                            } else {
-                                                self.forest.splice(addAt, 1);
-                                            }
-                                            if (source) {
-                                                source.add(w, removeAt);
-                                            } else {
-                                                self.forest.splice(removeAt, 0, w);
-                                            }
-                                            self.layout.explorer.removed(w);
-                                            self.layout.explorer.added(w);
-                                            self.layout.explorer.goTo(w, true);
+                                    },
+                                    undo: () => {
+                                        if (dest) {
+                                            dest.remove(addAt);
+                                        } else {
+                                            self.forest.splice(addAt, 1);
+                                        }
+                                        if (source) {
+                                            source.add(w, removeAt);
+                                        } else {
+                                            self.forest.splice(removeAt, 0, w);
+                                        }
+                                        self.layout.explorer.removed(w);
+                                        self.layout.explorer.added(w);
+                                        self.layout.explorer.goTo(w, true);
 
-                                            if (!(w.delegate instanceof ColumnNode)) {
-                                                applySizeLocationSnapshot(oldLocationSize, w.delegate);
-                                            }
-                                        };
+                                        if (!(w.delegate instanceof ColumnNode)) {
+                                            applySizeLocationSnapshot(oldLocationSize, w.delegate);
+                                        }
                                     }
                                 };
-                                self.edit(ur);
+                                self.edit(ur, parentUR);
                                 return true;
                             } else {
                                 Logger.info(`Widget '${w.name}' is a child of '${dest ? dest.name : '[forest]'}' already at the same position.`);
@@ -552,15 +564,15 @@ export default class Winnie {
         return widgetName;
     }
 
-    addWidget(item) {
+    addWidget(item, left = null, top = null) {
         const self = this;
         const wasSelected = this._lastSelected;
         const widgetName = this.generateName(decapitalize(constructorName(item.defaultInstance)));
-        const created = new Wrapper(produced(self, produce(item.widget, widgetName, self.settings.grid.x, self.settings.grid.y)), widgetName, item.defaultInstance, (newName) => {
+        const created = new Wrapper(produced(self, produce(item.widget, widgetName, item.name, self.settings.grid.x, self.settings.grid.y)), widgetName, item.defaultInstance, (newName) => {
             rename(self, created, newName);
         });
         created.source = item;
-        this.edit({
+        const addEdit = {
             name: `Add '${item.name}' widget from '${item.from}'`,
             redo: () => {
                 self.widgets.set(widgetName, created);
@@ -576,7 +588,8 @@ export default class Winnie {
                 self.layout.explorer.removed(created);
                 self.revokeVisualRoot(created);
             }
-        });
+        };
+        this.edit(addEdit);
         if (created.delegate instanceof Container &&
             !created.parent &&
             !this.visualRootPresent()) {
@@ -586,17 +599,34 @@ export default class Winnie {
             }
             this.centerSurface();
         }
+        const initSize = () => {
+            if (created.delegate instanceof Container || created.delegate instanceof DataGrid) {
+                if (left != null) {
+                    created.delegate.left = Math.max(0, left - 64)
+                }
+                if (top != null) {
+                    created.delegate.top = Math.max(0, top - 64)
+                }
+                created.delegate.width = 128;
+                created.delegate.height = 128;
+            } else {
+                if (left != null) {
+                    created.delegate.left = Math.max(0, left - 48)
+                }
+                if (top != null) {
+                    created.delegate.top = Math.max(0, top - 12)
+                }
+                //created.delegate.height = 32;
+                //created.delegate.width = 96;
+            }
+        }
         if (wasSelected) {
             if (wasSelected.delegate instanceof Container || wasSelected.delegate instanceof DataGrid) {
-                this.move(created, wasSelected, wasSelected.count);
-                if (created.delegate instanceof Container || created.delegate instanceof DataGrid) {
-                    created.delegate.width = created.delegate.height = 100;
-                }
+                initSize();
+                this.move(created, wasSelected, wasSelected.count, addEdit);
             } else if (wasSelected.parent && (wasSelected.parent.delegate instanceof Container || wasSelected.parent.delegate instanceof DataGrid)) {
-                this.move(created, wasSelected.parent, wasSelected.parent.count);
-                if (created.delegate instanceof Container || created.delegate instanceof DataGrid) {
-                    created.delegate.width = created.delegate.height = 100;
-                }
+                initSize();
+                this.move(created, wasSelected.parent, wasSelected.parent.count, addEdit);
             }
         }
         this.checkEnabled();
@@ -624,17 +654,19 @@ export default class Winnie {
         const toRemove = this.layout.explorer.selected;
         const actions = toRemove.map((item) => {
             const itemParent = item.parent;
-            const ur = {};
-            ur.redo = () => {
-                const removedAt = itemParent ? itemParent.indexOf(item) : self.forest.indexOf(item);
-                if (itemParent) {
-                    itemParent.remove(removedAt);
-                } else {
-                    self.forest.splice(removedAt, 1);
-                }
-                self.widgets.delete(item.name);
-                const wasVisualRoot = removed(item);
-                ur.undo = () => {
+            const removedAt = itemParent ? itemParent.indexOf(item) : self.forest.indexOf(item);
+            let wasVisualRoot = null;
+            return {
+                redo: () => {
+                    if (itemParent) {
+                        itemParent.remove(removedAt);
+                    } else {
+                        self.forest.splice(removedAt, 1);
+                    }
+                    self.widgets.delete(item.name);
+                    wasVisualRoot = removed(item);
+                },
+                undo: () => {
                     self.widgets.set(item.name, item);
                     if (itemParent) {
                         itemParent.add(item, removedAt);
@@ -643,9 +675,8 @@ export default class Winnie {
                         self.forest.splice(removedAt, 0, item);
                         added(item, wasVisualRoot);
                     }
-                };
+                }
             };
-            return ur;
         });
         this.edit({
             name: `Delete ${toRemove.length > 1 ? `selected (${toRemove.length}) widgets` : `'${toRemove[0].name}' widget`}`,
@@ -795,10 +826,13 @@ export default class Winnie {
 
     redo() {
         if (this.canRedo) {
-            const item = this.edits[this.editsCursor];
-            item.redo();
+            let item = this.edits[this.editsCursor];
+            while (item) {
+                item.redo()
+                Logger.info(`Redone edit: ${item.name}.`);
+                item = item.subEdit
+            }
             this.editsCursor++;
-            Logger.info(`Redone edit: ${item.name}.`);
             this.checkEnabled();
         }
     }
@@ -810,26 +844,37 @@ export default class Winnie {
     undo() {
         if (this.canUndo) {
             --this.editsCursor;
-            const item = this.edits[this.editsCursor];
-            item.undo();
-            Logger.info(`Undone edit: ${item.name}.`);
+            const toUndo = [];
+            let item = this.edits[this.editsCursor];
+            while (item) {
+                toUndo.unshift(item);
+                item = item.subEdit;
+            }
+            toUndo.forEach(ur => {
+                ur.undo();
+                Logger.info(`Undone edit: ${ur.name}.`);
+            });
             this.checkEnabled();
         }
     }
 
-    edit(body) {
+    edit(body, parentUR) {
         body.redo();
-        const dropped = this.edits.splice(this.editsCursor, this.edits.length - this.editsCursor, body);
+        if (parentUR) {
+            parentUR.subEdit = body;
+        } else {
+            const dropped = this.edits.splice(this.editsCursor, this.edits.length - this.editsCursor, body);
+            if (dropped.length > 0) {
+                Logger.info(`Dropped ${dropped.length} tail edits.`);
+            }
+            this.editsCursor++;
+            while (this.edits.length > this.settings.undoDepth) {
+                const shifted = this.edits.shift();
+                this.editsCursor--;
+                Logger.info(`Dropped head edit: '${shifted.name}'.`);
+            }
+        }
         Logger.info(`Recorded edit: ${body.name}.`);
-        if (dropped.length > 0) {
-            Logger.info(`Dropped ${dropped.length} tail edits.`);
-        }
-        this.editsCursor++;
-        while (this.edits.length > this.settings.undoDepth) {
-            const shifted = this.edits.shift();
-            this.editsCursor--;
-            Logger.info(`Dropped head edit: '${shifted.name}'.`);
-        }
     }
 
     get palette() {
@@ -947,7 +992,8 @@ export default class Winnie {
                             description: item.description,
                             iconStyle: item.iconStyle,
                             category: item.category,
-                            hidden: new Set(Array.isArray(item.hidden) ? item.hidden : [])
+                            hidden: new Set(Array.isArray(item.hidden) ? item.hidden : []),
+                            selects: item.selects ? item.selects : {}
                         };
                     })
                     .forEach((item) => {
@@ -956,7 +1002,7 @@ export default class Winnie {
                             const itemPaletteItem = paletteItemOf(item);
                             const itemMenuItem = menuItemOf(item);
                             itemMenuItem.onAction = () => {
-                                self.addWidget(item);
+                                self.addWidget(item, 0, 0);
                             };
                             const category = categoryOf(item);
                             category.palette.content.add(itemPaletteItem);
