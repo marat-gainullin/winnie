@@ -41,9 +41,9 @@ export default function Layout() {
         explorer.headerVisible = false;
         explorer.insertable = explorer.deletable = false;
         explorer.draggableRows = true;
-        explorer.showHorizontalLines = 
-        explorer.showVerticalLines = 
-        explorer.showOddRowsInOtherColor = false;
+        explorer.showHorizontalLines =
+            explorer.showVerticalLines =
+                explorer.showOddRowsInOtherColor = false;
         explorer.contextMenu = explorerMenu;
         paletteExplorerSplit.dividerSize /= 2;
         paletteExplorerSplit.width = 340;
@@ -51,7 +51,7 @@ export default function Layout() {
         paletteExplorerSplit.first = palette;
         paletteExplorerSplit.second = explorer;
     }
-    
+
     const propNameColumn = new ColumnNode();
     const propValueColumn = new ColumnNode();
     {
@@ -74,12 +74,12 @@ export default function Layout() {
     const view = new Scroll(widgets);
     {
         view.contextMenu = explorerMenu;
-        
+
         leftBox.add(paletteExplorerSplit);
         leftBox.add(leftSizer);
         rightBox.add(rightSizer);
         rightBox.add(propertiesBox);
-        
+
         ground.header = tools;
         ground.leftSide = leftBox;
         ground.content = view;
@@ -104,6 +104,7 @@ export default function Layout() {
         div.className = name;
         return div;
     }
+
     {
         tTemplates.icon = withStyle('winnie-icon-buffer');
         tTemplates.toolTipText = i18n['winnie.adopt.tooltip'];
@@ -160,7 +161,7 @@ export default function Layout() {
         miUndo.icon = withStyle('winnie-icon-reply-1');
         miRedo.icon = withStyle('winnie-icon-forward-1');
         miRemove.icon = withStyle('winnie-icon-trash');
-        
+
         [
             miAdd,
             miToSurface,
