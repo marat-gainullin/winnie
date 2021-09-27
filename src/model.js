@@ -454,7 +454,7 @@ export default class Winnie {
                         addLog.push({subject: created, parent: null, at: self.forest.length});
                         self.forest.push(created);
                     }
-                    for (let p in item.body) {
+                    for (const p in item.body) {
                         if (!(created.delegate instanceof GridPane) || (p !== 'columns' && p !== 'rows')) {
                             if (p.includes('.')) {
                                 Bound.setPathData(created.delegate, p, item.body[p]);
@@ -466,7 +466,7 @@ export default class Winnie {
                     created.sheet = createProps(self, created);
                     adopt(item.children, created);
                 } else {
-                    Logger.info(`Can't read widget '${widgetName}' from unknown module '${item.from}'.`);
+                    Logger.info(`Can't read widget '${widgetName}' from an unknown module '${item.from}'.`);
                 }
             });
         }
@@ -619,6 +619,9 @@ export default class Winnie {
                 //created.delegate.height = 32;
                 //created.delegate.width = 96;
             }
+        }
+        if (created.delegate instanceof DataGrid) {
+            created.delegate.showOddRowsInOtherColor = false
         }
         if (wasSelected) {
             if (wasSelected.delegate instanceof Container || wasSelected.delegate instanceof DataGrid) {

@@ -49,7 +49,7 @@ function createProps(model, item) {
                                 item.delegate[key] = newValue;
                             }
                         }
-                        if (!prop.silent) {
+                        if (!prop.silent && !model.layout.properties.activeEditor) {
                             model.layout.properties.changed(prop);
                             model.layout.properties.goTo(prop, true);
                         }
@@ -77,8 +77,10 @@ function createProps(model, item) {
                                 item.delegate[key] = oldValue;
                             }
                         }
-                        model.layout.properties.changed(prop);
-                        model.layout.properties.goTo(prop, true);
+                        if (!model.layout.properties.activeEditor) {
+                            model.layout.properties.changed(prop);
+                            model.layout.properties.goTo(prop, true);
+                        }
                         Invoke.delayed(10, () => {
                             model.stickDecors();
                         });

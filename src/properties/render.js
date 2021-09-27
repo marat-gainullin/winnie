@@ -47,8 +47,14 @@ function onRender(item, viewCell) {
         });
         viewCell.appendChild(input);
     } else if (item.name === 'icon' || item.name === 'tab.icon') {
-        if (item.value && item.value.src) {
-            viewCell.innerHTML = item.value.src;
+        if (item.value && item.value.src && item.value.getAttribute) {
+            /**
+             * Warning! Don't change as `item.value.src` because of auto normalization of URI with access to .src property.
+             * Some environments do it as their local path + the value of `src` attribute and this ends up with something meaningless for runtime.
+             * For example: file:///C:/Users/<user>/AppData/Local/atom/app-1.58.0/resources/app.asar/static/assets/icons/some-icon.svg instead of assets/icons/some-icon.svg .
+             * @see ../text-number-field.js
+             */
+            viewCell.innerHTML = item.value.getAttribute('src');
         }
     } else if (Array.isArray(item.options)) {
         viewCell.innerHTML = '';

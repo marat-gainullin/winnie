@@ -242,6 +242,9 @@ export default [
         name: 'Split',
         description: 'Container with two widgets and splitter.',
         iconStyle: 'winnie-icon-columns',
+        selects: {
+            orientation: ['horizontal', 'vertical']
+        },
         hidden: [
             'first',
             'second'
@@ -599,34 +602,55 @@ export default [
     {
         widget: ColumnNode, from: 'kenga-grid/columns/column-node',
         category: 'Model grid & columns',
-        name: 'ColumnNode',
-        description: 'Column node of data grid header'
+        name: 'Data column',
+        description: 'Column node of data grid header',
+        hidden: [
+            'left',
+            'top'
+        ]
     },
     {
         widget: CheckBoxServiceNode, from: 'kenga-grid/columns/nodes/check-box-service-node',
         category: 'Model grid & columns',
         name: 'Check column',
         iconStyle: 'winnie-icon-check',
-        description: 'Column node of data grid header with check box. Governs selection of rows'
+        description: 'Column node of data grid header with check box. Governs selection of rows',
+        hidden: [
+            'checker',
+            'left',
+            'top'
+        ]
     },
     {
         widget: MarkerServiceNode, from: 'kenga-grid/columns/nodes/marker-service-node',
         category: 'Model grid & columns',
         name: 'Marker column',
-        description: 'Service column node of data grid header. Presents current state of a row'
+        description: 'Service column node of data grid header. Presents current state of a row',
+        hidden: [
+            'left',
+            'top'
+        ]
     },
     {
         widget: OrderNumServiceNode, from: 'kenga-grid/columns/nodes/order-num-service-node',
         category: 'Model grid & columns',
         name: 'Ordinal column',
         iconStyle: 'winnie-icon-sort-numeric-outline',
-        description: "Service column node of data grid header. Presents row's ordinal number"
+        description: "Service column node of data grid header. Presents row's ordinal number",
+        hidden: [
+            'left',
+            'top'
+        ]
     },
     {
         widget: RadioButtonServiceNode, from: 'kenga-grid/columns/nodes/radio-button-service-node',
         category: 'Model grid & columns',
         name: 'Radio column',
         iconStyle: 'winnie-icon-dot-circled',
-        description: 'Column node of data grid header with radio button. Governs selection of rows'
+        description: 'Column node of data grid header with radio button. Governs selection of rows',
+        hidden: [
+            'left',
+            'top'
+        ]
     }
 ];

@@ -19,6 +19,7 @@ import MenuBar from 'kenga-menu/menu-bar';
 import MenuItem from 'kenga-menu/menu-item';
 import DataGrid from 'kenga-grid/grid';
 import ColumnNode from 'kenga-grid/columns/column-node';
+import MenuSeparator from "kenga-menu/menu-separator";
 
 /**
  * This transformation is necessary due to obfuscation of constructors names.
@@ -46,6 +47,10 @@ function constructorName(instance) {
         return 'CardPane';
     } else if (instance instanceof GridPane) {
         return 'Cells';
+    } else if (instance instanceof Menu) {
+        return 'Menu';
+    } else if (instance instanceof MenuBar) {
+        return 'MenuBar';
     } else if (instance instanceof Container) {
         return 'Container';
     } else if (instance instanceof BoxField) {
@@ -58,12 +63,10 @@ function constructorName(instance) {
         return 'CheckBox';
     } else if (instance instanceof RadioButton) {
         return 'RadioButton';
-    } else if (instance instanceof Menu) {
-        return 'Menu';
-    } else if (instance instanceof MenuBar) {
-        return 'MenuBar';
     } else if (instance instanceof MenuItem) {
         return 'MenuItem';
+    } else if (instance instanceof MenuSeparator) {
+        return 'MenuSeparator';
     } else if (instance instanceof DataGrid) {
         return 'DataGrid';
     } else if (instance instanceof ColumnNode) {

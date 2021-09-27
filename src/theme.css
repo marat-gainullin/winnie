@@ -139,7 +139,10 @@
 }
 
 .p-winnie-widgets {
-    padding: 500px;
+    padding: 32px;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
 }
 
 .p-winnie-widgets > .p-widget {
@@ -343,7 +346,11 @@
     line-height: normal;
     font-size: 16px;
     color: lightgray;
+    position: absolute;
+    left: 0px;
+    top: 0px;
 }
+
 .p-winnie-hints > ul {
     list-style-type: none;
 }
