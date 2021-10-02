@@ -411,28 +411,28 @@ export default [
     {
         widget: ModelColorField, from: 'kenga-model-fields/model-color-field',
         category: 'Model fields',
-        name: 'Model color field',
+        name: 'Model color',
         iconStyle: 'winnie-icon-art-gallery',
         description: 'Color field with data binding'
     },
     {
         widget: ModelDateField, from: 'kenga-model-fields/model-date-field',
         category: 'Model fields',
-        name: 'Model date field',
+        name: 'Model date',
         iconStyle: 'winnie-icon-calendar',
         description: 'Date field with data binding'
     },
     {
         widget: ModelDateTimeField, from: 'kenga-model-fields/model-date-time-field',
         category: 'Model fields',
-        name: 'Model date time field',
+        name: 'Model date-time',
         iconStyle: 'winnie-icon-calendar',
         description: 'Date time field with data binding'
     },
     {
         widget: ModelDropDownField, from: 'kenga-model-fields/model-drop-down-field',
         category: 'Model fields',
-        name: 'Model drop down field',
+        name: 'Model drop down',
         iconStyle: 'winnie-icon-arrow-combo',
         description: 'Drop down field with data binding of value and of datalist as well',
         hidden: [
@@ -442,55 +442,55 @@ export default [
     {
         widget: ModelEMailField, from: 'kenga-model-fields/model-email-field',
         category: 'Model fields',
-        name: 'Model e-mail field',
+        name: 'Model E-Mail',
         iconStyle: 'winnie-icon-mail',
         description: 'EMail field with data binding'
     },
     {
         widget: ModelFormattedField, from: 'kenga-model-fields/model-formatted-field',
         category: 'Model fields',
-        name: 'Model formatted field',
+        name: 'Model formatted',
         iconStyle: 'winnie-icon-sort-numeric-outline',
         description: 'Formatted field with data binding'
     },
     {
         widget: ModelMeterField, from: 'kenga-model-fields/model-meter-field',
         category: 'Model fields',
-        name: 'Model meter field',
+        name: 'Model meter',
         description: 'Meter field with data binding'
     },
     {
         widget: ModelNumberField, from: 'kenga-model-fields/model-number-field',
         category: 'Model fields',
-        name: 'Model number field',
+        name: 'Model number',
         iconStyle: 'winnie-icon-calc',
         description: 'Number field with data binding'
     },
     {
         widget: ModelPasswordField, from: 'kenga-model-fields/model-password-field',
         category: 'Model fields',
-        name: 'Model password field',
+        name: 'Model password',
         iconStyle: 'winnie-icon-key-1',
         description: 'Password field with data binding'
     },
     {
         widget: ModelPhoneField, from: 'kenga-model-fields/model-phone-field',
         category: 'Model fields',
-        name: 'Model phone field',
+        name: 'Model phone',
         iconStyle: 'winnie-icon-phone',
         description: 'Phone field with data binding'
     },
     {
         widget: ModelProgressField, from: 'kenga-model-fields/model-progress-field',
         category: 'Model fields',
-        name: 'Model progress field',
+        name: 'Model progress',
         iconStyle: 'winnie-icon-progress-2',
         description: 'Progress field with data binding'
     },
     {
         widget: ModelRichTextArea, from: 'kenga-model-fields/model-rich-text-area',
         category: 'Model fields',
-        name: 'Model rich text area',
+        name: 'Model rich text',
         iconStyle: 'winnie-icon-edit',
         description: 'Rich text area with data binding'
     },
@@ -511,21 +511,21 @@ export default [
     {
         widget: ModelTextField, from: 'kenga-model-fields/model-text-field',
         category: 'Model fields',
-        name: 'Model text field',
+        name: 'Model text',
         iconStyle: 'winnie-icon-progress-0',
         description: 'Text field with data binding'
     },
     {
         widget: ModelTimeField, from: 'kenga-model-fields/model-time-field',
         category: 'Model fields',
-        name: 'Model Time field',
+        name: 'Model time',
         iconStyle: 'winnie-icon-clock-1',
         description: 'Time field with data binding'
     },
     {
         widget: ModelUrlField, from: 'kenga-model-fields/model-url-field',
         category: 'Model fields',
-        name: 'Model URL field',
+        name: 'Model URL',
         iconStyle: 'winnie-icon-link',
         description: 'URL field field with data binding'
     },
@@ -551,20 +551,20 @@ export default [
     {
         widget: MenuSeparator, from: 'kenga-menu/menu-separator',
         category: 'Menu',
-        name: 'Menu separator',
+        name: 'Separator',
         description: 'Separator of menu items'
     },
     {
         widget: CheckBoxMenuItem, from: 'kenga-menu/check-box-menu-item',
         category: 'Menu',
-        name: 'Check box menu item',
+        name: 'Check item',
         iconStyle: 'winnie-icon-check',
         description: 'Menu item with check box instead of icon'
     },
     {
         widget: RadioButtonMenuItem, from: 'kenga-menu/radio-button-menu-item',
         category: 'Menu',
-        name: 'Radio button menu item',
+        name: 'Radio item',
         iconStyle: 'winnie-icon-dot-circled',
         description: 'Menu item with radio button instead of icon'
     },
@@ -596,7 +596,9 @@ export default [
             'columnNodesCount',
             'columnsCount',
             'focusedRow',
-            'focusedColumn'
+            'focusedColumn',
+            'hasSelected',
+            'focusedCell'
         ]
     },
     {

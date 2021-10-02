@@ -41,11 +41,6 @@ function decapitalize(name) {
 
 export default class Winnie {
     constructor() {
-        function explorerColumnRewidth() {
-            // TODO: Ensure proper work with expanded explorer tree
-            self.layout.widgetColumn.width = self.layout.explorer.width - self.layout.widgetColumn.column.padding;
-        }
-
         const enabled = [];
 
         function checkEnabled() {
@@ -54,7 +49,6 @@ export default class Winnie {
                     item();
                 });
             });
-            explorerColumnRewidth();
         }
 
         this.checkEnabled = checkEnabled;
@@ -288,11 +282,8 @@ export default class Winnie {
                 .reverse()
                 .forEach(m => move(m, dest, addAt + 1));
         };
-        reWidth(this.layout.paletteExplorerSplit, self.layout.leftSizer, this.layout.view, 1, explorerColumnRewidth);
-        reWidth(this.layout.propertiesBox, self.layout.rightSizer, this.layout.view, -1, () => {
-            self.layout.propNameColumn.width = (self.layout.propertiesBox.width - 30) / 2;
-            self.layout.propValueColumn.width = (self.layout.propertiesBox.width - 30) / 2;
-        });
+        reWidth(this.layout.paletteExplorerSplit, self.layout.leftSizer, this.layout.view, 1);
+        reWidth(this.layout.propertiesBox, self.layout.rightSizer, this.layout.view, -1);
         this.layout.propNameColumn.field = 'name';
         this.layout.propValueColumn.editor = new TextNumberField();
         this.layout.propValueColumn.field = 'value';

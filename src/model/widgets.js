@@ -184,7 +184,7 @@ function rename(model, created, newName) {
         alert(i18n['winnie.name.used']);
         model.layout.explorer.abortEditing();
         return created.name;
-    } else if (newName.match(/^[a-zA-Z_][a-zA-Z_0-9]*$/)) {
+    } else if (newName !== null && newName.match(/^[a-zA-Z_][a-zA-Z_0-9]*$/)) {
         const oldName = created.name;
         model.edit({
             name: `Rename widget '${oldName}' as '${newName}'`,

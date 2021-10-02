@@ -20,7 +20,7 @@ function topInSpaceOf(elem, parent) {
     let top = 0;
     let curr = elem.offsetParent;
     // This intentionally excludes body which has a null offsetParent.
-    while (curr.offsetParent && curr !== parent) {
+    while (curr && curr !== parent && curr.offsetParent) {
         top -= curr.scrollTop;
         curr = curr.parentNode;
     }
@@ -125,6 +125,7 @@ function resizeDecor(surface, subject, onEnd) {
             lt.stick = () => {
                 lt.style.left = `${leftInSpaceOf(subject.element, surface.element)}px`;
                 lt.style.top = `${topInSpaceOf(subject.element, surface.element)}px`;
+                lt.style.display = subject.element.offsetParent != null ? '' : 'none';
             };
             return lt;
         })(),
@@ -143,6 +144,7 @@ function resizeDecor(surface, subject, onEnd) {
             lm.stick = () => {
                 lm.style.left = `${leftInSpaceOf(subject.element, surface.element)}px`;
                 lm.style.top = `${topInSpaceOf(subject.element, surface.element) + subject.element.offsetHeight / 2}px`;
+                lm.style.display = subject.element.offsetParent != null ? '' : 'none';
             };
             return lm;
         })(),
@@ -162,6 +164,7 @@ function resizeDecor(surface, subject, onEnd) {
             lb.stick = () => {
                 lb.style.left = `${leftInSpaceOf(subject.element, surface.element)}px`;
                 lb.style.top = `${topInSpaceOf(subject.element, surface.element) + subject.element.offsetHeight}px`;
+                lb.style.display = subject.element.offsetParent != null ? '' : 'none';
             };
             return lb;
         })(),
@@ -180,6 +183,7 @@ function resizeDecor(surface, subject, onEnd) {
             mt.stick = () => {
                 mt.style.left = `${leftInSpaceOf(subject.element, surface.element) + subject.element.offsetWidth / 2}px`;
                 mt.style.top = `${topInSpaceOf(subject.element, surface.element)}px`;
+                mt.style.display = subject.element.offsetParent != null ? '' : 'none';
             };
             return mt;
         })(),
@@ -197,6 +201,7 @@ function resizeDecor(surface, subject, onEnd) {
             mb.stick = () => {
                 mb.style.left = `${leftInSpaceOf(subject.element, surface.element) + subject.element.offsetWidth / 2}px`;
                 mb.style.top = `${topInSpaceOf(subject.element, surface.element) + subject.element.offsetHeight}px`;
+                mb.style.display = subject.element.offsetParent != null ? '' : 'none';
             };
             return mb;
         })(),
@@ -216,6 +221,7 @@ function resizeDecor(surface, subject, onEnd) {
             rt.stick = () => {
                 rt.style.left = `${leftInSpaceOf(subject.element, surface.element) + subject.element.offsetWidth}px`;
                 rt.style.top = `${topInSpaceOf(subject.element, surface.element)}px`;
+                rt.style.display = subject.element.offsetParent != null ? '' : 'none';
             };
             return rt;
         })(),
@@ -233,6 +239,7 @@ function resizeDecor(surface, subject, onEnd) {
             rm.stick = () => {
                 rm.style.left = `${leftInSpaceOf(subject.element, surface.element) + subject.element.offsetWidth}px`;
                 rm.style.top = `${topInSpaceOf(subject.element, surface.element) + subject.element.offsetHeight / 2}px`;
+                rm.style.display = subject.element.offsetParent != null ? '' : 'none';
             };
             return rm;
         })(),
@@ -251,6 +258,7 @@ function resizeDecor(surface, subject, onEnd) {
             rb.stick = () => {
                 rb.style.left = `${leftInSpaceOf(subject.element, surface.element) + subject.element.offsetWidth}px`;
                 rb.style.top = `${topInSpaceOf(subject.element, surface.element) + subject.element.offsetHeight}px`;
+                rb.style.display = subject.element.offsetParent != null ? '' : 'none';
             };
             return rb;
         })()

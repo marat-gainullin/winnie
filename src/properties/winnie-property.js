@@ -11,7 +11,7 @@ export default class WinnieProperty {
         this.defaultValue = defaultValue;
         if (name === 'visible') {
             this.visible = this.target.visible;
-            this.target.visible = true;
+            //this.target.visible = true;
         }
     }
 

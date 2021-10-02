@@ -37,6 +37,7 @@ export default function Layout() {
         widgets.focusable = true;
         widgetColumn.field = 'name';
         widgetColumn.title = 'widget.name';
+        widgetColumn.width = null;
         explorer.addColumnNode(widgetColumn);
         explorer.headerVisible = false;
         explorer.insertable = explorer.deletable = false;
@@ -56,13 +57,13 @@ export default function Layout() {
     const propValueColumn = new ColumnNode();
     {
         propertiesBox.width = 310;
-        propNameColumn.width = (propertiesBox.width - 30) / 2;
-        propValueColumn.width = (propertiesBox.width - 30) / 2;
         propNameColumn.title = i18n['winnie.prop.name'];
         propNameColumn.field = 'name';
+        propNameColumn.readonly = true;
+        propNameColumn.width = null;
         propValueColumn.title = i18n['winnie.prop.value'];
         propValueColumn.field = 'value';
-        propNameColumn.readonly = true;
+        propValueColumn.width = null;
         properties.addColumnNode(propNameColumn);
         properties.addColumnNode(propValueColumn);
         properties.insertable = properties.deletable = false;
