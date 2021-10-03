@@ -262,21 +262,21 @@ export default [
         ]
     },
     {
-        widget: BoxPane, from: 'kenga-containers/box-pane',
+        widget: BoxPane, from: 'kenga-containers/horizontal-box-pane',
         category: 'Boxes',
         name: 'HBox',
         description: 'Container with children arranged as a row',
         selects: {
-            orientation: ['horizontal']
+            align: ['top', 'center', 'bottom', 'fit']
         }
     },
     {
-        widget: BoxPane, from: 'kenga-containers/box-pane',
+        widget: BoxPane, from: 'kenga-containers/vertical-box-pane',
         category: 'Boxes',
         name: 'VBox',
         description: 'Container with children arranged as a column',
         selects: {
-            orientation: ['vertical']
+            align: ['left', 'center', 'right', 'fit']
         }
     },
     {
