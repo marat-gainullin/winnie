@@ -5,7 +5,8 @@ import Container from 'kenga/container';
 import ImageParagraph from 'kenga-labels/image-paragraph';
 import CheckBox from 'kenga-buttons/check-box';
 import RadioButton from 'kenga-buttons/radio-button';
-import Box from 'kenga-containers/box-pane';
+import HorizontalBox from 'kenga-containers/horizontal-box-pane';
+import VerticalBox from 'kenga-containers/vertical-box-pane';
 import FlowPane from 'kenga-containers/flow-pane';
 import GridPane from 'kenga-containers/grid-pane';
 import Anchors from 'kenga-containers/anchors-pane';
@@ -35,8 +36,10 @@ function produce(constr, widgetName, paletteItemName, hgap, vgap) {
         } else {
             throw `Provided text: '${input}' is not useful.`;
         }
-    } else if (constr === Box) {
-        instance = new constr(paletteItemName === 'VBox' ? Ui.Orientation.VERTICAL : Ui.Orientation.HORIZONTAL, hgap, vgap);
+    } else if (constr === HorizontalBox) {
+        instance = new constr(hgap);
+    } else if (constr === VerticalBox) {
+        instance = new constr(vgap);
     } else if (constr === FlowPane || constr === HolyGrailPane) {
         instance = new constr(hgap, vgap);
     } else if (constr === CardPane) {

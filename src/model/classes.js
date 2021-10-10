@@ -5,6 +5,8 @@ import Button from 'kenga-buttons/button';
 import CheckBox from 'kenga-buttons/check-box';
 import RadioButton from 'kenga-buttons/radio-button';
 import Box from 'kenga-containers/box-pane';
+import HBox from 'kenga-containers/horizontal-box-pane';
+import VBox from 'kenga-containers/vertical-box-pane';
 import Split from 'kenga-containers/split-pane';
 import CardPane from 'kenga-containers/card-pane';
 import FlowPane from 'kenga-containers/flow-pane';
@@ -33,6 +35,10 @@ function constructorName(instance) {
         return 'HolyGrailPane';
     } else if (instance instanceof Box) {
         return 'BoxPane';
+    } else if (instance instanceof HBox) {
+        return 'HBox';
+    } else if (instance instanceof VBox) {
+        return 'VBox';
     } else if (instance instanceof Anchors) {
         return 'AnchorsPane';
     } else if (instance instanceof FlowPane) {

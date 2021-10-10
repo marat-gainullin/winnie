@@ -10,7 +10,8 @@ import ModelRadioButton from 'kenga-model-buttons/model-radio-button';
 import ModelToggleButton from 'kenga-model-buttons/model-toggle-button';
 //
 import AnchorsPane from 'kenga-containers/anchors-pane';
-import BoxPane from 'kenga-containers/box-pane';
+import HorizontalBoxPane from 'kenga-containers/horizontal-box-pane';
+import VerticalBoxPane from 'kenga-containers/vertical-box-pane';
 import CardPane from 'kenga-containers/card-pane';
 import DesktopPane from 'kenga-containers/desktop-pane';
 import FlowPane from 'kenga-containers/flow-pane';
@@ -262,7 +263,7 @@ export default [
         ]
     },
     {
-        widget: BoxPane, from: 'kenga-containers/horizontal-box-pane',
+        widget: HorizontalBoxPane, from: 'kenga-containers/horizontal-box-pane',
         category: 'Boxes',
         name: 'HBox',
         description: 'Container with children arranged as a row',
@@ -271,7 +272,7 @@ export default [
         }
     },
     {
-        widget: BoxPane, from: 'kenga-containers/vertical-box-pane',
+        widget: VerticalBoxPane, from: 'kenga-containers/vertical-box-pane',
         category: 'Boxes',
         name: 'VBox',
         description: 'Container with children arranged as a column',
@@ -586,6 +587,7 @@ export default [
             'footerRight',
             'onRender',
             'selected',
+            'selectedCount',
             'dynamicCellClassName',
             'activeEditor',
             'rows',
