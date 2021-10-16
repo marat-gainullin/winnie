@@ -16,6 +16,7 @@ import HolyGrailPane from 'kenga-containers/holy-grail-pane';
 import CardsPane from 'kenga-containers/card-pane';
 import Menu from 'kenga-menu/menu';
 import MenuItem from 'kenga-menu/menu-item';
+import MenuElement from 'kenga-menu/menu-element';
 import DataGrid from 'kenga-grid/grid';
 import ColumnNode from 'kenga-grid/columns/column-node';
 import TextNumberField from './text-number-field';
@@ -591,7 +592,7 @@ export default class Winnie {
             this.centerSurface();
         }
         const initSize = () => {
-            if (created.delegate instanceof Container || created.delegate instanceof DataGrid) {
+            if ((created.delegate instanceof Container && !(created.delegate instanceof Menu)) || created.delegate instanceof DataGrid) {
                 if (left != null) {
                     created.delegate.left = Math.max(0, left - 64)
                 }
@@ -600,7 +601,7 @@ export default class Winnie {
                 }
                 created.delegate.width = 128;
                 created.delegate.height = 128;
-            } else {
+            } else if(!(created.delegate instanceof MenuElement)) {
                 if (left != null) {
                     created.delegate.left = Math.max(0, left - 48)
                 }
@@ -828,6 +829,9 @@ export default class Winnie {
             }
             this.editsCursor++;
             this.checkEnabled();
+            if(this.editsCursor > this.edits.length){
+                debugger;
+            }
         }
     }
 
@@ -849,6 +853,9 @@ export default class Winnie {
                 Logger.info(`Undone edit: ${ur.name}.`);
             });
             this.checkEnabled();
+            if(this.editsCursor > this.edits.length){
+                debugger;
+            }
         }
     }
 
@@ -866,6 +873,9 @@ export default class Winnie {
                 const shifted = this.edits.shift();
                 this.editsCursor--;
                 Logger.info(`Dropped head edit: '${shifted.name}'.`);
+            }
+            if(this.editsCursor > this.edits.length){
+                debugger;
             }
         }
         Logger.info(`Recorded edit: ${body.name}.`);

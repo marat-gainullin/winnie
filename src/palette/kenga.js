@@ -76,10 +76,10 @@ export default [
     {
         widget: Label,
         from: 'kenga-labels/label',
-        name: 'Label',
+        name: 'Image label',
         description: 'Image with text paragraph',
         iconStyle: 'winnie-icon-picture',
-        category: 'Buttons',
+        category: 'Labels',
         selects: {
             horizontalTextPosition: ['left', 'center', 'right'],
             verticalTextPosition: ['top', 'center', 'bottom']
@@ -248,7 +248,11 @@ export default [
         },
         hidden: [
             'first',
-            'second'
+            'second',
+            'expander',
+            'collapser',
+            'expanded',
+            'collapsed'
         ]
     },
     {
@@ -378,7 +382,10 @@ export default [
         category: 'Fields',
         name: 'Slider',
         iconStyle: 'winnie-icon-sliders',
-        description: 'Slider'
+        description: 'Slider',
+        hidden: [
+            'text'
+        ]
     },
     {
         widget: TextArea, from: 'kenga-fields/text-area',
@@ -500,7 +507,10 @@ export default [
         category: 'Model fields',
         name: 'Model slider',
         iconStyle: 'winnie-icon-sliders',
-        description: 'Slider with data binding'
+        description: 'Slider with data binding',
+        hidden: [
+            'text'
+        ]
     },
     {
         widget: ModelTextArea, from: 'kenga-model-fields/model-text-area',
@@ -600,6 +610,7 @@ export default [
             'focusedRow',
             'focusedColumn',
             'hasSelected',
+            'selectionLead',
             'focusedCell'
         ]
     },
