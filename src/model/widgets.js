@@ -1,4 +1,3 @@
-import Invoke from 'septima-utils/invoke';
 import Ui from 'kenga/utils';
 import Widget from 'kenga/widget';
 import Container from 'kenga/container';
@@ -91,7 +90,7 @@ function produced(model, instance) {
                 model.layout.explorer.unselectAll();
                 model.layout.explorer.select(subject);
             }
-            Invoke.later(() => {
+            Ui.later(() => {
                 model.layout.widgets.element.focus();
             });
             event.stopPropagation();

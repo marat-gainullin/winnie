@@ -1,4 +1,3 @@
-import Invoke from 'septima-utils/invoke';
 import Logger from 'septima-utils/logger';
 import Ui from 'kenga/utils';
 import Bound from 'kenga/bound';
@@ -45,7 +44,7 @@ export default class Winnie {
         const enabled = [];
 
         function checkEnabled() {
-            Invoke.later(() => {
+            Ui.later(() => {
                 enabled.forEach((item) => {
                     item();
                 });
@@ -758,7 +757,7 @@ export default class Winnie {
             }
             document.body.removeChild(input);
         });
-        Invoke.delayed(60000, () => {
+        Ui.delayed(60000, () => {
             if (input.parentElement) {
                 document.body.removeChild(input);
             }

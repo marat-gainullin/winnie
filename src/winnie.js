@@ -1,4 +1,4 @@
-import Invoke from 'septima-utils/invoke';
+import Ui from 'kenga/utils';
 import Model from './model';
 import kenga from './palette/kenga';
 import templates from './templates';
@@ -15,7 +15,7 @@ function winnie(module, moduleName) {
     document.title = `Winnie - ${moduleName}`
     document.body.appendChild(model.layout.ground.element);
 
-    Invoke.later(() => {
+    Ui.later(() => {
         const split = model.layout.paletteExplorerSplit;
         split.dividerLocation = (split.height - split.dividerSize) / 2;
         model.openNatives(module);

@@ -1,4 +1,4 @@
-import Invoke from 'septima-utils/invoke';
+import Ui from 'kenga/utils';
 import Model from './model';
 import kenga from './palette/kenga';
 import templates from './templates';
@@ -12,7 +12,7 @@ model.adopts.add(templates);
 model.layout.ground.element.style.width = '100%';
 model.layout.ground.element.style.height = '100%';
 document.body.appendChild(model.layout.ground.element);
-Invoke.later(() => {
+Ui.later(() => {
     model.layout.paletteExplorerSplit.dividerLocation = (model.layout.paletteExplorerSplit.height - model.layout.paletteExplorerSplit.dividerSize) / 2;
     model.openNatives(blankTemplate);
 });

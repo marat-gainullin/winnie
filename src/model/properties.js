@@ -1,4 +1,4 @@
-import Invoke from 'septima-utils/invoke';
+import Ui from 'kenga/utils';
 import Bound from 'kenga/bound';
 import Widget from 'kenga/widget';
 import BoxField from 'kenga/box-field';
@@ -54,7 +54,7 @@ function createProps(model, item) {
                             model.layout.properties.goTo(prop, true);
                         }
                         prop.silent = false;
-                        Invoke.delayed(10, () => {
+                        Ui.delayed(10, () => {
                             model.stickDecors();
                         });
                     },
@@ -81,7 +81,7 @@ function createProps(model, item) {
                             model.layout.properties.changed(prop);
                             model.layout.properties.goTo(prop, true);
                         }
-                        Invoke.delayed(10, () => {
+                        Ui.delayed(10, () => {
                             model.stickDecors();
                         });
                     }
