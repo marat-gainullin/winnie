@@ -353,6 +353,8 @@
 
 .p-winnie-hints > ul {
     list-style-type: none;
+    margin-block-start: 0px;
+    margin-top: 0px;
 }
 
 .p-winnie-hint {

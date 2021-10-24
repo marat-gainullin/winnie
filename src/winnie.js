@@ -17,7 +17,7 @@ function winnie(module, moduleName) {
 
     Ui.later(() => {
         const split = model.layout.paletteExplorerSplit;
-        split.dividerLocation = (split.height - split.dividerSize) / 2;
+        split.dividerLocation = split.height / 2;
         model.openNatives(module);
     });
 }

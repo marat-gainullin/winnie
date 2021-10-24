@@ -1,7 +1,6 @@
 import Grid from 'kenga-containers/grid-pane';
 import ColumnNode from 'kenga-grid/columns/column-node';
 import Widget from "kenga/widget";
-import * as Serials from "./serials";
 
 function concat(prev, item) {
     if (!!prev && !!item)
@@ -131,7 +130,7 @@ class Es6Generator {
                 const props = item.sheet
                     .filter(p => p.edited && (!(item.delegate instanceof Grid) || (p.name !== 'rows' && p.name !== 'columns')))
                     .map((p) => {
-                        let assignment = `${indent}    ${widgetConstName}.${p.name} = ${typeof p.value === 'string' ? `'${p.value}'` : (p.value && p.value.src ? `'${Serials.relativize(p.value.src)}'` : p.value)};`;
+                        let assignment = `${indent}    ${widgetConstName}.${p.name} = ${typeof p.value === 'string' ? `'${p.value}'` : (p.value && p.value.src && p.value.getAttribute ? `'${p.value.getAttribute('src')}'` : p.value)};`;
                         if (item.delegate instanceof Widget && p.name === 'classes' && p.value) {
                             assignment += `\n${indent}    ${widgetConstName}.element.className += ' ' + ${widgetConstName}.${p.name};`;
                         }

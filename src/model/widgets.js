@@ -11,13 +11,13 @@ import GridPane from 'kenga-containers/grid-pane';
 import Anchors from 'kenga-containers/anchors-pane';
 import TabbedPane from 'kenga-containers/tabbed-pane';
 import HolyGrailPane from 'kenga-containers/holy-grail-pane';
+import CardPane from "kenga-containers/card-pane";
 import MenuItem from 'kenga-menu/menu-item';
 import DataGrid from 'kenga-grid/grid';
 import ColumnNode from 'kenga-grid/columns/column-node';
 import i18n from '../i18n';
 import {mouseDrag, startItemsMove, proceedItemsMove, endItemsMove} from '../location-size';
 import {startRectSelection, endRectSelection, proceedRectSelection} from '../rect-selection';
-import {CardPane} from "kenga-containers";
 
 function produce(constr, widgetName, paletteItemName, hgap, vgap) {
     let instance;

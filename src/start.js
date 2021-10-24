@@ -13,6 +13,6 @@ model.layout.ground.element.style.width = '100%';
 model.layout.ground.element.style.height = '100%';
 document.body.appendChild(model.layout.ground.element);
 Ui.later(() => {
-    model.layout.paletteExplorerSplit.dividerLocation = (model.layout.paletteExplorerSplit.height - model.layout.paletteExplorerSplit.dividerSize) / 2;
+    model.layout.paletteExplorerSplit.dividerLocation = model.layout.paletteExplorerSplit.height / 2;
     model.openNatives(blankTemplate);
 });
