@@ -1,6 +1,6 @@
 {
   "name": "winnie",
-  "version": "0.1.36",
+  "version": "0.1.37",
   "description": "WYSIWYG editor of Kenga widgets",
   "repository": "https://github.com/marat-gainullin/winnie.git",
   "author": "marat-gainullin <mg@altsoft.biz>",
@@ -14,7 +14,7 @@
   "dependencies": {
     "kenga": "0.0.46",
     "kenga-buttons": "0.0.30",
-    "kenga-containers": "0.0.34",
+    "kenga-containers": "0.0.40",
     "kenga-fields": "0.0.28",
     "kenga-grid": "0.0.41",
     "kenga-labels": "0.0.32",
