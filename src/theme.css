@@ -227,6 +227,8 @@
 
 .p-winnie-palette-explorer > .p-split-divider {
     border: none;
+    height: 6px;
+    margin-top: -6px;
 }
 
 .p-widget-category-header {
