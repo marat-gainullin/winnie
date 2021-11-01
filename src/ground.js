@@ -34,6 +34,7 @@ export default function Layout() {
     const properties = new Grid();
     const widgets = new Flow();
     {
+        widgets.focusable = true;
         widgetColumn.field = 'name';
         widgetColumn.title = 'widget.name';
         widgetColumn.width = null;

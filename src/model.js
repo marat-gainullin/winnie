@@ -559,7 +559,7 @@ export default class Winnie {
         const self = this;
         const wasSelected = this._lastSelected;
         const widgetName = this.generateName(decapitalize(constructorName(item.defaultInstance)));
-        const created = new Wrapper(produced(self, produce(item.widget, widgetName, item.name, `${self.settings.grid.x}px`, `${self.settings.grid.y}px`)), widgetName, item.defaultInstance, (newName) => {
+        const created = new Wrapper(produced(self, produce(item.widget, widgetName, item.name, self.settings.grid.x, self.settings.grid.y)), widgetName, item.defaultInstance, (newName) => {
             rename(self, created, newName);
         });
         created.source = item;
@@ -890,7 +890,7 @@ export default class Winnie {
             headerIcon.className = 'winnie-icon-down-open';
             header.icon = headerIcon;
             header.element.classList.add('p-widget-category-header');
-            const content = new FlowPane('5px', '5px');
+            const content = new FlowPane(5, 5);
             content.element.classList.add('p-widget-category-content');
             box.add(header);
             box.add(content);

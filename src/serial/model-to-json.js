@@ -6,7 +6,7 @@ function forest(forest) {
         sheet
                 .filter(p => p.edited)
                 .forEach((p) => {
-                    props[p.name] = p.value && p.value.src && p.value.getAttribute ? p.value.getAttribute('src') : p.value;
+                    props[p.name] = p.value && p.value.src ? Serials.relativize(p.value.src) : p.value;
                 });
         return props;
     }
