@@ -1,6 +1,6 @@
 {
   "name": "winnie",
-  "version": "0.1.39",
+  "version": "0.1.40",
   "description": "WYSIWYG editor of Kenga widgets",
   "repository": "https://github.com/marat-gainullin/winnie.git",
   "author": "marat-gainullin <mg@altsoft.biz>",
@@ -12,15 +12,15 @@
     "lib": "rollup -c rollup.lib.config.js"
   },
   "dependencies": {
-    "kenga": "0.0.47",
-    "kenga-buttons": "0.0.32",
-    "kenga-containers": "0.0.42",
-    "kenga-fields": "0.0.29",
-    "kenga-grid": "0.0.42",
-    "kenga-labels": "0.0.34",
-    "kenga-menu": "0.0.30",
-    "kenga-model-buttons": "0.0.26",
-    "kenga-model-fields": "0.0.26",
+    "kenga": "0.0.48",
+    "kenga-buttons": "0.0.33",
+    "kenga-containers": "0.0.43",
+    "kenga-fields": "0.0.30",
+    "kenga-grid": "0.0.44",
+    "kenga-labels": "0.0.35",
+    "kenga-menu": "0.0.31",
+    "kenga-model-buttons": "0.0.27",
+    "kenga-model-fields": "0.0.27",
     "septima-utils": "0.0.9"
   },
   "devDependencies": {

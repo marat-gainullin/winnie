@@ -1005,7 +1005,7 @@ export default class Winnie {
                             const itemPaletteItem = paletteItemOf(item);
                             const itemMenuItem = menuItemOf(item);
                             itemMenuItem.onAction = () => {
-                                self.addWidget(item, 0, 0);
+                                self.addWidget(item);
                             };
                             const category = categoryOf(item);
                             category.palette.content.add(itemPaletteItem);
