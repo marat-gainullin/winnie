@@ -555,6 +555,12 @@ export default class Winnie {
         return widgetName;
     }
 
+    walk(widget, onEach) {
+        const self = this
+        onEach(widget)
+        widget.children.forEach(child => self.walk(child, onEach))
+    }
+
     addWidget(item, left = null, top = null) {
         const self = this;
         const wasSelected = this._lastSelected;
@@ -600,7 +606,7 @@ export default class Winnie {
                 }
                 created.delegate.width = 128;
                 created.delegate.height = 128;
-            } else if(!(created.delegate instanceof MenuElement)) {
+            } else if (!(created.delegate instanceof MenuElement)) {
                 if (left != null) {
                     created.delegate.left = Math.max(0, left - 48)
                 }
@@ -657,11 +663,15 @@ export default class Winnie {
                     } else {
                         self.forest.splice(removedAt, 1);
                     }
-                    self.widgets.delete(item.name);
+                    self.walk(item, _item => {
+                        self.widgets.delete(_item.name);
+                    })
                     wasVisualRoot = removed(item);
                 },
                 undo: () => {
-                    self.widgets.set(item.name, item);
+                    self.walk(item, _item => {
+                        self.widgets.set(_item.name, _item);
+                    })
                     if (itemParent) {
                         itemParent.add(item, removedAt);
                         added(item);
@@ -828,7 +838,7 @@ export default class Winnie {
             }
             this.editsCursor++;
             this.checkEnabled();
-            if(this.editsCursor > this.edits.length){
+            if (this.editsCursor > this.edits.length) {
                 debugger;
             }
         }
@@ -852,7 +862,7 @@ export default class Winnie {
                 Logger.info(`Undone edit: ${ur.name}.`);
             });
             this.checkEnabled();
-            if(this.editsCursor > this.edits.length){
+            if (this.editsCursor > this.edits.length) {
                 debugger;
             }
         }
@@ -873,7 +883,7 @@ export default class Winnie {
                 this.editsCursor--;
                 Logger.info(`Dropped head edit: '${shifted.name}'.`);
             }
-            if(this.editsCursor > this.edits.length){
+            if (this.editsCursor > this.edits.length) {
                 debugger;
             }
         }
