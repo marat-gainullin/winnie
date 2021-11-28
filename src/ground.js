@@ -33,6 +33,8 @@ export default function Layout() {
     const propertiesHeader = new Label(i18n['winnie.properties.header']);
     const properties = new Grid();
     const widgets = new Flow();
+    widgets.vgap = null
+    widgets.hgap = null
     {
         widgets.focusable = true;
         widgetColumn.field = 'name';
