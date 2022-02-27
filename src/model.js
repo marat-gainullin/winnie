@@ -635,71 +635,107 @@ export default class Winnie {
 
     removeSelected() {
         const self = this;
+        const toRemove = self.layout.explorer.selected;
+        if (toRemove.length > 0) {
 
-        function added(item, wasVisualRoot) {
-            self.layout.explorer.unselectAll();
-            self.layout.explorer.select(item);
-            self.layout.explorer.added(item);
-            if (wasVisualRoot) {
-                self.acceptVisualRoot(item);
+          function added(item, wasVisualRoot) {
+              self.layout.explorer.unselectAll();
+              self.layout.explorer.select(item);
+              self.layout.explorer.added(item);
+              if (wasVisualRoot) {
+                  self.acceptVisualRoot(item);
+              }
+          }
+
+          function removed(item) {
+              self.layout.explorer.unselect(item);
+              self.layout.explorer.removed(item);
+              return self.revokeVisualRoot(item);
+          }
+
+
+          let firstSelectedParent = null;
+          let firstSelectedAt = -1;
+          const viewRows = self.layout.explorer.viewRows
+          for (let i = 0; i < viewRows.length; i++) {
+            const widget = viewRows[i];
+            if (self.layout.explorer.isSelected(widget)) {
+              firstSelectedParent = widget.parent;
+              firstSelectedAt = firstSelectedParent ? firstSelectedParent.indexOf(widget) : self.forest.indexOf(widget);
+              break;
             }
-        }
-
-        function removed(item) {
-            self.layout.explorer.unselect(item);
-            self.layout.explorer.removed(item);
-            return self.revokeVisualRoot(item);
-        }
-
-        const toRemove = this.layout.explorer.selected;
-        const actions = toRemove.map((item) => {
-            const itemParent = item.parent;
-            const removedAt = itemParent ? itemParent.indexOf(item) : self.forest.indexOf(item);
-            let wasVisualRoot = null;
-            return {
-                redo: () => {
-                    if (itemParent) {
-                        itemParent.remove(removedAt);
-                    } else {
-                        self.forest.splice(removedAt, 1);
+          }
+          const actions = toRemove
+            .map((item) => {
+                const itemParent = item.parent;
+                const removedAt = itemParent ? itemParent.indexOf(item) : self.forest.indexOf(item);
+                let wasVisualRoot = null;
+                return {
+                    removedAt,
+                    redo: () => {
+                        if (itemParent) {
+                            itemParent.remove(removedAt);
+                        } else {
+                            self.forest.splice(removedAt, 1);
+                        }
+                        self.walk(item, _item => {
+                            self.widgets.delete(_item.name);
+                        })
+                        wasVisualRoot = removed(item);
+                    },
+                    undo: () => {
+                        self.walk(item, _item => {
+                            self.widgets.set(_item.name, _item);
+                        })
+                        if (itemParent) {
+                            itemParent.add(item, removedAt);
+                            added(item);
+                        } else {
+                            self.forest.splice(removedAt, 0, item);
+                            added(item, wasVisualRoot);
+                        }
                     }
-                    self.walk(item, _item => {
-                        self.widgets.delete(_item.name);
-                    })
-                    wasVisualRoot = removed(item);
-                },
-                undo: () => {
-                    self.walk(item, _item => {
-                        self.widgets.set(_item.name, _item);
-                    })
-                    if (itemParent) {
-                        itemParent.add(item, removedAt);
-                        added(item);
-                    } else {
-                        self.forest.splice(removedAt, 0, item);
-                        added(item, wasVisualRoot);
-                    }
-                }
-            };
-        });
-        this.edit({
-            name: `Delete ${toRemove.length > 1 ? `selected (${toRemove.length}) widgets` : `'${toRemove[0].name}' widget`}`,
-            redo: () => {
-                actions
-                    .forEach((item) => {
-                        item.redo();
-                    });
-            },
-            undo: () => {
-                actions
-                    .slice(0, actions.length)
-                    .reverse()
-                    .forEach((item) => {
-                        item.undo();
-                    });
+                };
+            })
+            .sort((action1, action2)=>{return action2.removedAt - action1.removedAt});
+          this.edit({
+              name: `Delete ${toRemove.length > 1 ? `selected (${toRemove.length}) widgets` : `'${toRemove[0].name}' widget`}`,
+              redo: () => {
+                  actions
+                      .forEach((item) => {
+                          item.redo();
+                      });
+              },
+              undo: () => {
+                  actions
+                      .slice(0, actions.length)
+                      .reverse()
+                      .forEach((item) => {
+                          item.undo();
+                      });
+              }
+          });
+          this.checkEnabled();
+          while (firstSelectedAt > -1) {
+            let toSelect = null;
+            if (firstSelectedParent) {
+              const firstParentChildren = firstSelectedParent.children;
+              if (firstParentChildren.length > 0) {
+                toSelect = firstSelectedAt >= 0 && firstSelectedAt < firstParentChildren.length ? firstParentChildren[firstSelectedAt] : null;
+              } else {
+                toSelect = firstSelectedParent;
+              }
+            } else {
+              toSelect = firstSelectedAt < self.forest.length ? self.forest[firstSelectedAt] : null
             }
-        });
-        this.checkEnabled();
+            if (toSelect) {
+              self.layout.explorer.goTo(toSelect, true);
+              break;
+            } else {
+              firstSelectedAt--;
+            }
+          }
+        }
     }
 
     copy() {
