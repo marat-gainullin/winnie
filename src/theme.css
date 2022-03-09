@@ -153,10 +153,11 @@
 
 .p-winnie-widget {
     outline: 1px dashed rgba(80, 40, 190, .5);
+    overflow: visible;
 }
 
 .p-winnie-widget-hover {
-    outline: 1px dashed rgb(80, 40, 190);
+    outline: 2px dashed rgb(80, 40, 190);
     cursor: pointer;
 }
 
@@ -166,7 +167,7 @@
 }
 
 .p-winnie-widget-selected {
-    outline: 2px dashed rgba(80, 40, 190, .5);
+    outline: 3px dashed rgba(80, 40, 190, .5);
 }
 
 .p-winnie-decoration {
