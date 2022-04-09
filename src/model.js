@@ -201,7 +201,7 @@ export default class Winnie {
                                     redo: () => {
                                         if (source) {
                                             source.remove(removeAt);
-                                            if (source.delegate instanceof CardsPane || source.delegate instanceof TabbedPane) {
+                                            if (source.delegate && (source.delegate instanceof CardsPane || source.delegate instanceof TabbedPane)) {
                                               w.delegate.visible = true
                                             }
                                         } else {
@@ -223,7 +223,7 @@ export default class Winnie {
                                     undo: () => {
                                         if (dest) {
                                             dest.remove(addAt);
-                                            if (dest.delegate instanceof CardsPane || dest.delegate instanceof TabbedPane) {
+                                            if (dest.delegate && (dest.delegate instanceof CardsPane || dest.delegate instanceof TabbedPane)) {
                                               w.delegate.visible = true
                                             }
                                         } else {
