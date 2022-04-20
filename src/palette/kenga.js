@@ -611,7 +611,8 @@ export default [
             'focusedColumn',
             'hasSelected',
             'selectionLead',
-            'focusedCell'
+            'focusedCell',
+            'columnsChevron'
         ]
     },
     {

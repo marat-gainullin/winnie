@@ -1,4 +1,5 @@
 import Grid from 'kenga-containers/grid-pane';
+import Tabs from 'kenga-containers/tabbed-pane';
 import ColumnNode from 'kenga-grid/columns/column-node';
 import Widget from "kenga/widget";
 import * as Serials from "./serials";
@@ -129,7 +130,10 @@ class Es6Generator {
             .map(([key, item]) => {
                 const widgetConstName = this.constNameOf(key);
                 const props = item.sheet
-                    .filter(p => p.edited && (!(item.delegate instanceof Grid) || (p.name !== 'rows' && p.name !== 'columns')))
+                    .filter(p => p.edited &&
+                      (!(item.delegate instanceof Grid) || (p.name !== 'rows' && p.name !== 'columns')) &&
+                      ((item.delegate.parent instanceof Tabs) || !p.name.startsWith('tab.'))
+                    )
                     .map((p) => {
                         let assignment = `${indent}    ${widgetConstName}.${p.name} = ${typeof p.value === 'string' ? `'${p.value}'` : (p.value && p.value.src && p.value.getAttribute ? `'${p.value.getAttribute('src')}'` : p.value)};`;
                         if (item.delegate instanceof Widget && p.name === 'classes' && p.value) {
