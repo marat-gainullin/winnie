@@ -183,7 +183,7 @@ function produced(model, instance) {
 
 function rename(model, created, newName) {
     if (model.widgets.has(newName)) {
-        alert(i18n['winnie.name.used']);
+        model.alert(i18n['winnie.name.used']);
         model.layout.explorer.abortEditing();
         return created.name;
     } else if (newName !== null && newName.match(/^[a-zA-Z_][a-zA-Z_0-9]*$/)) {
@@ -208,7 +208,7 @@ function rename(model, created, newName) {
         model.checkEnabled();
         return newName;
     } else {
-        alert(i18n['winnie.bad.name']);
+        model.alert(i18n['winnie.bad.name']);
         model.layout.explorer.abortEditing();
         return created.name;
     }
