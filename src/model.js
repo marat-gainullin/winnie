@@ -348,7 +348,7 @@ export default class Winnie {
         [this.layout.tPaste, this.layout.miPaste].forEach((w) => {
             Ui.on(w.element, Ui.Events.CLICK, () => {
                 checkEnabled();
-                alert(i18n['winnie.paste.via.shortcut']);
+                self.alert(i18n['winnie.paste.via.shortcut']);
             });
         });
         [this.layout.tUndo, this.layout.miUndo].forEach((w) => {
@@ -385,6 +385,7 @@ export default class Winnie {
         checkEnabled();
         this._palette = {};
         this._adopts = [];
+        this.alert = (msg) => { alert(msg) }
     }
 
     save() {
@@ -393,7 +394,7 @@ export default class Winnie {
             Clipboard.write(generatedCode);
             this.layout.widgets.element.focus();
             Logger.info(i18n['winnie.generated.es6.copied']);
-            alert(i18n['winnie.generated.es6.copied']);
+            this.alert(i18n['winnie.generated.es6.copied']);
         } else {
             Logger.info(`Can't generate code for an empty [forest].`);
         }
@@ -857,7 +858,7 @@ export default class Winnie {
             Clipboard.write(generatedJson);
             this.layout.widgets.element.focus();
             Logger.info(i18n['winnie.generated.json.copied']);
-            alert(i18n['winnie.generated.json.copied']);
+            this.alert(i18n['winnie.generated.json.copied']);
         } else {
             Logger.info(`Can't generate JSON for an empty [forest].`);
         }
