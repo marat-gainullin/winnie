@@ -36,6 +36,7 @@ const dataGridColumnsHidden = new Set([
 ]);
 const fieldsHidden = new Set([
     'value',
+    'valid',
     'clearer',
     'selector'
 ]);
