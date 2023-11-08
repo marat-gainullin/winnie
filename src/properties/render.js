@@ -89,6 +89,8 @@ function onRender(item, viewCell) {
         viewCell.appendChild(input);
     } else if (typeof item.value === 'object') {
         viewCell.innerHTML = item.value && item.value['winnie.wrapper'] && item.value['winnie.wrapper'].name ? item.value['winnie.wrapper'].name : '';
+    } else if (typeof item.value === 'string' || typeof item.value === 'number') {
+        viewCell.innerText = item.value;
     }
 }
 

@@ -22,19 +22,7 @@ import {startRectSelection, endRectSelection, proceedRectSelection} from '../rec
 function produce(constr, widgetName, paletteItemName, hgap, vgap) {
     let instance;
     if (constr === GridPane) {
-        const input = prompt(i18n['winnie.grid.dimensions']);
-        const matched = input.match(/(\d+),\s*(\d+)/);
-        if (matched) {
-            const rows = +matched[1];
-            const columns = +matched[2];
-            if (rows < 100 && columns < 100) {
-                instance = new GridPane(rows, columns, hgap, vgap);
-            } else {
-                throw `Provided dimensions (rows: ${rows}; columns: ${columns}) are too wide.`;
-            }
-        } else {
-            throw `Provided text: '${input}' is not useful.`;
-        }
+        instance = new constr(hgap, vgap);
     } else if (constr === HorizontalBox) {
         instance = new constr(hgap);
     } else if (constr === VerticalBox) {

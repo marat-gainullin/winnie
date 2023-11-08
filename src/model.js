@@ -295,6 +295,7 @@ export default class Winnie {
         this.layout.propValueColumn.field = 'value';
         this.layout.propNameColumn.onRender = (item, viewCell) => {
             viewCell.title = item.name;
+            viewCell.innerText = item.name;
             if (item.edited) {
                 viewCell.classList.add('p-winnie-property-edited');
             }
@@ -572,7 +573,7 @@ export default class Winnie {
         const self = this;
         const wasSelected = this._lastSelected;
         const widgetName = this.generateName(decapitalize(constructorName(item.defaultInstance)));
-        const created = new Wrapper(produced(self, produce(item.widget, widgetName, item.name, self.settings.grid.x, self.settings.grid.y)), widgetName, item.defaultInstance, (newName) => {
+        const created = new Wrapper(produced(self, produce(item.widget, widgetName, item.name, `${self.settings.grid.x}px`, `${self.settings.grid.y}px`)), widgetName, item.defaultInstance, (newName) => {
             rename(self, created, newName);
         });
         created.source = item;
@@ -629,10 +630,14 @@ export default class Winnie {
         }
         if (wasSelected) {
             if (wasSelected.delegate instanceof Container || wasSelected.delegate instanceof DataGrid) {
-                initSize();
+                if (wasSelected.delegate instanceof Anchors) {
+                    initSize();
+                }
                 this.move(created, wasSelected, wasSelected.count, addEdit);
             } else if (wasSelected.parent && (wasSelected.parent.delegate instanceof Container || wasSelected.parent.delegate instanceof DataGrid)) {
-                initSize();
+                if (wasSelected.parent.delegate instanceof Anchors) {
+                    initSize();
+                }
                 this.move(created, wasSelected.parent, wasSelected.parent.count, addEdit);
             }
         }

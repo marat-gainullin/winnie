@@ -45,7 +45,7 @@ const config = {
         resolve(),
         commonjs(),
         styles({
-            mode: 'extract', minimize: true, import: {
+            mode: 'extract', minimize: false, import: {
                 resolve: cssResolve()
             }
         }),
