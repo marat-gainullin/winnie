@@ -1,7 +1,6 @@
 import GrailPane from 'kenga-containers/holy-grail-pane';
 import ScrollPane from 'kenga-containers/scroll-pane';
 import SplitPane from 'kenga-containers/split-pane';
-import GridPane from 'kenga-containers/grid-pane';
 import DataGrid from 'kenga-grid/grid';
 import ColumnNode from 'kenga-grid/columns/column-node';
 
@@ -31,8 +30,6 @@ class WidgetWrapper {
             return this.count >= 1;
         } else if (this.delegate instanceof SplitPane) {
             return this.count >= 2;
-        } else if (this.delegate instanceof GridPane) {
-            return this.count >= this.delegate.rows * this.delegate.columns;
         } else {
             return false;
         }
@@ -62,14 +59,6 @@ class WidgetWrapper {
                 return [self.delegate.view];
             } else if (self.delegate instanceof SplitPane) {
                 return [self.delegate.first, self.delegate.second];
-            } else if (self.delegate instanceof GridPane) {
-                const children = [];
-                for (let row = 0; row < this.delegate.rows; row++) {
-                    for (let column = 0; column < this.delegate.columns; column++) {
-                        children.push(this.delegate.child(row, column));
-                    }
-                }
-                return children;
             } else if (self.delegate instanceof DataGrid) {
                 return self.delegate.header;
             } else if (self.delegate instanceof ColumnNode) {
@@ -122,8 +111,6 @@ class WidgetWrapper {
                 } else {
                     return -1;
                 }
-            } else if (this.delegate instanceof GridPane) {
-                return this.children.indexOf(subject);
             } else {
                 return this.delegate.indexOf(subject.delegate);
             }
@@ -151,18 +138,6 @@ class WidgetWrapper {
             this.delegate.clear();
             this.delegate.first = children.length > 0 ? children[0].delegate : null;
             this.delegate.second = children.length > 1 ? children[1].delegate : null;
-        } else if (this.delegate instanceof GridPane) {
-            const children = this.children;
-            children.splice(index, 0, subject);
-            this.delegate.clear();
-            for (let row = 0; row < this.delegate.rows; row++) {
-                for (let column = 0; column < this.delegate.columns; column++) {
-                    const gIndex = row * this.delegate.columns + column;
-                    if (gIndex < children.length) {
-                        this.delegate.add(children[gIndex].delegate, row, column);
-                    }
-                }
-            }
         } else {
             this.delegate.add(subject.delegate, index);
         }
@@ -193,18 +168,6 @@ class WidgetWrapper {
                     this.delegate.second = null;
             this.delegate.first = children.length > 0 ? children[0].delegate : null;
             this.delegate.second = children.length > 1 ? children[1].delegate : null;
-        } else if (this.delegate instanceof GridPane) {
-            const children = this.children;
-            children.splice(index, 1);
-            this.delegate.clear();
-            for (let row = 0; row < this.delegate.rows; row++) {
-                for (let column = 0; column < this.delegate.columns; column++) {
-                    const gIndex = row * this.delegate.columns + column;
-                    if (gIndex < children.length) {
-                        this.delegate.add(children[gIndex].delegate, row, column);
-                    }
-                }
-            }
         } else {
             this.delegate.remove(index);
         }

@@ -430,14 +430,7 @@ export default class Winnie {
                 const source = indexed[item.from];
                 if (source) {
                     const created = new Wrapper(
-                        produced(self,
-                            source.widget === GridPane ?
-                                new GridPane(
-                                    'rows' in item.body ? item.body.rows : source.defaultInstance.rows,
-                                    'columns' in item.body ? item.body.columns : source.defaultInstance.columns
-                                )
-                                : new source.widget()
-                        ),
+                        produced(self, new source.widget()),
                         widgetName,
                         source.defaultInstance,
                         (newName) => {
@@ -454,12 +447,10 @@ export default class Winnie {
                         self.forest.push(created);
                     }
                     for (const p in item.body) {
-                        if (!(created.delegate instanceof GridPane) || (p !== 'columns' && p !== 'rows')) {
-                            if (p.includes('.')) {
-                                Bound.setPathData(created.delegate, p, item.body[p]);
-                            } else {
-                                created.delegate[p] = item.body[p];
-                            }
+                        if (p.includes('.')) {
+                            Bound.setPathData(created.delegate, p, item.body[p]);
+                        } else {
+                            created.delegate[p] = item.body[p];
                         }
                     }
                     created.sheet = createProps(self, created);

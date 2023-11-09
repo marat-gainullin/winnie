@@ -1,7 +1,6 @@
-import Grid from 'kenga-containers/grid-pane';
 import Tabs from 'kenga-containers/tabbed-pane';
 import ColumnNode from 'kenga-grid/columns/column-node';
-import Widget from "kenga/widget";
+import Widget from 'kenga/widget';
 import * as Serials from "./serials";
 
 function concat(prev, item) {
@@ -101,8 +100,7 @@ class Es6Generator {
         return Array.from(this.model.widgets.entries())
             .map(([key, item]) => {
                 const widgetConstName = this.constNameOf(key);
-                return [item.delegate instanceof Grid ?
-                    `${indent}const ${widgetConstName} = new ${this.constructorNameOf(item.source)}(${item.delegate.rows}, ${item.delegate.columns});` :
+                return [
                     `${indent}const ${widgetConstName} = new ${this.constructorNameOf(item.source)}();`,
                     `${indent}this.${widgetConstName} = ${widgetConstName};`
                 ].reduce(concat);
@@ -131,7 +129,6 @@ class Es6Generator {
                 const widgetConstName = this.constNameOf(key);
                 const props = item.sheet
                     .filter(p => p.edited &&
-                      (!(item.delegate instanceof Grid) || (p.name !== 'rows' && p.name !== 'columns')) &&
                       ((item.delegate.parent instanceof Tabs) || !p.name.startsWith('tab.'))
                     )
                     .map((p) => {
