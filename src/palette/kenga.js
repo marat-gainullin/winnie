@@ -198,7 +198,9 @@ export default [
         iconStyle: 'winnie-icon-buffer',
         hidden: [
             'selected',
-            'selectedIndex'
+            'selectedIndex',
+            'captions',
+            'captionsShell'
         ]
 
     },
