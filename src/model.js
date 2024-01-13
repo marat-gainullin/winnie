@@ -26,12 +26,12 @@ import reWidth from './rewidth';
 import propValueOnRender from './properties/render';
 import propValueOnEdit from './properties/edit';
 import Shortcuts from './shortcuts';
-import {startRectSelection, proceedRectSelection, endRectSelection} from './rect-selection';
-import {resizeDecor, mouseDrag, sizeLocationSnapshot, applySizeLocationSnapshot} from './location-size';
-import modelToEs6 from './serial/model-to-code';
+import { startRectSelection, proceedRectSelection, endRectSelection } from './rect-selection';
+import { resizeDecor, mouseDrag, sizeLocationSnapshot, applySizeLocationSnapshot } from './location-size';
+import modelToSource from './serial/model-to-code';
+import parseJsonFromTs from './serial/code-to-model';
 import modelToJson from './serial/model-to-json';
-import Clipboard from './clipboard';
-import {produce, produced, rename} from './model/widgets';
+import { produce, produced, rename } from './model/widgets';
 import constructorName from './model/classes';
 import createProps from './model/properties';
 
@@ -54,7 +54,7 @@ export default class Winnie {
         this.checkEnabled = checkEnabled;
         const self = this;
         this.settings = {
-            grid: {x: 10, y: 10, snap: true},
+            grid: { x: 10, y: 10, snap: true },
             undoDepth: 1024 * 1024
         };
         this.paletteDrag = null;
@@ -84,27 +84,6 @@ export default class Winnie {
 
         Ui.on(this.layout.ground.element, Ui.Events.KEYDOWN, (event) => {
             Shortcuts.winnieKeyDown(self, event);
-        });
-        Ui.on(this.layout.ground.element, 'paste', event => {
-            if (
-                !self.layout.explorer.activeEditor &&
-                !self.layout.properties.activeEditor
-            ) {
-                event.stopPropagation();
-                event.preventDefault();
-                let firstContainer = null;
-                const addLog = self.paste(event.clipboardData.getData('text/plain'));
-                addLog.forEach((item) => {
-                    if (!firstContainer && item.subject.delegate instanceof Container && !item.subject.delegate.parent) {
-                        firstContainer = item.subject;
-                    }
-                });
-                if (!self.visualRootPresent() && firstContainer) {
-                    self.acceptVisualRoot(firstContainer);
-                    self.layout.explorer.goTo(firstContainer, true);
-                    self.centerSurface();
-                }
-            }
         });
         Ui.on(this.layout.widgets.element, Ui.Events.KEYDOWN, (event) => {
             Shortcuts.surfaceKeyDown(self, event);
@@ -202,7 +181,7 @@ export default class Winnie {
                                         if (source) {
                                             source.remove(removeAt);
                                             if (source.delegate && (source.delegate instanceof CardsPane || source.delegate instanceof TabbedPane)) {
-                                              w.delegate.visible = true
+                                                w.delegate.visible = true
                                             }
                                         } else {
                                             self.forest.splice(removeAt, 1);
@@ -224,7 +203,7 @@ export default class Winnie {
                                         if (dest) {
                                             dest.remove(addAt);
                                             if (dest.delegate && (dest.delegate instanceof CardsPane || dest.delegate instanceof TabbedPane)) {
-                                              w.delegate.visible = true
+                                                w.delegate.visible = true
                                             }
                                         } else {
                                             self.forest.splice(addAt, 1);
@@ -334,7 +313,7 @@ export default class Winnie {
             });
             w.onAction = () => {
                 checkEnabled();
-                self.cut();
+                self.cutToClipboard();
             };
         });
         [this.layout.tCopy, this.layout.miCopy].forEach((w) => {
@@ -343,15 +322,16 @@ export default class Winnie {
             });
             w.onAction = () => {
                 checkEnabled();
-                self.copy();
+                self.copyToClipboard();
             };
         });
         [this.layout.tPaste, this.layout.miPaste].forEach((w) => {
             Ui.on(w.element, Ui.Events.CLICK, () => {
                 checkEnabled();
-                self.alert(i18n['winnie.paste.via.shortcut']);
+                self.pasteFromClipboard()
             });
         });
+
         [this.layout.tUndo, this.layout.miUndo].forEach((w) => {
             enabled.push(() => {
                 w.enabled = self.canUndo;
@@ -440,10 +420,10 @@ export default class Winnie {
                     created.source = source;
                     self.widgets.set(widgetName, created);
                     if (parent) {
-                        addLog.push({subject: created, parent, at: parent.count});
+                        addLog.push({ subject: created, parent, at: parent.count });
                         parent.add(created, parent.count);
                     } else {
-                        addLog.push({subject: created, parent: null, at: self.forest.length});
+                        addLog.push({ subject: created, parent: null, at: self.forest.length });
                         self.forest.push(created);
                     }
                     for (const p in item.body) {
@@ -641,103 +621,110 @@ export default class Winnie {
         const toRemove = self.layout.explorer.selected;
         if (toRemove.length > 0) {
 
-          function added(item, wasVisualRoot) {
-              self.layout.explorer.unselectAll();
-              self.layout.explorer.select(item);
-              self.layout.explorer.added(item);
-              if (wasVisualRoot) {
-                  self.acceptVisualRoot(item);
-              }
-          }
-
-          function removed(item) {
-              self.layout.explorer.unselect(item);
-              self.layout.explorer.removed(item);
-              return self.revokeVisualRoot(item);
-          }
-
-
-          let firstSelectedParent = null;
-          let firstSelectedAt = -1;
-          const viewRows = self.layout.explorer.viewRows
-          for (let i = 0; i < viewRows.length; i++) {
-            const widget = viewRows[i];
-            if (self.layout.explorer.isSelected(widget)) {
-              firstSelectedParent = widget.parent;
-              firstSelectedAt = firstSelectedParent ? firstSelectedParent.indexOf(widget) : self.forest.indexOf(widget);
-              break;
+            function added(item, wasVisualRoot) {
+                self.layout.explorer.unselectAll();
+                self.layout.explorer.select(item);
+                self.layout.explorer.added(item);
+                if (wasVisualRoot) {
+                    self.acceptVisualRoot(item);
+                }
             }
-          }
-          const actions = toRemove
-            .map((item) => {
-                const itemParent = item.parent;
-                const removedAt = itemParent ? itemParent.indexOf(item) : self.forest.indexOf(item);
-                let wasVisualRoot = null;
-                return {
-                    removedAt,
-                    redo: () => {
-                        if (itemParent) {
-                            itemParent.remove(removedAt);
-                        } else {
-                            self.forest.splice(removedAt, 1);
+
+            function removed(item) {
+                self.layout.explorer.unselect(item);
+                self.layout.explorer.removed(item);
+                return self.revokeVisualRoot(item);
+            }
+
+
+            let firstSelectedParent = null;
+            let firstSelectedAt = -1;
+            const viewRows = self.layout.explorer.viewRows
+            for (let i = 0; i < viewRows.length; i++) {
+                const widget = viewRows[i];
+                if (self.layout.explorer.isSelected(widget)) {
+                    firstSelectedParent = widget.parent;
+                    firstSelectedAt = firstSelectedParent ? firstSelectedParent.indexOf(widget) : self.forest.indexOf(widget);
+                    break;
+                }
+            }
+            const actions = toRemove
+                .map((item) => {
+                    const itemParent = item.parent;
+                    const removedAt = itemParent ? itemParent.indexOf(item) : self.forest.indexOf(item);
+                    let wasVisualRoot = null;
+                    return {
+                        removedAt,
+                        redo: () => {
+                            if (itemParent) {
+                                itemParent.remove(removedAt);
+                            } else {
+                                self.forest.splice(removedAt, 1);
+                            }
+                            self.walk(item, _item => {
+                                self.widgets.delete(_item.name);
+                            })
+                            wasVisualRoot = removed(item);
+                        },
+                        undo: () => {
+                            self.walk(item, _item => {
+                                self.widgets.set(_item.name, _item);
+                            })
+                            if (itemParent) {
+                                itemParent.add(item, removedAt);
+                                added(item);
+                            } else {
+                                self.forest.splice(removedAt, 0, item);
+                                added(item, wasVisualRoot);
+                            }
                         }
-                        self.walk(item, _item => {
-                            self.widgets.delete(_item.name);
-                        })
-                        wasVisualRoot = removed(item);
-                    },
-                    undo: () => {
-                        self.walk(item, _item => {
-                            self.widgets.set(_item.name, _item);
-                        })
-                        if (itemParent) {
-                            itemParent.add(item, removedAt);
-                            added(item);
-                        } else {
-                            self.forest.splice(removedAt, 0, item);
-                            added(item, wasVisualRoot);
-                        }
+                    };
+                })
+                .sort((action1, action2) => { return action2.removedAt - action1.removedAt });
+            this.edit({
+                name: `Delete ${toRemove.length > 1 ? `selected (${toRemove.length}) widgets` : `'${toRemove[0].name}' widget`}`,
+                redo: () => {
+                    actions
+                        .forEach((item) => {
+                            item.redo();
+                        });
+                },
+                undo: () => {
+                    actions
+                        .slice(0, actions.length)
+                        .reverse()
+                        .forEach((item) => {
+                            item.undo();
+                        });
+                }
+            });
+            this.checkEnabled();
+            while (firstSelectedAt > -1) {
+                let toSelect = null;
+                if (firstSelectedParent) {
+                    const firstParentChildren = firstSelectedParent.children;
+                    if (firstParentChildren.length > 0) {
+                        toSelect = firstSelectedAt >= 0 && firstSelectedAt < firstParentChildren.length ? firstParentChildren[firstSelectedAt] : null;
+                    } else {
+                        toSelect = firstSelectedParent;
                     }
-                };
-            })
-            .sort((action1, action2)=>{return action2.removedAt - action1.removedAt});
-          this.edit({
-              name: `Delete ${toRemove.length > 1 ? `selected (${toRemove.length}) widgets` : `'${toRemove[0].name}' widget`}`,
-              redo: () => {
-                  actions
-                      .forEach((item) => {
-                          item.redo();
-                      });
-              },
-              undo: () => {
-                  actions
-                      .slice(0, actions.length)
-                      .reverse()
-                      .forEach((item) => {
-                          item.undo();
-                      });
-              }
-          });
-          this.checkEnabled();
-          while (firstSelectedAt > -1) {
-            let toSelect = null;
-            if (firstSelectedParent) {
-              const firstParentChildren = firstSelectedParent.children;
-              if (firstParentChildren.length > 0) {
-                toSelect = firstSelectedAt >= 0 && firstSelectedAt < firstParentChildren.length ? firstParentChildren[firstSelectedAt] : null;
-              } else {
-                toSelect = firstSelectedParent;
-              }
-            } else {
-              toSelect = firstSelectedAt < self.forest.length ? self.forest[firstSelectedAt] : null
+                } else {
+                    toSelect = firstSelectedAt < self.forest.length ? self.forest[firstSelectedAt] : null
+                }
+                if (toSelect) {
+                    self.layout.explorer.goTo(toSelect, true);
+                    break;
+                } else {
+                    firstSelectedAt--;
+                }
             }
-            if (toSelect) {
-              self.layout.explorer.goTo(toSelect, true);
-              break;
-            } else {
-              firstSelectedAt--;
-            }
-          }
+        }
+    }
+
+    copyToClipboard() {
+        const data = this.copy()
+        if (data != null) {
+            navigator.clipboard.writeText(data)
         }
     }
 
@@ -756,15 +743,29 @@ export default class Winnie {
                     return true;
                 });
             const generatedJson = modelToJson(toCopy);
-            Clipboard.write(generatedJson);
             this.layout.widgets.element.focus();
-            Logger.info(`Copied ${toCopy.length === 1 ? `'${toCopy[0].name}' widget` : `${toCopy.length} widgets`} to clipboard.`);
+            Logger.info(`Copied ${toCopy.length === 1 ? `'${toCopy[0].name}' widget` : `${toCopy.length} widgets`}.`);
+            return generatedJson
+        } else {
+            return null;
         }
     }
 
+    pasteFromClipboard() {
+        const self = this
+        navigator.clipboard.readText().then((data) => {
+            self.paste(data)
+        })
+    }
+
     paste(source) {
-        const self = this;
-        if (source) {
+        if (source &&
+            !this.layout.explorer.activeEditor &&
+            !this.layout.properties.activeEditor
+        ) {
+            let firstContainer = null;
+            const self = this;
+
             const initialParent = this.lastSelected ? this.lastSelected.delegate instanceof Container ? this.lastSelected : this.lastSelected.parent : null;
             const created = this.acceptJson(JSON.parse(source), initialParent, true);
             created.forEach(item => {
@@ -773,17 +774,39 @@ export default class Winnie {
                     item.subject.delegate.top += self.settings.grid.y;
                 }
                 self.layout.explorer.select(item.subject);
+                if (!firstContainer && item.subject.delegate instanceof Container && !item.subject.delegate.parent) {
+                    firstContainer = item.subject;
+                }
             });
+            if (!self.visualRootPresent() && firstContainer) {
+                self.acceptVisualRoot(firstContainer);
+                self.layout.explorer.goTo(firstContainer, true);
+                self.centerSurface();
+            }
             return created;
         } else {
             return [];
         }
     }
 
+    cutToClipboard() {
+        const data = this.cut()
+        if (data != null) {
+            navigator.clipboard.writeText(data)
+        }
+    }
+
     cut() {
-        if (this.layout.explorer.selected.length > 0) {
-            this.copy();
+        if (
+            this.layout.explorer.selected.length > 0 &&
+            !this.layout.explorer.activeEditor &&
+            !this.layout.properties.activeEditor
+        ) {
+            const data = this.copy();
             this.removeSelected();
+            return data
+        } else {
+            return null;
         }
     }
 
@@ -814,11 +837,14 @@ export default class Winnie {
         input.click();
     }
 
+    parseOpenJsonFromTs(data) {
+        this.openParsedJson(parseJsonFromTs(data))
+    }
+
     openParsedJson(parsed) {
-        const self = this;
         let firstContainer = null;
-        self.clear();
-        const addLog = self.acceptJson(parsed);
+        this.clear();
+        const addLog = this.acceptJson(parsed);
         addLog.forEach((item) => {
             if (!firstContainer && item.subject.delegate instanceof Container && !item.subject.delegate.parent) {
                 firstContainer = item.subject;
@@ -834,12 +860,12 @@ export default class Winnie {
     openNatives(Natives) {
         let firstContainer = null;
         this.clear();
-        this.acceptNatives(new Natives())
-            .forEach((item) => {
-                if (!firstContainer && item.delegate instanceof Container && !item.delegate.parent) {
-                    firstContainer = item;
-                }
-            });
+        const addLog = this.acceptNatives(new Natives())
+        addLog.forEach((item) => {
+            if (!firstContainer && item.delegate instanceof Container && !item.delegate.parent) {
+                firstContainer = item;
+            }
+        });
         if (firstContainer) {
             this.acceptVisualRoot(firstContainer);
             this.layout.explorer.goTo(firstContainer, true);
@@ -858,6 +884,14 @@ export default class Winnie {
         } else {
             Logger.info(`Can't generate JSON for an empty [forest].`);
         }
+    }
+
+    exportAsEs6() {
+        return modelToSource(this, false);
+    }
+
+    exportAsTs() {
+        return modelToSource(this, true);
     }
 
     openSettings() {
@@ -923,7 +957,7 @@ export default class Winnie {
                 Logger.info(`Dropped head edit: '${shifted.name}'.`);
             }
             if (this.editsCursor > this.edits.length) {
-                debugger;
+                //debugger;
             }
         }
         Logger.info(`Recorded edit: ${body.name}.`);
@@ -963,7 +997,7 @@ export default class Winnie {
             self.layout.miAdd.subMenu.add(menuItem);
             return {
                 name,
-                palette: {box, header, content},
+                palette: { box, header, content },
                 menu: menuItem.subMenu,
                 items: []
             };

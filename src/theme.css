@@ -2,7 +2,7 @@
 @import 'kenga-containers/theme.css';
 @import 'kenga-grid/theme.css';
 @import 'kenga-menu/theme.css';
-@import './icons/css/fontello.css';
+@import './icons/fontello.css';
 
 .p-image-paragraph-column {
     text-align: center;

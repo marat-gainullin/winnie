@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+      "moduleResolution": "node",
+      "allowJs": true,
+      "esModuleInterop": true,
+      "lib": ["es2019", "dom"],
+      "module": "es2020",
+      "target": "es5",
+      "sourceMap": true,
+      "inlineSources": true,
+      "rootDir": "./src",
+      "outDir": "./build"
+    },
+    "include": ["./src/**/*.ts", "./src/**/*.js"]
+  }
+  

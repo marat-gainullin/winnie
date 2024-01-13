@@ -1,5 +1,4 @@
 import Ui from 'kenga/utils';
-import KeyCodes from 'kenga/key-codes';
 
 const CURSOR_OPTIONS = [
     'alias',
@@ -69,7 +68,7 @@ function onEdit(item, viewCell) {
             item.value = input.value;
         };
         Ui.on(input, Ui.Events.CHANGE, valueChanged);
-        Ui.on(input, Ui.Events.INPUT, valueChanged);
+        //Ui.on(input, Ui.Events.INPUT, valueChanged);
         Ui.on(input, Ui.Events.CLICK, event => {
             event.stopPropagation();
         });

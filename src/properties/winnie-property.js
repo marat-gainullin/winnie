@@ -13,10 +13,14 @@ export default class WinnieProperty {
             this.visible = this.target.visible;
             this.target.visible = true;
         }
+        if (name === 'selected') {
+            this.selected = this.target.selected;
+            this.target.selected = false;
+        }
     }
 
     get value() {
-        return this.name === 'visible' ? this.visible :
+        return this.name === 'visible' ? this.visible : this.name === 'selected' ? this.selected :
             this.name.includes('.') ? Bound.getPathData(this.target, this.name) :
                 this.target[this.name];
     }

@@ -39,8 +39,9 @@ function nvl(placeholder, name) {
 
 class Es6Generator {
 
-    constructor(model) {
+    constructor(model, types = false) {
         this.model = model;
+        this.types = types
         this.consts = new Set();
         this.fromToLocalConstructor = new Map(); // item.from -> local constructor name
         this.widgetToConstName = new Map(); // widget name -> program 'const' name
@@ -96,6 +97,15 @@ class Es6Generator {
         return !!importsContent ? `${importsContent}\n` : ''
     }
 
+    declarations(indent) {
+        return Array.from(this.model.widgets.entries())
+            .map(([key, item]) => {
+                const widgetConstName = this.constNameOf(key);
+                return `${indent}${widgetConstName}: ${this.constructorNameOf(item.source)};`
+            })
+            .reduce(concat, '');
+    }
+
     instances(indent) {
         return Array.from(this.model.widgets.entries())
             .map(([key, item]) => {
@@ -129,7 +139,7 @@ class Es6Generator {
                 const widgetConstName = this.constNameOf(key);
                 const props = item.sheet
                     .filter(p => p.edited &&
-                      ((item.delegate.parent instanceof Tabs) || !p.name.startsWith('tab.'))
+                        ((item.delegate.parent instanceof Tabs) || !p.name.startsWith('tab.'))
                     )
                     .map((p) => {
                         let assignment = `${indent}    ${widgetConstName}.${p.name} = ${typeof p.value === 'string' ? `'${p.value}'` : (p.value && p.value.src && p.value.getAttribute ? `'${p.value.getAttribute('src')}'` : p.value)};`;
@@ -150,23 +160,25 @@ class Es6Generator {
 
     assemble() {
         const generatedName = 'KengaView';
+        const indent4 = '    ';
         const indent8 = '        ';
         return [
             this.imports(),
             `class ${generatedName} {`,
-            '    constructor () {',
+            this.types ? `${this.declarations(indent4)}\n` : '',
+            `${indent4}constructor () {`,
             this.instances(indent8),
             this.forest(indent8),
             this.sheets(indent8),
-            '    }',
+            `${indent4}}`,
             '}\n',
-            `export default ${generatedName};`]
-            .reduce(concat);
+            `export default ${generatedName};`
+        ].reduce(concat);
     }
 }
 
-function generate(model) {
-    const generator = new Es6Generator(model);
+function generate(model, types = false) {
+    const generator = new Es6Generator(model, types);
     return generator.assemble();
 }
 

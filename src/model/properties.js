@@ -25,7 +25,7 @@ function createProps(model, item) {
         )
         .map((key) => {
             const prop = new WinnieProperty(item, key, newValue => {
-                const oldValue = key === 'visible' ? prop.visible :
+                const oldValue = key === 'visible' ? prop.visible : key === 'selected' ? prop.selected :
                     key.includes('.') ? Bound.getPathData(item.delegate, key) :
                         item.delegate[key];
                 const editBody = {
@@ -33,6 +33,8 @@ function createProps(model, item) {
                     redo: () => {
                         if (key === 'visible') {
                             prop.visible = newValue;
+                        } else if (key === 'selected') {
+                            prop.selected = newValue;
                         } else if (key === 'classes' && item.delegate instanceof Widget) {
                             const element = item.delegate.element;
                             if (oldValue) {
@@ -61,6 +63,8 @@ function createProps(model, item) {
                     undo: () => {
                         if (key === 'visible') {
                             prop.visible = oldValue;
+                        } else if (key === 'selected') {
+                            prop.selected = oldValue;
                         } else if (key === 'classes' && item.delegate instanceof Widget) {
                             const element = item.delegate.element;
                             if (newValue) {
