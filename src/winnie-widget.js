@@ -3,6 +3,7 @@ import ScrollPane from 'kenga-containers/scroll-pane';
 import SplitPane from 'kenga-containers/split-pane';
 import DataGrid from 'kenga-grid/grid';
 import ColumnNode from 'kenga-grid/columns/column-node';
+import RadioButton from 'kenga-buttons/radio-button';
 
 class WidgetWrapper {
     constructor(w, name, defaultInstance, onRename) {
@@ -11,6 +12,11 @@ class WidgetWrapper {
         this.onRename = onRename;
         this.defaultInstance = defaultInstance;
         w['winnie.wrapper'] = this;
+        // CheckBox instanceof RadioButton, ModelRadioButon instanceof RadioButon, CheckBox instanceof ModelCheckBox
+        // So, the following condition is enough for all 4 cases
+        if (w instanceof RadioButton && w.box.firstElementChild && w.box.firstElementChild.tagName.toLowerCase() == 'input') {
+            w.box.firstElementChild.onclick = () => false
+        }
     }
 
     get name() {

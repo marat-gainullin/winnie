@@ -66,9 +66,10 @@ export default class Winnie {
         this.decors = [];
         this.layout.leftSizer.element.classList.add('p-winnie-left-sizer');
         this.layout.rightSizer.element.classList.add('p-winnie-right-sizer');
-        this.layout.propertiesHeader.element.classList.add('p-winnie-properties-header');
         this.layout.palette.element.classList.add('p-winnie-palette');
         this.layout.explorer.element.classList.add('p-winnie-explorer');
+        this.layout.properties.element.classList.add('p-winnie-properties');
+        this.layout.propertiesHeader.element.classList.add('p-winnie-properties-header');
         this.layout.paletteExplorerSplit.element.classList.add('p-winnie-palette-explorer');
         this.layout.ground.element.classList.add('p-winnie-ground');
         this.layout.view.element.classList.add('p-winnie-view');
