@@ -26,7 +26,7 @@ npm start
 ```
 
 ## Build
-To biuld a ready to use bundle, type the following in your command prompt:
+To build a ready to use bundle, type the following in your command prompt:
 ```
 gulp bundle
 ```
