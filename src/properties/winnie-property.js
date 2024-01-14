@@ -9,14 +9,10 @@ export default class WinnieProperty {
         this.name = name;
         this.onChange = onChange;
         this.defaultValue = defaultValue;
-        if (name === 'visible') {
-            this.visible = this.target.visible;
-        }
     }
 
     get value() {
-        return this.name === 'visible' ? this.visible :
-            this.name.includes('.') ? Bound.getPathData(this.target, this.name) :
+        return this.name.includes('.') ? Bound.getPathData(this.target, this.name) :
                 this.target[this.name];
     }
 
