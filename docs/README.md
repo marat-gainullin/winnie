@@ -19,9 +19,6 @@ It contains widgets palette, visual playground, properties pane and view structu
 * Generating of Es6 code that creates a layout in runtime without dependecies on Winnie.
 * Saving only edited properties if thiers values are not same as default ones.
 
-## Demo
-There is a demo application with Winnie - [KengaJS Designer Demo](http://kengajs.com/demo/winnie.html)
-
 ## Run
 To build Winnie from source and run it with your default browser, type the following in your command prompt:
 ```
