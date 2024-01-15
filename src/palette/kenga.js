@@ -547,7 +547,10 @@ export default [
         category: 'Menu',
         name: 'Menu',
         iconStyle: 'winnie-icon-menu-outline',
-        description: 'Menu items container'
+        description: 'Menu items container',
+        hidden: [
+            'shown'
+        ]
     },
     {
         widget: MenuBar, from: 'kenga-menu/menu-bar',

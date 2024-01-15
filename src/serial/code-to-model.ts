@@ -56,7 +56,10 @@ export default function parseJsonFromTs(data: string) {
                                     const widget = arg0Id.text
                                     if (Ts.isPropertyAccessExpression(callExpression.expression)) {
                                         const propertyAccessExpression = callExpression.expression as Ts.PropertyAccessExpression
-                                        if (propertyAccessExpression.name.text == 'add' && Ts.isIdentifier(propertyAccessExpression.expression)) {
+                                        if (
+                                            (propertyAccessExpression.name.text == 'add' || propertyAccessExpression.name.text == 'addColumnNode') &&
+                                            Ts.isIdentifier(propertyAccessExpression.expression)
+                                        ) {
                                             const varNameId = propertyAccessExpression.expression as Ts.Identifier
                                             const container = varNameId.text
                                             parents[widget] = container;
