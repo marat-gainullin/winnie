@@ -13,13 +13,13 @@
   },
   "dependencies": {
     "kenga": "0.0.53",
-    "kenga-buttons": "0.0.40",
+    "kenga-buttons": "0.0.41",
     "kenga-containers": "0.0.59",
     "kenga-fields": "0.0.38",
-    "kenga-grid": "0.0.91",
-    "kenga-labels": "0.0.45",
+    "kenga-grid": "0.0.94",
+    "kenga-labels": "0.0.46",
     "kenga-menu": "0.0.50",
-    "kenga-model-buttons": "0.0.34",
+    "kenga-model-buttons": "0.0.35",
     "kenga-model-fields": "0.0.35",
     "septima-utils": "0.0.9",
     "typescript": "4.9.4"
