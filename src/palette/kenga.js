@@ -80,6 +80,7 @@ export default [
         description: 'Image with text paragraph',
         iconStyle: 'winnie-icon-picture',
         category: 'Labels',
+        hidden: ['paragraph'],
         selects: {
             horizontalTextPosition: ['left', 'center', 'right'],
             verticalTextPosition: ['top', 'center', 'bottom']
@@ -92,6 +93,7 @@ export default [
         description: 'Push button',
         iconStyle: 'winnie-icon-flash',
         category: 'Buttons',
+        hidden: ['paragraph'],
         selects: {
             horizontalTextPosition: ['left', 'center', 'right'],
             verticalTextPosition: ['top', 'center', 'bottom']
@@ -104,6 +106,7 @@ export default [
         description: 'Button with drop down menu',
         iconStyle: 'winnie-icon-down-open',
         category: 'Buttons',
+        hidden: ['paragraph'],
         selects: {
             horizontalTextPosition: ['left', 'center', 'right'],
             verticalTextPosition: ['top', 'center', 'bottom']
@@ -134,7 +137,7 @@ export default [
         description: 'Toggle button with button group capability',
         iconStyle: 'winnie-icon-toggle-on',
         category: 'Buttons',
-        hidden: ['value'],
+        hidden: ['value', 'paragraph'],
         selects: {
             horizontalTextPosition: ['left', 'center', 'right'],
             verticalTextPosition: ['top', 'center', 'bottom']
@@ -166,7 +169,7 @@ export default [
         description: 'Model toggle button with data bindnig and button group capability',
         iconStyle: 'winnie-icon-toggle-on',
         category: 'Model buttons',
-        hidden: ['value', 'selected'],
+        hidden: ['value', 'selected', 'paragraph'],
         selects: {
             horizontalTextPosition: ['left', 'center', 'right'],
             verticalTextPosition: ['top', 'center', 'bottom']
