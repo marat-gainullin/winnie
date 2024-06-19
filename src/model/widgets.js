@@ -106,6 +106,9 @@ function produced(model, instance) {
                 }
             }
         });
+        if (instance instanceof DataGrid) {
+            instance.columnsNodesDeferredApply = false
+        }
         if (instance instanceof Container || instance instanceof DataGrid) {
             Ui.on(instance.element, Ui.Events.DRAGENTER, event => {
                 if (model.paletteDrag && (

@@ -620,7 +620,8 @@ export default [
             'hasSelected',
             'selectionLead',
             'focusedCell',
-            'columnsChevron'
+            'columnsChevron',
+            'columnsNodesDeferredApply'
         ]
     },
     {
