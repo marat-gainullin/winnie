@@ -389,7 +389,7 @@ export default [
         iconStyle: 'winnie-icon-sliders',
         description: 'Slider',
         hidden: [
-            'text'
+            'value'
         ]
     },
     {
@@ -514,7 +514,9 @@ export default [
         iconStyle: 'winnie-icon-sliders',
         description: 'Slider with data binding',
         hidden: [
-            'text'
+            'value',
+            'clearer',
+            'selector'
         ]
     },
     {

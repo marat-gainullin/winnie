@@ -4,6 +4,7 @@ import Label from 'kenga-labels/label';
 import Button from 'kenga-buttons/button';
 import CheckBox from 'kenga-buttons/check-box';
 import RadioButton from 'kenga-buttons/radio-button';
+import Slider from 'kenga-fields/slider'
 import Box from 'kenga-containers/box-pane';
 import HBox from 'kenga-containers/horizontal-box-pane';
 import VBox from 'kenga-containers/vertical-box-pane';
@@ -61,6 +62,8 @@ function constructorName(instance) {
         return 'Container';
     } else if (instance instanceof BoxField) {
         return 'Field';
+    } else if (instance instanceof Slider) {
+        return 'Slider';
     } else if (instance instanceof Label) {
         return 'Label';
     } else if (instance instanceof Button) {
