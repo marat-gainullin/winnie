@@ -239,7 +239,9 @@ export default [
         name: 'Scroll',
         description: 'Container of a single child and scroll bars',
         hidden: [
-            'view'
+            'view',
+            'horizontalScrollBarPolicy',
+            'verticalScrollBarPolicy'
         ]
     },
     {
