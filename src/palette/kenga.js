@@ -26,6 +26,7 @@ import ColorField from 'kenga-fields/color-field';
 import DateField from 'kenga-fields/date-field';
 import DateTimeField from 'kenga-fields/date-time-field';
 import DropDownField from 'kenga-fields/drop-down-field';
+import LookupField from 'kenga-fields/lookup-field';
 import EMailField from 'kenga-fields/email-field';
 import FormattedField from 'kenga-fields/formatted-field';
 import MeterField from 'kenga-fields/meter-field';
@@ -44,6 +45,7 @@ import ModelColorField from 'kenga-model-fields/model-color-field';
 import ModelDateField from 'kenga-model-fields/model-date-field';
 import ModelDateTimeField from 'kenga-model-fields/model-date-time-field';
 import ModelDropDownField from 'kenga-model-fields/model-drop-down-field';
+import ModelLookupField from 'kenga-model-fields/model-lookup-field';
 import ModelEMailField from 'kenga-model-fields/model-email-field';
 import ModelFormattedField from 'kenga-model-fields/model-formatted-field';
 import ModelMeterField from 'kenga-model-fields/model-meter-field';
@@ -330,6 +332,17 @@ export default [
         ]
     },
     {
+        widget: LookupField, from: 'kenga-fields/lookup-field',
+        category: 'Fields',
+        name: 'Lookup field',
+        iconStyle: 'winnie-icon-search',
+        description: 'Lookup field with searchable drop-down list',
+        hidden: [
+            'text',
+            'selectedIndex'
+        ]
+    },
+    {
         widget: EMailField, from: 'kenga-fields/email-field',
         category: 'Fields',
         name: 'E-mail field',
@@ -449,9 +462,22 @@ export default [
         category: 'Model fields',
         name: 'Model drop down',
         iconStyle: 'winnie-icon-arrow-combo',
-        description: 'Drop down field with data binding of value and of datalist as well',
+        description: 'Drop down field with data binding of value and of data list as well',
         hidden: [
-            'text'
+            'text',
+            'values'
+        ]
+    },
+    {
+        widget: ModelLookupField, from: 'kenga-model-fields/model-lookup-field',
+        category: 'Model fields',
+        name: 'Model lookup',
+        iconStyle: 'winnie-icon-search',
+        description: 'Lookup field with searchable drop-down list and data binding of value and of data list as well',
+        hidden: [
+            'text',
+            'values',
+            'selectedIndex'
         ]
     },
     {
