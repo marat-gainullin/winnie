@@ -20,7 +20,7 @@
     "kenga-model-fields": "0.0.45",
     "kenga-containers": "0.0.70",
     "kenga-menu": "0.0.60",
-    "kenga-grid": "0.0.110",
+    "kenga-grid": "0.0.111",
     "septima-utils": "0.0.9",
     "@babel/runtime": "^7.15.3",
     "typescript": "4.9.4"
